@@ -1,0 +1,419 @@
+====================================================================================================
+           BỘ TEST CASES KIỂM THỬ TÍNH NĂNG SUB TAB 3D - ART TOOL - MÀN EDIT (LOGO MAKER)
+====================================================================================================
+Ứng dụng: Logo Maker (Logos4U)
+Application ID: com.thmobile.logomaker
+Platform: Android
+Framework kiểm thử: Maestro Automation Framework
+Màn hình kiểm thử: Edit Screen (Template Detail / Trình chỉnh sửa thiết kế)
+Phân hệ tính năng: Sub Tab "3D" (Tùy biến góc xoay không gian 3 chiều) thuộc Art Tool
+Luồng điều hướng: Home > Template > Category "Restaurant" (Template đầu tiên) > Edit Screen > Layer Art > Sub-tab "3D"
+Ngày tạo: 2026-10-15
+Tài nguyên Hierarchy: layout_art_editor_menu, layout_art_3d, seekbarXRotation, tvXRotation, seekbarYRotation, tvYRotation, seekbarZRotation, tvZRotation, btnUndo, btnRedo...
+====================================================================================================
+
+I. DANH SÁCH RESOURCE-ID & VIEW PHÂN TÍCH TỪ THIẾT BỊ THẬT (UI DUMP)
+----------------------------------------------------------------------------------------------------
+1. Thanh Toolbar & Điều hướng chung trên Edit Screen:
+   - android.widget.ImageButton (desc: "Navigate up")   : Nút quay lại màn hình trước
+   - Text "Logos4U"                                     : Tiêu đề màn hình thiết kế
+   - com.thmobile.logomaker:id/mnItemSave               : Nút Lưu / Xuất logo (Save / Export)
+   - com.thmobile.logomaker:id/imageViewLayerTag        : Icon mở hộp thoại quản lý Layer
+   - com.thmobile.logomaker:id/imageShowGrid            : Icon bật / tắt lưới căn chỉnh (Grid)
+   - com.thmobile.logomaker:id/btnUndo (ivUndo)         : Nút Hoàn tác (Undo)
+   - com.thmobile.logomaker:id/btnRedo (ivRedo)         : Nút Làm lại (Redo)
+   - com.thmobile.logomaker:id/btnClosePanel            : Nút mũi tên thu gọn / đóng bảng công cụ dưới
+
+2. Container Công cụ Art & Thanh Sub-Tab:
+   - com.thmobile.logomaker:id/itemArt                  : Tab công cụ Art (Thanh bottom chính)
+   - com.thmobile.logomaker:id/layout_art_editor_menu   : Container cuộn ngang chứa các sub-tab
+   - Sub-tab "Controls" (Text: "Controls")              : Điều hướng vị trí, layer up/down, duplicate
+   - Sub-tab "Color" (Text: "Color")                    : Thanh công cụ màu sắc, gradient, texture
+   - Sub-tab "Outline" (Text: "Outline")                : Tạo viền & điều chỉnh màu sắc, độ dày viền
+   - Sub-tab "3D" (Text: "3D")                          : Tùy biến góc xoay không gian 3 chiều (X, Y, Z)
+
+3. Các thành phần chính trong Container 3D (`layout_art_3d`):
+   A. Trục X (X-Axis Rotation / Xoay theo chiều dọc - Pitch):
+      - com.thmobile.logomaker:id/tvXRotation           : TextView hiển thị góc xoay trục X (Mặc định: "0°", biên độ: -30° đến +30°)
+      - com.thmobile.logomaker:id/seekbarXRotation      : SeekBar điều chỉnh góc nghiêng trục X (Thanh trượt có tâm 0° ở giữa)
+
+   B. Trục Y (Y-Axis Rotation / Xoay theo chiều ngang - Yaw):
+      - com.thmobile.logomaker:id/tvYRotation           : TextView hiển thị góc xoay trục Y (Mặc định: "0°", biên độ: -30° đến +30°)
+      - com.thmobile.logomaker:id/seekbarYRotation      : SeekBar điều chỉnh góc nghiêng trục Y (Thanh trượt có tâm 0° ở giữa)
+
+   C. Trục Z (Z-Axis Rotation / Xoay mặt phẳng 2D - Roll):
+      - com.thmobile.logomaker:id/tvZRotation           : TextView hiển thị góc xoay trục Z (Mặc định: "0°", biên độ: -180° đến +180°)
+      - com.thmobile.logomaker:id/seekbarZRotation      : SeekBar điều chỉnh góc xoay tròn trục Z (Thanh trượt có tâm 0° ở giữa)
+
+4. Bounding Box & Canvas Manipulation:
+   - com.thmobile.logomaker:id/layout_designer          : Vùng Canvas thiết kế
+   - Bounding Box xung quanh Layer Art                  : Khung viền chỉ báo đối tượng đang chọn kèm 4 handle góc (Layer, Duplicate, Rotate, Scale)
+
+
+====================================================================================================
+II. CHI TIẾT CÁC TEST CASES THEO TỪNG NHÓM CHỨC NĂNG
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+NHÓM 1: UI & VISUAL DISPLAY TEST CASES (Kiểm thử Giao diện & Hiển thị Sub Tab 3D)
+----------------------------------------------------------------------------------------------------
+
+[TC_3D_UI_01] Kiểm tra hiển thị tổng thể Sub Tab 3D trên Edit Screen
+- Mục tiêu: Xác nhận khi chọn đối tượng Art và chuyển sang tab 3D, toàn bộ các thanh trượt và nhãn góc xoay hiển thị đầy đủ, không vỡ layout.
+- Điều kiện tiên quyết: Mở app -> Chọn Template đầu tiên của chủ đề "Restaurant" -> Đang ở Edit Screen.
+- Các bước thực hiện:
+  1. Nhấn vào đối tượng Art trên Canvas (tọa độ khoảng "50%, 30%").
+  2. Xác nhận thanh công cụ Art hiển thị các sub-tab: Controls, Color, Outline, 3D.
+  3. Nhấn vào sub-tab "3D".
+  4. Kiểm tra hiển thị các khối chức năng con:
+     + layout_art_3d container hiển thị.
+     + Hàng 1: tvXRotation hiển thị "0°" và thanh trượt seekbarXRotation.
+     + Hàng 2: tvYRotation hiển thị "0°" và thanh trượt seekbarYRotation.
+     + Hàng 3: tvZRotation hiển thị "0°" và thanh trượt seekbarZRotation.
+- Kết quả mong đợi:
+  + Tab "3D" được chọn (có đường gạch chân chỉ báo kích hoạt).
+  + Cả 3 hàng điều khiển X, Y, Z hiển thị đồng bộ, thumb của cả 3 thanh trượt nằm chính xác ở vị trí trung tâm.
+- Maestro Selectors:
+  - tapOn: { point: "50%, 30%" }
+  - tapOn: "3D"
+  - assertVisible: { id: "layout_art_3d" }
+  - assertVisible: { id: "seekbarXRotation" }
+  - assertVisible: { id: "tvXRotation", text: "0°" }
+  - assertVisible: { id: "seekbarYRotation" }
+  - assertVisible: { id: "tvYRotation", text: "0°" }
+  - assertVisible: { id: "seekbarZRotation" }
+  - assertVisible: { id: "tvZRotation", text: "0°" }
+
+[TC_3D_UI_02] Visual Regression Testing - So sánh giao diện mặc định Sub Tab 3D với Baseline
+- Mục tiêu: Kiểm tra độ đồng nhất hiển thị giao diện Sub Tab 3D bằng hình ảnh mẫu chuẩn.
+- Điều kiện tiên quyết: Đã có ảnh baseline trong thư mục assets/.
+- Các bước thực hiện:
+  1. Điều hướng tới Edit Screen -> Kích hoạt sub-tab 3D.
+  2. Chụp ảnh màn hình: takeScreenshot: "screenshots/3D_SubTab_Default".
+  3. Đối soát hình ảnh với ảnh baseline.
+- Kết quả mong đợi: Giao diện đạt độ tương đồng (Match Percentage) >= 95% so với thiết kế chuẩn.
+
+[TC_3D_UI_03] Kiểm tra vị trí mặc định ban đầu của con trượt (Thumb Alignment)
+- Mục tiêu: Đảm bảo khi mở sub-tab 3D của một layer Art chưa biến dạng, con trượt của cả 3 SeekBar phải nằm ở chính giữa (50% chiều dài thanh trượt biểu thị 0°).
+- Các bước thực hiện:
+  1. Mở sub-tab 3D của layer Art.
+  2. Quan sát vị trí con trượt trên seekbarXRotation, seekbarYRotation, seekbarZRotation.
+- Kết quả mong đợi:
+  + Vị trí thumb căn đều ở giữa thanh trượt.
+  + Không có trục nào bị lệch góc ngẫu nhiên khi chưa thao tác.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 2: X-AXIS ROTATION TEST CASES (Kiểm thử Xoay 3D trục X - Pitch / Nghiêng dọc)
+----------------------------------------------------------------------------------------------------
+
+[TC_3D_ROTX_01] Tăng góc xoay trục X dương (+15°) bằng cách chạm vào nửa bên phải seekbarXRotation
+- Mục tiêu: Kiểm tra đối tượng Art ngửa về phía sau trong không gian 3 chiều khi tăng góc trục X.
+- Các bước thực hiện:
+  1. Tại sub-tab 3D, chạm vào vị trí khoảng 75% chiều dài thanh trượt seekbarXRotation (ví dụ x=800, y=1677).
+  2. Quan sát TextView tvXRotation.
+  3. Quan sát hiển thị của layer Art trên Canvas.
+- Kết quả mong đợi:
+  + tvXRotation cập nhật giá trị góc dương (khoảng "+15°").
+  + Layer Art trên Canvas nghiêng ngửa về phía sau theo luật phối cảnh 3D (cạnh trên nhỏ lại, cạnh dưới mở rộng ra).
+- Maestro Selectors:
+  - tapOn: { id: "seekbarXRotation" }
+  - assertVisible: { id: "tvXRotation" }
+
+[TC_3D_ROTX_02] Tăng góc xoay trục X lên mức tối đa (+30°)
+- Mục tiêu: Xác nhận giới hạn góc dương của trục X đạt giá trị cực đại +30°.
+- Các bước thực hiện:
+  1. Chạm vào điểm kịch cùng bên phải của seekbarXRotation (x=1040, y=1677).
+  2. Quan sát tvXRotation và Canvas.
+- Kết quả mong đợi:
+  + tvXRotation hiển thị chính xác "30°".
+  + Layer Art đạt độ nghiêng ngửa tối đa, hình ảnh phối cảnh không bị méo vỡ hay biến mất khỏi khung vẽ.
+
+[TC_3D_ROTX_03] Giảm góc xoay trục X âm (-15°) bằng cách chạm vào nửa bên trái seekbarXRotation
+- Mục tiêu: Kiểm tra đối tượng Art gập chúi về phía trước khi giảm góc trục X về giá trị âm.
+- Các bước thực hiện:
+  1. Chạm vào vị trí khoảng 25% chiều dài thanh trượt seekbarXRotation (ví dụ x=360, y=1677).
+  2. Quan sát tvXRotation và Canvas.
+- Kết quả mong đợi:
+  + tvXRotation cập nhật giá trị góc âm (khoảng "-15°").
+  + Layer Art trên Canvas gập chúi về phía trước (cạnh trên mở rộng, cạnh dưới thu hẹp theo luật phối cảnh).
+
+[TC_3D_ROTX_04] Giảm góc xoay trục X xuống mức tối thiểu (-30°)
+- Mục tiêu: Xác nhận giới hạn góc âm của trục X đạt giá trị cực tiểu -30°.
+- Các bước thực hiện:
+  1. Chạm vào điểm kịch cùng bên trái của seekbarXRotation (x=140, y=1677).
+  2. Quan sát tvXRotation và Canvas.
+- Kết quả mong đợi:
+  + tvXRotation hiển thị chính xác "-30°".
+  + Layer Art đạt độ gập chúi tối đa an toàn.
+
+[TC_3D_ROTX_05] Reset trục X về vị trí cân bằng (0°) bằng cách chạm vào tâm thanh trượt
+- Mục tiêu: Kiểm tra việc đưa trục X về trạng thái ban đầu bằng cách chạm vào điểm chính giữa thanh trượt.
+- Các bước thực hiện:
+  1. Khi trục X đang ở góc khác 0 (ví dụ 30° hoặc -30°).
+  2. Chạm vào điểm chính giữa của seekbarXRotation (x=594, y=1677).
+- Kết quả mong đợi:
+  + tvXRotation trở về hiển thị "0°".
+  + Layer Art trở lại trạng thái phẳng hoàn toàn theo phương thẳng đứng.
+
+[TC_3D_ROTX_06] Vuốt trượt liên tục (Smooth Dragging) trên thanh seekbarXRotation
+- Mục tiêu: Kiểm tra tính mượt mà của hiệu ứng render 3D thời gian thực khi kéo thanh trượt từ -30° sang +30°.
+- Các bước thực hiện:
+  1. Thực hiện thao tác swipe từ đầu trái sang đầu phải của seekbarXRotation.
+- Kết quả mong đợi: Góc nghiêng và giá trị tvXRotation thay đổi liên tục mượt mà, không giật lag.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 3: Y-AXIS ROTATION TEST CASES (Kiểm thử Xoay 3D trục Y - Yaw / Nghiêng ngang)
+----------------------------------------------------------------------------------------------------
+
+[TC_3D_ROTY_01] Tăng góc xoay trục Y dương (+15°) bằng cách chạm vào nửa bên phải seekbarYRotation
+- Mục tiêu: Kiểm tra đối tượng Art xoay nghiêng sang phải trong không gian 3 chiều khi tăng góc trục Y.
+- Các bước thực hiện:
+  1. Tại sub-tab 3D, chạm vào vị trí khoảng 75% chiều dài thanh trượt seekbarYRotation (x=800, y=1785).
+  2. Quan sát TextView tvYRotation và Canvas.
+- Kết quả mong đợi:
+  + tvYRotation cập nhật giá trị góc dương (khoảng "+15°").
+  + Layer Art trên Canvas quay nghiêng sang phải (cạnh trái hướng gần người nhìn hơn, cạnh phải thu hẹp về xa).
+
+[TC_3D_ROTY_02] Tăng góc xoay trục Y lên mức tối đa (+30°)
+- Mục tiêu: Xác nhận giới hạn góc dương của trục Y đạt giá trị cực đại +30°.
+- Các bước thực hiện:
+  1. Chạm vào điểm kịch cùng bên phải của seekbarYRotation (x=1040, y=1785).
+  2. Quan sát tvYRotation và Canvas.
+- Kết quả mong đợi:
+  + tvYRotation hiển thị chính xác "30°".
+  + Layer Art đạt độ xoay nghiêng sang phải tối đa.
+
+[TC_3D_ROTY_03] Giảm góc xoay trục Y âm (-15°) bằng cách chạm vào nửa bên trái seekbarYRotation
+- Mục tiêu: Kiểm tra đối tượng Art xoay nghiêng sang trái trong không gian 3 chiều khi giảm góc trục Y về âm.
+- Các bước thực hiện:
+  1. Chạm vào vị trí khoảng 25% chiều dài thanh trượt seekbarYRotation (x=360, y=1785).
+  2. Quan sát tvYRotation và Canvas.
+- Kết quả mong đợi:
+  + tvYRotation cập nhật giá trị góc âm (khoảng "-15°").
+  + Layer Art trên Canvas quay nghiêng sang trái (cạnh phải hướng gần người nhìn, cạnh trái thu nhỏ về xa).
+
+[TC_3D_ROTY_04] Giảm góc xoay trục Y xuống mức tối thiểu (-30°)
+- Mục tiêu: Xác nhận giới hạn góc âm của trục Y đạt giá trị cực tiểu -30°.
+- Các bước thực hiện:
+  1. Chạm vào điểm kịch cùng bên trái của seekbarYRotation (x=140, y=1785).
+  2. Quan sát tvYRotation và Canvas.
+- Kết quả mong đợi:
+  + tvYRotation hiển thị chính xác "-30°".
+  + Layer Art đạt độ xoay nghiêng sang trái tối đa.
+
+[TC_3D_ROTY_05] Reset trục Y về vị trí cân bằng (0°) bằng cách chạm vào tâm thanh trượt
+- Mục tiêu: Đưa trục Y về trạng thái ban đầu bằng cách chạm vào điểm chính giữa thanh trượt.
+- Các bước thực hiện:
+  1. Khi trục Y đang ở góc khác 0.
+  2. Chạm vào điểm chính giữa của seekbarYRotation (x=594, y=1785).
+- Kết quả mong đợi:
+  + tvYRotation trở về hiển thị "0°".
+  + Layer Art trở lại trạng thái phẳng hoàn toàn theo phương ngang.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 4: Z-AXIS ROTATION TEST CASES (Kiểm thử Xoay trục Z - Roll / Xoay 360 độ mặt phẳng)
+----------------------------------------------------------------------------------------------------
+
+[TC_3D_ROTZ_01] Xoay góc trục Z theo chiều kim đồng hồ (+90° / +180°)
+- Mục tiêu: Kiểm tra xoay đối tượng Art theo chiều kim đồng hồ trong mặt phẳng thiết kế.
+- Các bước thực hiện:
+  1. Chạm vào vị trí khoảng 75% chiều dài thanh trượt seekbarZRotation (x=800, y=1893).
+  2. Quan sát tvZRotation và góc xoay của đối tượng.
+  3. Chạm vào kịch phải của seekbarZRotation (x=1040, y=1893).
+- Kết quả mong đợi:
+  + tvZRotation cập nhật từ giá trị trung gian lên mức cực đại "180°".
+  + Đối tượng Art xoay 180 độ lộn ngược hoàn toàn theo chiều kim đồng hồ.
+
+[TC_3D_ROTZ_02] Xoay góc trục Z ngược chiều kim đồng hồ (-90° / -180°)
+- Mục tiêu: Kiểm tra xoay đối tượng Art ngược chiều kim đồng hồ trong mặt phẳng thiết kế.
+- Các bước thực hiện:
+  1. Chạm vào vị trí khoảng 25% chiều dài thanh trượt seekbarZRotation (x=360, y=1893).
+  2. Chạm tiếp vào kịch trái của seekbarZRotation (x=140, y=1893).
+- Kết quả mong đợi:
+  + tvZRotation cập nhật xuống mức cực tiểu "-180°".
+  + Đối tượng Art xoay 180 độ lộn ngược theo chiều ngược kim đồng hồ.
+
+[TC_3D_ROTZ_03] Reset trục Z về 0°
+- Mục tiêu: Đưa đối tượng Art về phương thẳng đứng ban đầu (0°).
+- Các bước thực hiện:
+  1. Chạm vào điểm chính giữa của seekbarZRotation (x=594, y=1893).
+- Kết quả mong đợi:
+  + tvZRotation hiển thị "0°".
+  + Đối tượng trở về vị trí thẳng đứng không xoay.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 5: MULTI-AXIS 3D PERSPECTIVE COMBINATION (Kiểm thử Kết hợp Đa trục 3D)
+----------------------------------------------------------------------------------------------------
+
+[TC_3D_CMB_01] Kết hợp xoay cả 2 trục X và Y tạo góc nhìn Isometric (Góc phối cảnh chéo)
+- Mục tiêu: Kiểm tra rendering đồng thời cả độ nghiêng dọc và độ nghiêng ngang tạo hiệu ứng logo 3D nổi bật.
+- Các bước thực hiện:
+  1. Chỉnh trục X = 20° (chạm seekbarXRotation tại x=850).
+  2. Chỉnh trục Y = 20° (chạm seekbarYRotation tại x=850).
+  3. Quan sát Canvas.
+- Kết quả mong đợi:
+  + tvXRotation hiển thị ~20°, tvYRotation hiển thị ~20°.
+  + Layer Art tạo hiệu ứng bề mặt phối cảnh 3D không gian chéo Isometric rõ ràng, sắc nét.
+
+[TC_3D_CMB_02] Kết hợp xoay đồng thời cả 3 trục (X, Y, Z)
+- Mục tiêu: Kiểm tra đối tượng biến dạng 3D phối hợp đầy đủ 3 bậc tự do (Pitch, Yaw, Roll).
+- Các bước thực hiện:
+  1. Đặt X = 20°, Y = 20°.
+  2. Đặt tiếp Z = 45° (chạm seekbarZRotation tại x=700).
+- Kết quả mong đợi:
+  + Cả 3 nhãn góc xoay hiển thị tương ứng.
+  + Canvas kết hợp hoàn hảo cả 3 chiều xoay mà không xảy ra hiện tượng méo đồ họa ngoài ý muốn.
+
+[TC_3D_CMB_03] Xoay 3 trục ở các giá trị biên cực đại (X = ±30°, Y = ±30°, Z = ±180°)
+- Mục tiêu: Kiểm tra độ ổn định thuật toán ma trận biến đổi 3D (Matrix3D Transformation) khi tất cả các trục đều ở ngưỡng cực đại.
+- Các bước thực hiện:
+  1. Kéo trục X lên +30°.
+  2. Kéo trục Y lên +30°.
+  3. Kéo trục Z lên +180°.
+- Kết quả mong đợi: Ứng dụng hoạt động ổn định, đối tượng không bị biến mất (clipping) khỏi Canvas.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 6: HISTORY & INTERACTIONS (Kiểm thử Hoàn tác Undo, Redo & Thu gọn Panel)
+----------------------------------------------------------------------------------------------------
+
+[TC_3D_ACT_01] Hoàn tác (Undo) sau khi thay đổi góc xoay trục X
+- Mục tiêu: Xác nhận nút Undo khôi phục lại góc trục X trước đó.
+- Các bước thực hiện:
+  1. Đang ở X = 0°.
+  2. Đổi X = 25°.
+  3. Nhấn nút Undo (id: "ivUndo").
+- Kết quả mong đợi:
+  + Góc xoay trục X của layer trên Canvas quay trở lại 0°.
+- Maestro Selectors:
+  - tapOn: { id: "ivUndo" }
+
+[TC_3D_ACT_02] Hoàn tác (Undo) sau khi thay đổi góc xoay trục Y và Z
+- Mục tiêu: Kiểm tra Undo từng bước riêng biệt cho các trục khác nhau.
+- Các bước thực hiện:
+  1. Xoay trục Y lên 20°.
+  2. Xoay tiếp trục Z lên 45°.
+  3. Nhấn Undo lần 1 -> Trục Z hoàn tác về 0°, trục Y vẫn giữ 20°.
+  4. Nhấn Undo lần 2 -> Trục Y hoàn tác về 0°.
+- Kết quả mong đợi: Hệ thống lưu trữ lịch sử hoàn tác (Action Stack) chính xác theo từng bước thao tác.
+
+[TC_3D_ACT_03] Làm lại (Redo) phục hồi lại trạng thái góc xoay vừa Undo
+- Mục tiêu: Xác nhận nút Redo áp dụng lại các góc xoay 3D vừa bị hủy bỏ.
+- Các bước thực hiện:
+  1. Sau khi đã Undo các thay đổi góc xoay.
+  2. Nhấn nút Redo (id: "ivRedo").
+- Kết quả mong đợi: Góc xoay 3D được khôi phục chuẩn xác.
+- Maestro Selectors:
+  - tapOn: { id: "ivRedo" }
+
+[TC_3D_ACT_04] Thu gọn bảng công cụ 3D bằng nút btnClosePanel
+- Mục tiêu: Kiểm tra nút mũi tên thu gọn bảng công cụ giúp mở rộng tầm nhìn Canvas.
+- Các bước thực hiện:
+  1. Nhấn icon mũi tên xuống (id: "btnClosePanel").
+- Kết quả mong đợi: Bảng công cụ 3D trượt thu gọn xuống dưới màn hình.
+
+[TC_3D_ACT_05] Chuyển đổi qua lại giữa các sub-tab (Controls <-> Color <-> Outline <-> 3D)
+- Mục tiêu: Đảm bảo góc xoay 3D đã thiết lập được bảo toàn nguyên vẹn khi chuyển qua lại giữa các tab chức năng khác của Art Tool.
+- Các bước thực hiện:
+  1. Đang có layer Art xoay X = 20°, Y = 20°, Z = 45°.
+  2. Nhấn sang tab "Controls" (thực hiện di chuyển vị trí).
+  3. Nhấn sang tab "Color" (thực hiện đổi màu).
+  4. Nhấn sang tab "Outline" (thêm đường viền).
+  5. Nhấn quay lại tab "3D".
+- Kết quả mong đợi:
+  + Layer Art trên Canvas vẫn giữ nguyên góc phối cảnh 3D xuyên suốt quá trình chuyển tab.
+  + Khi quay lại tab "3D", các thanh trượt seekbarXRotation, seekbarYRotation, seekbarZRotation và các nhãn hiển thị đúng các giá trị trước đó.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 7: COMBINATION WITH OTHER ART TOOLS (Kiểm thử Kết hợp 3D với Màu sắc, Viền & Di chuyển)
+----------------------------------------------------------------------------------------------------
+
+[TC_3D_INT_01] Áp dụng Xoay 3D kết hợp Đổi màu sắc thân icon (Color Sub-tab)
+- Mục tiêu: Đảm bảo hiệu ứng phối cảnh 3D áp dụng hoàn hảo trên đối tượng đã đổi màu đơn sắc.
+- Các bước thực hiện:
+  1. Tại sub-tab Color: Đổi thân icon sang màu Xanh dương.
+  2. Tại sub-tab 3D: Thiết lập X = 20°, Y = 20°.
+- Kết quả mong đợi: Icon hiển thị màu Xanh dương trong góc phối cảnh 3D chuẩn xác.
+
+[TC_3D_INT_02] Áp dụng Xoay 3D kết hợp Hiệu ứng Gradient
+- Mục tiêu: Đảm bảo dải chuyển màu Gradient biến dạng phối cảnh đồng bộ theo góc xoay 3D.
+- Các bước thực hiện:
+  1. Áp dụng hiệu ứng Gradient cho layer Art.
+  2. Chuyển sang sub-tab 3D và xoay các góc X = 15°, Y = 25°.
+- Kết quả mong đợi: Dải chuyển màu ôm khít theo bề mặt nghiêng của icon trong không gian 3D.
+
+[TC_3D_INT_03] Áp dụng Xoay 3D kết hợp Đường viền Outline
+- Mục tiêu: Đảm bảo đường viền Outline bao quanh chính xác hình chiếu 3D của đối tượng.
+- Các bước thực hiện:
+  1. Tại sub-tab Outline: Tạo viền màu Trắng dày 40.
+  2. Tại sub-tab 3D: Xoay trục X = 25°, trục Y = 25°.
+- Kết quả mong đợi: Đường viền bao quanh toàn bộ đường biên phối cảnh 3D của icon, không bị xô lệch vị trí.
+
+[TC_3D_INT_04] Thao tác Di chuyển (Move) và Phóng to/Thu nhỏ (Scale) khi đối tượng đang xoay 3D
+- Mục tiêu: Kiểm tra tương tác tay trên Canvas (gesture) với đối tượng đang có hiệu ứng 3D.
+- Các bước thực hiện:
+  1. Đối tượng đang xoay 3D.
+  2. Dùng tay kéo layer di chuyển sang vị trí khác trên Canvas.
+  3. Kéo handle góc dưới bên phải để phóng to layer.
+- Kết quả mong đợi: Đối tượng di chuyển và phóng to trơn tru trong khi vẫn duy trì đúng tỷ lệ phối cảnh 3D đã đặt.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 8: PERSISTENCE & EXPORT TEST CASES (Kiểm thử Lưu trữ & Xuất file)
+----------------------------------------------------------------------------------------------------
+
+[TC_3D_EXP_01] Lưu dự án (Save Project) và kiểm tra góc xoay 3D được lưu lại
+- Mục tiêu: Đảm bảo ma trận góc xoay 3D (X, Y, Z) được lưu chính xác vào file dữ liệu dự án.
+- Các bước thực hiện:
+  1. Thiết lập layer Art xoay X = 20°, Y = 20°, Z = 45°.
+  2. Nhấn nút Save trên Toolbar (id: "mnItemSave") -> Chọn "Save Project (Edit Later)".
+  3. Quay lại Home -> Mở "My Design" -> Mở lại bản thảo vừa lưu.
+- Kết quả mong đợi: Bản thảo mở ra trên Edit Screen với layer Art vẫn giữ nguyên góc xoay 3D phối cảnh đã thiết kế.
+
+[TC_3D_EXP_02] Xuất file ảnh PNG HD và kiểm tra góc xoay 3D trên màn Preview
+- Mục tiêu: Đảm bảo bộ render xuất file (Export Engine) render đúng hình ảnh phối cảnh 3D ra file PNG chất lượng cao.
+- Các bước thực hiện:
+  1. Nhấn nút Save trên Toolbar (id: "mnItemSave") -> Chọn "Export Logo (PNG)".
+  2. Chọn độ phân giải "HD (1024 * 1024)" -> Nhấn Save (id: "tvSave").
+  3. Đóng quảng cáo -> Điều hướng vào màn hình Preview Screen.
+- Kết quả mong đợi:
+  + Ảnh preview (id: "imageTransparentGrid") hiển thị sắc nét hình ảnh logo với góc xoay 3D chính xác như lúc chỉnh sửa.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 9: STABILITY & EDGE CASES (Kiểm thử Ngoại lệ & Độ ổn định)
+----------------------------------------------------------------------------------------------------
+
+[TC_3D_SYS_01] Kéo trượt liên tục tốc độ cao trên cả 3 SeekBars (Stress Dragging)
+- Mục tiêu: Đảm bảo UI thread và bộ tính toán 3D của ứng dụng không bị tắc nghẽn khi người dùng vuốt trượt liên tục.
+- Các bước thực hiện:
+  1. Vuốt nhanh qua lại liên tục 10 lần trên seekbarXRotation, seekbarYRotation, seekbarZRotation.
+- Kết quả mong đợi: Ứng dụng phản hồi mượt mà, không giật lag, không bị treo (ANR) hoặc văng app (Crash).
+
+[TC_3D_SYS_02] Đưa ứng dụng xuống Background khi đang mở sub-tab 3D rồi mở lại
+- Mục tiêu: Đảm bảo chu kỳ sống Activity (Lifecycle - onPause/onResume) bảo lưu nguyên vẹn trạng thái 3D.
+- Các bước thực hiện:
+  1. Đang ở sub-tab 3D với các góc xoay đã đặt.
+  2. Nhấn phím Home đưa ứng dụng xuống Background 5 giây.
+  3. Mở lại ứng dụng từ danh sách đa nhiệm.
+- Kết quả mong đợi: Ứng dụng khôi phục ngay tại Edit Screen, layer vẫn giữ nguyên góc xoay 3D và sub-tab 3D vẫn đang được chọn.
+
+[TC_3D_SYS_03] Bật / Tắt lưới căn chỉnh (imageShowGrid) trong khi layer đang xoay 3D
+- Mục tiêu: Kiểm tra tương thích đồ họa giữa lưới căn chỉnh 2D và layer đang có góc nghiêng phối cảnh 3D.
+- Các bước thực hiện:
+  1. Nhấn vào icon imageShowGrid để bật lưới.
+  2. Quan sát hiển thị của lưới và layer 3D.
+- Kết quả mong đợi: Lưới hiển thị chuẩn xác bên dưới/trên layer mà không che khuất hay làm lỗi biến dạng phối cảnh của layer.
+
+[TC_3D_SYS_04] Kiểm tra vùng tương tác an toàn tránh Banner Ads
+- Mục tiêu: Đảm bảo quảng cáo banner AdMob phía dưới không che khuất thanh trượt seekbarZRotation ở hàng thứ 3.
+- Kết quả mong đợi: Người dùng có thể chạm và kéo seekbarZRotation dễ dàng mà không bị bấm nhầm vào banner quảng cáo.
+
+====================================================================================================
+KẾT THÚC BỘ TEST CASES KIỂM THỬ SUB TAB 3D - ART TOOL - MÀN EDIT
+====================================================================================================

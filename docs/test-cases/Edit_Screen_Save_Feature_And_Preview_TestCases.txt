@@ -1,0 +1,656 @@
+====================================================================================================
+           BỘ TEST CASES FUNCTIONAL KIỂM THỬ TÍNH NĂNG SAVED FEATURE TRÊN MÀN EDIT
+                    VÀ MÀN HÌNH ĐẦU RA PREVIEW SCREEN (LOGO MAKER)
+====================================================================================================
+Ứng dụng: Logo Maker (Logos4U)
+Application ID: com.thmobile.logomaker
+Platform: Android (Đã thực thi & kiểm chứng trực tiếp trên Samsung Galaxy Android 14)
+Framework kiểm thử tự động: Maestro Automation Framework
+Màn hình kiểm thử:
+  1. Edit Screen (Template Detail / LogoDesignActivity): Tính năng Save Feature (Save Project & Export PNG)
+  2. Preview Screen (LogoPreviewActivity): Màn hình kết quả đầu ra bắt buộc sau khi lưu/xuất thành công
+Luồng thao tác (Workflow):
+  Home Screen > Nút "Template" (btnTemplate) > Chọn Template đầu tiên của chủ đề "Restaurant" >
+  Điều hướng tới màn Template Detail (Edit Screen) > Nhấn vào icon Save ở góc phải phía trên (mnItemSave) >
+  Khám phá & thực thi tính năng Save > Xử lý Ads / Rate popup > Điều hướng tới màn Preview Screen >
+  Kiểm thử toàn diện các tính năng trên màn Preview Screen
+Ngày tạo: 2026-10-20
+Tài nguyên Hierarchy chính:
+  mnItemSave, llExportLogo, tvSaveImage, llSaveProject, tvSaveDesign,
+  layout_default, rbStandar, tvSizeStandard, layout_hd, rbHD, tvHDSize, layout_hd_plus, rbHDPlus, tvHDPlusSize,
+  rbCustom, edtCustomSize, checkboxSaveProject, tvCancel, tvSave,
+  toolbar, btnHome, btnShare, btnAiLogoStyle, btnBrandIdentify, imageTransparentGrid, logoBitmap, adView
+====================================================================================================
+
+I. DANH SÁCH RESOURCE-ID & VIEW PHÂN TÍCH TỪ THIẾT BỊ THẬT (UI DUMP)
+----------------------------------------------------------------------------------------------------
+1. Thanh Toolbar & Nút Save trên Màn hình Edit Screen (LogoDesignActivity):
+   - android.widget.ImageButton (desc: "Navigate up")   : Nút quay lại màn hình chọn template trước đó
+   - TextView (text: "Logos4U")                         : Tiêu đề ứng dụng
+   - TextView (text: "Design_...")                      : Tên mã phiên bản thiết kế tự động theo thời gian
+   - com.thmobile.logomaker:id/mnItemSave (desc: "save"): Nút Save góc trên bên phải (Bounds: [936,100][1080,244])
+   - com.thmobile.logomaker:id/imageViewLayerTag        : Icon mở bảng điều khiển Layer
+   - com.thmobile.logomaker:id/imageShowGrid            : Icon bật/tắt lưới toạ độ thiết kế
+   - com.thmobile.logomaker:id/btnUndo / btnRedo        : Nút hoàn tác / làm lại thao tác thiết kế
+
+2. Hộp thoại Lựa chọn Lưu (Save Options Dialog - parentPanel):
+   - com.thmobile.logomaker:id/parentPanel              : Container chính của popup lựa chọn cách lưu
+   - com.thmobile.logomaker:id/llExportLogo             : Thẻ chọn "Export Logo (PNG)" (Xuất file ảnh)
+     + com.thmobile.logomaker:id/tvSaveImage            : Nhãn chữ "Export Logo (PNG)" (Bounds: [327,1036][861,1095])
+   - com.thmobile.logomaker:id/llSaveProject            : Thẻ chọn "Save Project (Edit Later)" (Lưu dự án để sửa sau)
+     + com.thmobile.logomaker:id/tvSaveDesign           : Nhãn chữ "Save Project (Edit Later)" (Bounds: [327,1195][861,1313])
+   - com.thmobile.logomaker:id/view                     : Đường kẻ phân cách giữa 2 lựa chọn
+
+3. Hộp thoại Cấu hình Kích thước Xuất Logo (Logo Size Dialog):
+   - TextView (text: "Logo Size")                       : Tiêu đề hộp thoại chọn kích thước logo
+   - Mục 1 - Standard (512 x 512):
+     + com.thmobile.logomaker:id/layout_default         : Container dòng Standard
+     + com.thmobile.logomaker:id/rbStandar              : RadioButton chọn Standard (Text: "Standard")
+     + com.thmobile.logomaker:id/tvSizeStandard         : Nhãn kích thước (Text: "(512 * 512)")
+   - Mục 2 - HD (1024 x 1024) [MẶC ĐỊNH CHỌN]:
+     + com.thmobile.logomaker:id/layout_hd              : Container dòng HD
+     + com.thmobile.logomaker:id/rbHD                   : RadioButton chọn HD (Text: "HD", Checked: true)
+     + com.thmobile.logomaker:id/tvHDSize               : Nhãn kích thước (Text: "(1024 * 1024)")
+   - Mục 3 - HD+ (2048 x 2048):
+     + com.thmobile.logomaker:id/layout_hd_plus         : Container dòng HD+
+     + com.thmobile.logomaker:id/rbHDPlus               : RadioButton chọn HD+ (Text: "HD+")
+     + com.thmobile.logomaker:id/tvHDPlusSize           : Nhãn kích thước (Text: "(2048 * 2048)")
+   - Mục 4 - Custom (Kích thước tuỳ chỉnh):
+     + com.thmobile.logomaker:id/rbCustom               : RadioButton chọn Custom (Text: "Custom")
+     + com.thmobile.logomaker:id/edtCustomSize          : Ô nhập kích thước (Hint/Text: "Enter Size")
+   - Tuỳ chọn Lưu kèm Dự án:
+     + com.thmobile.logomaker:id/checkboxSaveProject    : Checkbox "Save Project" (Checked: true theo mặc định)
+   - Các nút hành động chính:
+     + com.thmobile.logomaker:id/tvCancel               : Nút Huỷ bỏ (Text: "Cancel")
+     + com.thmobile.logomaker:id/tvSave                 : Nút Xác nhận Xuất (Text: "SAVE")
+
+4. Màn hình / Popup Quảng cáo & Đánh giá trung gian:
+   - Quảng cáo có thưởng (Reward Ad / Interstitial Ad)  : "Reward in 5 seconds", "Reward granted", Nút "Close" (desc="Close")
+   - Popup Đánh giá (Rate App Dialog):
+     + com.thmobile.logomaker:id/tv_title               : Tiêu đề "Did you like this app?"
+     + com.thmobile.logomaker:id/tvMessage              : Mô tả đánh giá
+     + com.thmobile.logomaker:id/tvBad                  : Nút đánh giá tiêu cực "Bad"
+     + com.thmobile.logomaker:id/tvGood                 : Nút đánh giá trung bình "Good"
+     + com.thmobile.logomaker:id/tvExcellent            : Nút đánh giá xuất sắc "Excellent"
+
+5. Màn hình Kết quả Đầu ra - Preview Screen (LogoPreviewActivity):
+   - com.thmobile.logomaker:id/toolbar                  : Thanh toolbar màn hình Preview
+   - android.widget.ImageButton                         : Nút mũi tên Back quay lại màn hình trước
+   - TextView (text: "Preview")                         : Tiêu đề màn hình kết quả đầu ra
+   - com.thmobile.logomaker:id/btnHome                  : Nút hình ngôi nhà điều hướng về màn hình Home chính
+   - com.thmobile.logomaker:id/scrollContent            : Vùng cuộn chứa nội dung trung tâm
+   - com.thmobile.logomaker:id/imageTransparentGrid     : Lưới caro nền trong suốt hiển thị vùng canvas
+   - com.thmobile.logomaker:id/logoBitmap               : Ảnh bitmap logo đã được kết xuất và hiển thị
+   - com.thmobile.logomaker:id/btnShare                 : Nút nổi hình tròn màu tím (Floating Share) mở chia sẻ hệ thống
+   - com.thmobile.logomaker:id/btnAiLogoStyle           : Nút tím chữ trắng "Style Magic AI" mở Studio phong cách AI
+   - com.thmobile.logomaker:id/btnBrandIdentify         : Nút tím nhạt "Brand Identify" mở màn hình xem Mockup thực tế
+   - com.thmobile.logomaker:id/adView                   : Khung quảng cáo Native Banner ở chân màn hình
+
+6. Đường dẫn Tệp tin Lưu trữ trên Thiết bị (File Storage Verification):
+   - Tệp ảnh Logo xuất ra: `/sdcard/Pictures/LogoMaker/<Tên_Ngày_Giờ>.png` (Được lập chỉ mục vào Thư viện ảnh Gallery)
+   - Tệp dự án chỉnh sửa: `/data/data/com.thmobile.logomaker/files/designFile/<Tên_Project>/` (Hiển thị trong mục My Design)
+
+
+====================================================================================================
+II. CHI TIẾT CÁC BỘ FUNCTIONAL TEST CASES
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+NHÓM 1: UI & VISUAL DISPLAY TEST CASES (Kiểm thử Giao diện & Trạng thái Ban đầu)
+----------------------------------------------------------------------------------------------------
+
+[TC_SAVE_UI_01] Kiểm tra hiển thị icon Save trên thanh Toolbar màn hình Edit Screen
+- Mục tiêu: Đảm bảo icon Save hiển thị đúng vị trí, rõ nét, có thể tương tác trên màn hình Edit.
+- Điều kiện tiên quyết: Đang ở màn hình Template Detail (Restaurant Template #1).
+- Các bước thực hiện:
+  1. Quan sát góc trên cùng bên phải của màn hình Edit Screen.
+  2. Xác minh vị trí, kích thước và trạng thái enabled của icon Save.
+- Kết quả mong đợi:
+  + Icon Save hiển thị tại toạ độ góc phải trên cùng (`com.thmobile.logomaker:id/mnItemSave`).
+  + Nút ở trạng thái `enabled = true` và `clickable = true`.
+  + Thuộc tính `content-desc` là "save".
+- Maestro Selector:
+  + assertVisible: { id: "mnItemSave", enabled: true }
+
+[TC_SAVE_UI_02] Kiểm tra hiển thị Hộp thoại Lựa chọn Save Options khi nhấn icon Save
+- Mục tiêu: Đảm bảo hộp thoại Save Options xuất hiện chính xác với đầy đủ 2 phương án lưu.
+- Điều kiện tiên quyết: Đang ở màn hình Edit Screen.
+- Các bước thực hiện:
+  1. Nhấn vào icon Save (`mnItemSave`).
+  2. Quan sát hộp thoại xuất hiện trên màn hình.
+- Kết quả mong đợi:
+  + Hộp thoại `parentPanel` hiển thị ở trung tâm màn hình với nền làm mờ phía sau.
+  + Hiển thị tuỳ chọn 1: "Export Logo (PNG)" kèm biểu tượng xuất file ảnh (`llExportLogo`).
+  + Hiển thị tuỳ chọn 2: "Save Project (Edit Later)" kèm biểu tượng lưu dự án (`llSaveProject`).
+  + Có vạch kẻ phân cách rõ ràng (`view`) giữa 2 mục.
+- Maestro Selector:
+  + tapOn: { id: "mnItemSave" }
+  + assertVisible: { id: "llExportLogo" }
+  + assertVisible: { id: "tvSaveImage", text: "Export Logo (PNG)" }
+  + assertVisible: { id: "llSaveProject" }
+  + assertVisible: { id: "tvSaveDesign", text: "Save Project (Edit Later)" }
+
+[TC_SAVE_UI_03] Kiểm tra hiển thị Hộp thoại Cấu hình Logo Size khi chọn Export Logo (PNG)
+- Mục tiêu: Đảm bảo khi chọn Export Logo (PNG), hộp thoại cấu hình kích thước hiển thị đầy đủ các thông số chuẩn.
+- Điều kiện tiên quyết: Hộp thoại Save Options đang mở.
+- Các bước thực hiện:
+  1. Nhấn vào mục "Export Logo (PNG)" (`llExportLogo`).
+  2. Quan sát hộp thoại "Logo Size" xuất hiện.
+- Kết quả mong đợi:
+  + Hộp thoại có tiêu đề là "Logo Size".
+  + Hiển thị 4 lựa chọn độ phân giải:
+    * Standard: RadioButton "Standard" kèm nhãn "(512 * 512)".
+    * HD: RadioButton "HD" kèm nhãn "(1024 * 1024)".
+    * HD+: RadioButton "HD+" kèm nhãn "(2048 * 2048)".
+    * Custom: RadioButton "Custom" kèm ô nhập văn bản "Enter Size" (`edtCustomSize`).
+  + Mục "HD" được chọn mặc định (`rbHD.checked = true`).
+  + Checkbox "Save Project" hiển thị và được tích chọn mặc định (`checkboxSaveProject.checked = true`).
+  + Có nút "Cancel" (`tvCancel`) và nút "SAVE" (`tvSave`).
+- Maestro Selector:
+  + tapOn: { id: "llExportLogo" }
+  + assertVisible: "Logo Size"
+  + assertVisible: { id: "rbStandar" }
+  + assertVisible: { id: "rbHD" }
+  + assertVisible: { id: "rbHDPlus" }
+  + assertVisible: { id: "rbCustom" }
+  + assertVisible: { id: "edtCustomSize" }
+  + assertVisible: { id: "checkboxSaveProject" }
+  + assertVisible: { id: "tvCancel" }
+  + assertVisible: { id: "tvSave" }
+
+[TC_SAVE_UI_04] Visual Regression Testing - Kiểm tra giao diện Save Options Dialog
+- Mục tiêu: Xác thực tính toàn vẹn giao diện của dialog Save Options thông qua so sánh ảnh mẫu baseline.
+- Các bước thực hiện:
+  1. Mở Save Options Dialog.
+  2. Chụp ảnh màn hình `screenshots/TC_Save_Options_Dialog_Result`.
+  3. So sánh với ảnh baseline tại `assets/Save_Options_Dialog_Baseline.png`.
+- Kết quả mong đợi: Độ tương đồng hình ảnh đạt >= 98%, không bị lệch font hay vỡ khung.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 2: FUNCTIONAL TEST CASES - TÍNH NĂNG "SAVE PROJECT (EDIT LATER)"
+----------------------------------------------------------------------------------------------------
+
+[TC_SAVE_PROJ_01] Lưu dự án thành công bằng tính năng "Save Project (Edit Later)"
+- Mục tiêu: Xác minh người dùng có thể lưu trạng thái thiết kế hiện tại vào danh mục My Design để chỉnh sửa sau.
+- Điều kiện tiên quyết: Màn hình Edit Screen đang mở Restaurant Template #1.
+- Các bước thực hiện:
+  1. Nhấn icon Save (`mnItemSave`).
+  2. Nhấn vào mục "Save Project (Edit Later)" (`llSaveProject`).
+  3. Quan sát thông báo và giao diện màn hình.
+- Kết quả mong đợi:
+  + Xuất hiện thông báo Toast xác nhận lưu dự án thành công (hoặc mã thiết kế trên toolbar được cập nhật).
+  + Màn hình vẫn duy trì ở Edit Screen, cho phép người dùng tiếp tục thao tác chỉnh sửa mà không bị đóng ứng dụng.
+  + Hệ thống tạo một thư mục mới trong `/data/data/com.thmobile.logomaker/files/designFile/` chứa các tệp JSON cấu trúc layer và ảnh thumbnail của dự án.
+- Maestro Selector:
+  + tapOn: { id: "mnItemSave" }
+  + tapOn: { id: "llSaveProject" }
+  + assertVisible: { id: "mnItemSave" }
+
+[TC_SAVE_PROJ_02] Xác minh dự án đã lưu xuất hiện trong mục "My Design" trên màn hình Home
+- Mục tiêu: Đảm bảo dự án sau khi lưu từ Save Project hiển thị chính xác trong màn hình danh sách My Design.
+- Điều kiện tiên quyết: Đã thực hiện lưu dự án thành công ở test case [TC_SAVE_PROJ_01].
+- Các bước thực hiện:
+  1. Nhấn nút Back hoặc Home để quay về màn hình Home chính.
+  2. Nhấn vào thẻ tính năng "My Design" (`btnMyDesignFile`).
+  3. Kiểm tra danh sách các dự án thiết kế đã lưu.
+- Kết quả mong đợi:
+  + Màn hình "My Design" hiển thị dự án vừa lưu ở vị trí đầu tiên (mới nhất).
+  + Thumbnail hiển thị đúng mẫu template Restaurant kèm các thành phần đã chỉnh sửa.
+  + Tên dự án khớp với phiên bản thiết kế vừa được lưu.
+- Maestro Selector:
+  + tapOn: { id: "btnMyDesignFile" }
+  + assertVisible: "My Design"
+  + assertVisible: { id: "ivTemplate", index: 0 }
+
+[TC_SAVE_PROJ_03] Mở lại dự án đã lưu từ "My Design" để tiếp tục chỉnh sửa
+- Mục tiêu: Đảm bảo dự án đã lưu có thể được nạp lại đầy đủ các layer lên canvas để tiếp tục sửa đổi.
+- Điều kiện tiên quyết: Đang ở màn hình My Design chứa dự án đã lưu.
+- Các bước thực hiện:
+  1. Nhấn vào thumbnail của dự án vừa lưu trong danh sách My Design.
+  2. Chờ màn hình Edit Screen khởi tạo và nạp dữ liệu.
+- Kết quả mong đợi:
+  + Ứng dụng điều hướng trở lại màn hình Edit Screen (`LogoDesignActivity`).
+  + Toàn bộ các layer văn bản ("BEST FOOD", "PREMIUM MENU") và layer hình vẽ được tải lại đầy đủ, có thể chọn và chỉnh sửa bình thường.
+  + Icon Save ở góc trên bên phải sẵn sàng cho phiên lưu tiếp theo.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 3: FUNCTIONAL TEST CASES - TÍNH NĂNG "EXPORT LOGO (PNG)" CÁC ĐỘ PHÂN GIẢI
+----------------------------------------------------------------------------------------------------
+
+[TC_EXPORT_PNG_01] Xuất Logo định dạng PNG với độ phân giải HD (1024 x 1024) [Default Flow]
+- Mục tiêu: Kiểm tra luồng xuất logo chuẩn mực nhất của ứng dụng với tuỳ chọn HD mặc định và chuyển tới Preview.
+- Điều kiện tiên quyết: Màn hình Edit Screen đang mở Restaurant Template #1.
+- Các bước thực hiện:
+  1. Nhấn icon Save (`mnItemSave`).
+  2. Chọn "Export Logo (PNG)" (`llExportLogo`).
+  3. Xác nhận RadioButton "HD" đang được chọn (`rbHD`).
+  4. Nhấn nút "SAVE" (`tvSave`).
+  5. Chờ quá trình kết xuất và xử lý quảng cáo (Reward Ads / Interstitial Ads nếu có).
+- Kết quả mong đợi:
+  + Tiến trình kết xuất hoàn thành mượt mà, không gặp lỗi bộ nhớ (OutOfMemory).
+  + Tệp ảnh định dạng PNG kích thước 1024x1024 px được ghi vào thư mục `/sdcard/Pictures/LogoMaker/`.
+  + Tự động điều hướng thành công đến màn hình Preview (`LogoPreviewActivity`).
+  + Màn hình Preview hiển thị đầy đủ logo vừa xuất trên nền lưới trong suốt.
+- Maestro Selector:
+  + tapOn: { id: "mnItemSave" }
+  + tapOn: { id: "llExportLogo" }
+  + tapOn: { id: "layout_hd" }
+  + tapOn: { id: "tvSave" }
+  + extendedWaitUntil: { visible: "Preview", timeout: 15000 }
+  + assertVisible: "Preview"
+
+[TC_EXPORT_PNG_02] Xuất Logo định dạng PNG với độ phân giải Standard (512 x 512)
+- Mục tiêu: Xác minh khả năng xuất ảnh ở độ phân giải tiêu chuẩn thấp (512x512) phục vụ nhu cầu dung lượng nhẹ.
+- Điều kiện tiên quyết: Màn hình Logo Size Dialog đang hiển thị.
+- Các bước thực hiện:
+  1. Nhấn chọn dòng Standard (`layout_default` hoặc `rbStandar`).
+  2. Kiểm tra `rbStandar` chuyển sang trạng thái checked = true, và `rbHD` chuyển sang checked = false.
+  3. Nhấn nút "SAVE" (`tvSave`).
+  4. Đóng quảng cáo nếu có và quan sát màn hình Preview.
+- Kết quả mong đợi:
+  + Xuất thành công tệp ảnh PNG kích thước đúng 512x512 px vào bộ nhớ máy.
+  + Điều hướng an toàn tới màn hình Preview.
+  + Ảnh preview hiển thị sắc nét, không bị vỡ hạt hoặc mất chi tiết vector.
+- Maestro Selector:
+  + tapOn: { id: "layout_default" }
+  + assertVisible: { id: "rbStandar", checked: true }
+  + tapOn: { id: "tvSave" }
+
+[TC_EXPORT_PNG_03] Xuất Logo định dạng PNG với độ phân giải siêu nét HD+ (2048 x 2048)
+- Mục tiêu: Kiểm tra khả năng render ảnh chất lượng cao 2K (2048x2048 px) cho in ấn và thiết kế chuyên nghiệp.
+- Điều kiện tiên quyết: Màn hình Logo Size Dialog đang hiển thị.
+- Các bước thực hiện:
+  1. Nhấn chọn dòng HD+ (`layout_hd_plus` hoặc `rbHDPlus`).
+  2. Xác nhận `rbHDPlus` checked = true.
+  3. Nhấn nút "SAVE" (`tvSave`).
+  4. Xử lý màn hình quảng cáo.
+- Kết quả mong đợi:
+  + Ứng dụng xử lý render độ phân giải cao mà không bị giật lag hay treo (ANR).
+  + Tệp ảnh xuất ra có kích thước chính xác 2048x2048 px, độ trong suốt nền PNG được bảo toàn tuyệt đối.
+  + Màn hình Preview nhận và hiển thị bitmap 2048x2048 mượt mà.
+- Maestro Selector:
+  + tapOn: { id: "layout_hd_plus" }
+  + assertVisible: { id: "rbHDPlus", checked: true }
+  + tapOn: { id: "tvSave" }
+
+[TC_EXPORT_PNG_04] Xuất Logo với kích thước tuỳ chỉnh Custom Size hợp lệ
+- Mục tiêu: Xác minh tính năng nhập kích thước ảnh tự do theo nhu cầu riêng của người dùng.
+- Điều kiện tiên quyết: Màn hình Logo Size Dialog đang hiển thị.
+- Các bước thực hiện:
+  1. Nhấn vào RadioButton Custom (`rbCustom`).
+  2. Nhấn vào ô nhập `edtCustomSize`.
+  3. Nhập giá trị hợp lệ: "800".
+  4. Nhấn nút "SAVE" (`tvSave`).
+- Kết quả mong đợi:
+  + Hệ thống chấp nhận giá trị nhập 800 và thiết lập độ phân giải xuất là 800x800 px.
+  + Quá trình xuất diễn ra trơn tru và chuyển đến màn hình Preview với hình ảnh kích thước tương ứng.
+- Maestro Selector:
+  + tapOn: { id: "rbCustom" }
+  + inputText: "800"
+  + tapOn: { id: "tvSave" }
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 4: FUNCTIONAL TEST CASES - CHECKBOX "SAVE PROJECT" KHI XUẤT ẢNH
+----------------------------------------------------------------------------------------------------
+
+[TC_SAVE_CHK_01] Xuất Logo kèm tuỳ chọn tích chọn "Save Project" (Mặc định)
+- Mục tiêu: Kiểm tra hành vi hệ thống khi vừa xuất file ảnh PNG vừa đồng thời lưu lại bản vẽ dự án.
+- Điều kiện tiên quyết: Đang ở hộp thoại Logo Size với `checkboxSaveProject` được tích (checked = true).
+- Các bước thực hiện:
+  1. Giữ nguyên trạng thái mặc định của checkbox "Save Project".
+  2. Nhấn "SAVE" (`tvSave`).
+  3. Hoàn tất luồng quảng cáo để vào Preview Screen.
+  4. Nhấn Home để kiểm tra cả 2 nơi: "My Logo" và "My Design".
+- Kết quả mong đợi:
+  + Tệp ảnh PNG xuất hiện trong mục "My Logo" (`btnMyDesignImageFile`) và thư mục Pictures máy.
+  + Tệp dự án thiết kế xuất hiện trong mục "My Design" (`btnMyDesignFile`) và thư mục internal files.
+  + Cả 2 tác vụ lưu đều thành công đồng bộ.
+
+[TC_SAVE_CHK_02] Bỏ tích chọn "Save Project" trước khi nhấn SAVE
+- Mục tiêu: Xác minh khi người dùng chủ động bỏ chọn "Save Project", ứng dụng chỉ xuất file ảnh mà không tạo bản lưu dự án.
+- Điều kiện tiên quyết: Đang ở hộp thoại Logo Size.
+- Các bước thực hiện:
+  1. Nhấn vào checkbox `checkboxSaveProject` để bỏ tích chọn.
+  2. Xác nhận `checkboxSaveProject.checked = false`.
+  3. Nhấn "SAVE" (`tvSave`).
+  4. Sau khi vào Preview, quay lại kiểm tra mục "My Design".
+- Kết quả mong đợi:
+  + Ảnh PNG vẫn được tạo và lưu thành công vào bộ nhớ máy và màn hình Preview.
+  + Không có dự án mới nào được tạo thêm trong danh sách "My Design".
+- Maestro Selector:
+  + tapOn: { id: "checkboxSaveProject" }
+  + assertVisible: { id: "checkboxSaveProject", checked: false }
+  + tapOn: { id: "tvSave" }
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 5: FUNCTIONAL TEST CASES - THAO TÁC HUỶ BỎ & TƯƠNG TÁC HỘP THOẠI (DIALOG DISMISSAL)
+----------------------------------------------------------------------------------------------------
+
+[TC_SAVE_CANCEL_01] Nhấn nút Cancel trên hộp thoại Logo Size Dialog
+- Mục tiêu: Đảm bảo nút Cancel đóng hộp thoại và hoàn trả người dùng về đúng màn hình Edit ban đầu mà không làm mất thiết kế.
+- Điều kiện tiên quyết: Đang ở hộp thoại Logo Size Dialog.
+- Các bước thực hiện:
+  1. Nhấn nút "Cancel" (`tvCancel`).
+  2. Quan sát phản hồi của giao diện.
+- Kết quả mong đợi:
+  + Hộp thoại Logo Size Dialog đóng ngay lập tức.
+  + Ứng dụng trở về màn hình Edit Screen.
+  + Toàn bộ canvas, các layer, thanh toolbar và công cụ phía dưới giữ nguyên trạng thái làm việc.
+  + Không có file ảnh nào bị xuất ra ngoài bộ nhớ.
+- Maestro Selector:
+  + tapOn: { id: "tvCancel" }
+  + assertVisible: { id: "mnItemSave" }
+  + assertVisible: { id: "layout_designer" }
+
+[TC_SAVE_CANCEL_02] Nhấn nút Back vật lý / phím điều hướng hệ thống khi đang mở Save Dialog
+- Mục tiêu: Kiểm tra hành vi phím Back hệ thống Android đối với các popup của tính năng Save.
+- Các bước thực hiện:
+  1. Mở Save Options Dialog -> Nhấn phím Back hệ thống.
+  2. Mở Logo Size Dialog -> Nhấn phím Back hệ thống.
+- Kết quả mong đợi:
+  + Mỗi lần nhấn Back, popup tương ứng sẽ được đóng một cách an toàn.
+  + Không xảy ra crash hay đơ giao diện.
+  + Người dùng có thể tiếp tục chỉnh sửa bình thường.
+
+[TC_SAVE_CANCEL_03] Nhấn ra vùng ngoài hộp thoại (Touch Outside / Dismiss on Touch Outside)
+- Mục tiêu: Kiểm tra phản ứng của dialog khi chạm vào vùng mờ bên ngoài.
+- Các bước thực hiện:
+  1. Mở Save Options Dialog.
+  2. Chạm vào toạ độ mép trên cùng của màn hình (ví dụ: x=500, y=300).
+- Kết quả mong đợi:
+  + Dialog đóng lại nếu ứng dụng cho phép dismiss on touch outside, hoặc giữ nguyên trạng thái nếu yêu cầu hành động rõ ràng.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 6: FUNCTIONAL TEST CASES - QUY TRÌNH CHUYỂN TIẾP & XỬ LÝ QUẢNG CÁO TỚI MÀN PREVIEW
+----------------------------------------------------------------------------------------------------
+
+[TC_SAVE_FLOW_01] Xử lý Quảng cáo có thưởng (Reward Ad) sau khi nhấn Save
+- Mục tiêu: Đảm bảo kịch bản kiểm thử tự động và người dùng thực tế vượt qua màn hình Reward Ad để tới được Preview.
+- Điều kiện tiên quyết: Vừa nhấn "SAVE" trên Logo Size Dialog và xuất hiện Test Ad / Reward Ad.
+- Các bước thực hiện:
+  1. Chờ bộ đếm thời gian quảng cáo chạy từ "Reward in 5 seconds" tới khi xuất hiện thông báo "Reward granted".
+  2. Nhấn nút đóng quảng cáo ("Close" / desc="Close" tại góc trên bên phải).
+- Kết quả mong đợi:
+  + Quảng cáo đóng lại sạch sẽ, không kích hoạt click nhầm vào quảng cáo ("Install").
+  + Ứng dụng chuyển tiếp mượt mà đến màn hình Preview hoặc popup đánh giá ứng dụng.
+- Maestro Selector:
+  + runFlow:
+      when: { visible: "Test Ad" }
+      commands:
+        - waitForAnimationToEnd: { timeout: 10000 }
+        - runFlow:
+            when: { visible: "Reward granted" }
+            commands:
+              - tapOn: { point: "93%, 7%" }
+        - runFlow:
+            when: { visible: "Close" }
+            commands:
+              - tapOn: "Close"
+
+[TC_SAVE_FLOW_02] Xử lý Popup đánh giá ứng dụng (Rate App Popup) sau khi xuất logo
+- Mục tiêu: Đảm bảo popup đánh giá "Did you like this app?" không làm gián đoạn luồng điều hướng tới màn Preview.
+- Điều kiện tiên quyết: Vừa đóng quảng cáo, xuất hiện popup "Did you like this app?".
+- Các bước thực hiện:
+  1. Nhận diện popup đánh giá với tiêu đề `tv_title` ("Did you like this app?") và 3 lựa chọn "Bad", "Good", "Excellent".
+  2. Nhấn phím Back hệ thống hoặc chọn một phản hồi để đóng popup.
+- Kết quả mong đợi:
+  + Popup đánh giá đóng lại.
+  + Giao diện màn hình Preview (`LogoPreviewActivity`) lộ diện đầy đủ.
+- Maestro Selector:
+  + runFlow:
+      when: { visible: "Did you like this app?" }
+      commands:
+        - back
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 7: FUNCTIONAL TEST CASES - TOÀN BỘ TÍNH NĂNG TRÊN MÀN HÌNH ĐẦU RA (PREVIEW SCREEN)
+----------------------------------------------------------------------------------------------------
+
+[TC_PREV_UI_01] Kiểm tra hiển thị tổng thể giao diện màn hình Preview sau khi lưu thành công
+- Mục tiêu: Xác thực toàn bộ các thành phần trên màn hình kết quả đầu ra Preview hiển thị hoàn hảo.
+- Điều kiện tiên quyết: Đang ở màn hình Preview Screen (`LogoPreviewActivity`).
+- Các bước thực hiện:
+  1. Quan sát thanh Toolbar trên cùng: Nút Back, Tiêu đề "Preview", Nút Home (`btnHome`).
+  2. Quan sát khung hiển thị logo chính: Lưới trong suốt (`imageTransparentGrid`) và ảnh logo kết xuất (`logoBitmap`).
+  3. Quan sát nút chia sẻ nổi (`btnShare`).
+  4. Quan sát 2 nút tính năng mở rộng: "Style Magic AI" (`btnAiLogoStyle`) và "Brand Identify" (`btnBrandIdentify`).
+  5. Quan sát khung quảng cáo Native Ad (`adView`).
+- Kết quả mong đợi:
+  + Tất cả các thành phần hiển thị đầy đủ, sắc nét, đúng cấu trúc.
+  + Ảnh logo hiển thị chính xác toàn bộ nội dung template Restaurant đã thiết kế.
+- Maestro Selector:
+  + assertVisible: "Preview"
+  + assertVisible: { id: "btnHome" }
+  + assertVisible: { id: "imageTransparentGrid" }
+  + assertVisible: { id: "logoBitmap" }
+  + assertVisible: { id: "btnShare" }
+  + assertVisible: { id: "btnAiLogoStyle" }
+  + assertVisible: { id: "btnBrandIdentify" }
+
+[TC_PREV_ACT_01] Kiểm tra tính năng Chia sẻ Logo (Share Feature) từ nút btnShare
+- Mục tiêu: Đảm bảo nút Share mở bảng chia sẻ tệp ảnh của hệ thống Android (`sem_chooser_grid_item_view`).
+- Điều kiện tiên quyết: Đang ở màn hình Preview Screen.
+- Các bước thực hiện:
+  1. Nhấn vào nút chia sẻ màu tím (`btnShare`).
+  2. Quan sát hộp thoại chia sẻ của hệ thống.
+- Kết quả mong đợi:
+  + Bảng chọn chia sẻ hệ thống (Android Share Sheet / System Chooser) xuất hiện.
+  + Hiển thị thông tin tệp ảnh (VD: "1 item") kèm các ứng dụng nhận (Quick Share, Drive, Gmail, Photos, Facebook...).
+  + Nhấn Back hệ thống đóng share sheet an toàn và quay lại Preview Screen.
+- Maestro Selector:
+  + tapOn: { id: "btnShare" }
+  + assertVisible: { id: "android:id/text1" }
+  + back: true
+  + assertVisible: "Preview"
+
+[TC_PREV_ACT_02] Kiểm tra tính năng "Style Magic AI" từ màn hình Preview
+- Mục tiêu: Xác minh nút "Style Magic AI" điều hướng tới Studio biến đổi phong cách logo bằng trí tuệ nhân tạo.
+- Điều kiện tiên quyết: Đang ở màn hình Preview Screen.
+- Các bước thực hiện:
+  1. Nhấn nút "Style Magic AI" (`btnAiLogoStyle`).
+  2. Quan sát màn hình được mở.
+- Kết quả mong đợi:
+  + Điều hướng thành công đến màn hình Style Magic AI.
+  + Hiển thị danh mục các phong cách AI: "Christmas Bright", "Clay Toy 3D", "Cosmic Bloom"...
+  + Hiển thị nút "Generate" (`btnGenerate`) sẵn sàng tạo biến thể logo mới.
+  + Nhấn Back quay trở lại màn hình Preview Screen.
+- Maestro Selector:
+  + tapOn: { id: "btnAiLogoStyle" }
+  + assertVisible: "Style Magic AI"
+  + assertVisible: { id: "tvSelectStyle" }
+  + assertVisible: { id: "btnGenerate" }
+  + back: true
+  + assertVisible: "Preview"
+
+[TC_PREV_ACT_03] Kiểm tra tính năng "Brand Identify" từ màn hình Preview
+- Mục tiêu: Xác minh nút "Brand Identify" mở màn hình Mockup Preview xem logo trên các sản phẩm thực tế.
+- Điều kiện tiên quyết: Đang ở màn hình Preview Screen.
+- Các bước thực hiện:
+  1. Nhấn nút "Brand Identify" (`btnBrandIdentify`).
+  2. Xử lý quảng cáo Interstitial nếu có.
+  3. Quan sát màn hình Mockup Preview.
+- Kết quả mong đợi:
+  + Điều hướng đến màn hình "Mockup Preview".
+  + Logo đã lưu được tự động gắn lên các sản phẩm mẫu: Biển hiệu nhà hàng, Danh thiếp, Cốc cà phê, Áo thun...
+  + Mỗi mockup có nút lưu riêng (`btnSave`).
+  + Nhấn Back quay lại màn hình Preview Screen.
+- Maestro Selector:
+  + tapOn: { id: "btnBrandIdentify" }
+  + runFlow: { when: { visible: "Close" }, commands: [{ tapOn: "Close" }] }
+  + assertVisible: "Mockup Preview"
+  + back: true
+  + assertVisible: "Preview"
+
+[TC_PREV_NAV_01] Điều hướng về màn hình Home chính bằng nút btnHome
+- Mục tiêu: Đảm bảo nút Home trên thanh Toolbar của Preview Screen đưa người dùng trở về màn hình Home thành công.
+- Điều kiện tiên quyết: Đang ở màn hình Preview Screen.
+- Các bước thực hiện:
+  1. Nhấn vào icon ngôi nhà (`btnHome`) ở góc trên bên phải thanh Toolbar.
+  2. Quan sát chuyển cảnh màn hình.
+- Kết quả mong đợi:
+  + Màn hình Preview đóng lại.
+  + Ứng dụng điều hướng ngay lập tức về màn hình Home (`com.thmobile.logomaker.MainMenuActivity`).
+  + Hiển thị đầy đủ tiêu đề "Logos4U" và các thẻ tính năng chính (Template, AI Studio, My Logo, My Design...).
+- Maestro Selector:
+  + tapOn: { id: "btnHome" }
+  + assertVisible: "Logos4U"
+  + assertVisible: { id: "btnTemplate" }
+  + assertVisible: { id: "btnMyDesignFile" }
+
+[TC_PREV_NAV_02] Nhấn nút Back trên Toolbar để quay lại màn hình Edit
+- Mục tiêu: Xác minh nút Back trên Preview Screen cho phép người dùng quay lại chỉnh sửa tiếp logo.
+- Điều kiện tiên quyết: Đang ở màn hình Preview Screen.
+- Các bước thực hiện:
+  1. Nhấn vào nút mũi tên Back (ImageButton) ở góc trên bên trái thanh Toolbar.
+  2. Quan sát màn hình đích.
+- Kết quả mong đợi:
+  + Quay trở lại màn hình Edit Screen (`LogoDesignActivity`).
+  + Mẫu thiết kế hiện tại được giữ nguyên vẹn để người dùng có thể tiếp tục tinh chỉnh và lưu phiên bản mới.
+- Maestro Selector:
+  + tapOn: { point: "8%, 8%" }
+  + assertVisible: { id: "mnItemSave" }
+  + assertVisible: { id: "layout_designer" }
+
+[TC_SAVE_REEDIT_01] Quay lại màn hình Edit từ Preview Screen, chỉnh sửa thiết kế và thực hiện lưu lại lần 2
+- Mục tiêu: Kiểm tra toàn diện luồng người dùng: Sau khi lưu logo và tới Preview, nhận thấy cần chỉnh sửa thêm -> Nhấn Back quay về màn Edit -> Thực hiện chỉnh sửa layer -> Sử dụng lại tính năng Save Logo để lưu phiên bản mới thành công -> Trở lại màn hình Preview.
+- Điều kiện tiên quyết: Đã hoàn tất luồng xuất logo và đang dừng chân tại màn hình Preview Screen.
+- Các bước thực hiện:
+  1. Tại màn hình Preview Screen, nhấn nút Back trên Toolbar (hoặc phím Back hệ thống).
+  2. Đóng quảng cáo trung gian nếu có để trở về màn hình Edit Screen (`LogoDesignActivity`).
+  3. Xác minh màn hình Edit Screen và các công cụ thiết kế hiển thị sẵn sàng.
+  4. Chạm vào một layer đối tượng trên Canvas (ví dụ: chạm toạ độ tâm `50%, 40%`) để mở bảng điều khiển công cụ layer (`layout_art_control`).
+  5. Thực hiện chỉnh sửa thiết kế: Nhấn nút di chuyển xuống `imgMoveDown` 2 lần để thay đổi vị trí đối tượng.
+  6. Nhấn vào icon Save ở góc phải phía trên (`mnItemSave`).
+  7. Chọn "Export Logo (PNG)" (`llExportLogo`).
+  8. Kiểm tra hộp thoại "Logo Size" và nhấn nút "SAVE" (`tvSave`).
+  9. Xử lý màn hình quảng cáo / popup đánh giá sau lưu.
+  10. Quan sát kết quả điều hướng tại màn hình Preview Screen.
+- Kết quả mong đợi:
+  + Trở về màn Edit an toàn, không bị mất phiên làm việc.
+  + Thao tác chỉnh sửa layer trên Canvas được ghi nhận chính xác.
+  + Tính năng Save Logo hoạt động hoàn hảo ở lần lưu thứ hai: kết xuất file ảnh PNG mới có áp dụng các thay đổi vừa chỉnh sửa.
+  + Điều hướng thành công quay trở lại màn hình Preview Screen với logo cập nhật.
+- Maestro Selector:
+  + back: true
+  + runFlow: { when: { visible: "Test Ad" }, commands: [{ back: true }] }
+  + assertVisible: { id: "mnItemSave" }
+  + tapOn: { point: "50%, 40%" }
+  + tapOn: { id: "imgMoveDown" }
+  + tapOn: { id: "mnItemSave" }
+  + tapOn: { id: "llExportLogo" }
+  + tapOn: { id: "tvSave" }
+  + extendedWaitUntil: { visible: "Preview", timeout: 10000 }
+  + assertVisible: "Preview"
+
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 8: VALIDATION & BOUNDARY / NEGATIVE TEST CASES (Kiểm thử Giá trị Biên & Ngoại lệ)
+----------------------------------------------------------------------------------------------------
+
+[TC_SAVE_NEG_01] Nhập Custom Size để trống (Empty value)
+- Mục tiêu: Kiểm tra ứng dụng xử lý như thế nào khi người dùng chọn Custom nhưng không nhập số kích thước.
+- Các bước thực hiện:
+  1. Chọn RadioButton "Custom" (`rbCustom`).
+  2. Xoá trắng ô `edtCustomSize`.
+  3. Nhấn nút "SAVE" (`tvSave`).
+- Kết quả mong đợi:
+  + Ứng dụng hiển thị thông báo lỗi (Toast/Warning): "Please enter valid size" hoặc giữ nút SAVE ở trạng thái disable.
+  + Không bị crash ứng dụng (NullPointerException hoặc NumberFormatException).
+
+[TC_SAVE_NEG_02] Nhập Custom Size bằng giá trị 0 hoặc số âm
+- Mục tiêu: Kiểm tra xác thực đầu vào với các số không hợp lệ trong đồ hoạ (0, -100).
+- Các bước thực hiện:
+  1. Chọn "Custom" -> Nhập "0".
+  2. Nhấn "SAVE".
+- Kết quả mong đợi:
+  + Hệ thống từ chối tạo bitmap kích thước <= 0 px.
+  + Hiển thị thông báo yêu cầu kích thước tối thiểu (ví dụ: tối thiểu 100px).
+
+[TC_SAVE_NEG_03] Nhập Custom Size kích thước quá lớn (Vượt ngưỡng bộ nhớ RAM)
+- Mục tiêu: Kiểm tra khả năng phòng vệ chống lỗi OutOfMemory khi người dùng nhập kích thước khổng lồ (VD: 10000).
+- Các bước thực hiện:
+  1. Chọn "Custom" -> Nhập "10000".
+  2. Nhấn "SAVE".
+- Kết quả mong đợi:
+  + Ứng dụng giới hạn kích thước tối đa cho phép (ví dụ: max 4096px) và cảnh báo người dùng.
+  + Ứng dụng không bị buộc dừng đột ngột (Crash/ANR).
+
+[TC_SAVE_NEG_04] Thao tác nhấn nút SAVE liên tục nhiều lần (Double/Multi-tap SAVE)
+- Mục tiêu: Đảm bảo không xảy ra xung đột luồng (race condition) hoặc xuất trùng lặp nhiều file khi nhấn nút SAVE liên tiếp.
+- Các bước thực hiện:
+  1. Nhấn nút "SAVE" 3 lần liên tiếp thật nhanh.
+- Kết quả mong đợi:
+  + Sau lần nhấn đầu tiên, nút SAVE tự động disable hoặc hiển thị loading spinner.
+  + Chỉ có duy nhất 1 tiến trình xuất ảnh được thực thi và 1 file ảnh duy nhất được ghi vào bộ nhớ.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 9: PERFORMANCE & STORAGE INTEGRITY TEST CASES (Hiệu năng & Toàn vẹn Tệp tin)
+----------------------------------------------------------------------------------------------------
+
+[TC_SAVE_PERF_01] Thời gian phản hồi và kết xuất tệp ảnh khi Export HD
+- Mục tiêu: Đảm bảo thời gian từ lúc bấm SAVE đến khi hoàn tất kết xuất không vượt quá 3 giây (không tính thời gian quảng cáo).
+- Tiêu chí đạt: Quá trình render ảnh 1024x1024 hoàn tất trong vòng <= 2.5 giây.
+
+[TC_SAVE_PERF_02] Kiểm tra tính toàn vẹn của tệp ảnh PNG trong thư mục Pictures/LogoMaker
+- Mục tiêu: Xác thực tệp ảnh sau khi xuất có thể đọc được bằng các ứng dụng xem ảnh chuẩn của Android.
+- Các bước thực hiện:
+  1. Mở file tại `/sdcard/Pictures/LogoMaker/<Timestamp>.png`.
+  2. Kiểm tra header định dạng PNG (89 50 4E 47 0D 0A 1A 0A).
+  3. Kiểm tra kênh Alpha (kênh trong suốt).
+- Kết quả mong đợi: Tệp ảnh có cấu trúc PNG hoàn chỉnh, nền trong suốt tại các vùng không có layer, mở được bình thường trên Gallery.
+
+
+====================================================================================================
+III. MA TRẬN TRUY VẾT KIỂM THỬ (TEST TRACEABILITY MATRIX)
+====================================================================================================
+
+| Test Case ID       | Phân nhóm tính năng               | Mức độ ưu tiên | Trạng thái Auto (Maestro) |
+|:-------------------|:-----------------------------------|:---------------|:--------------------------|
+| TC_SAVE_UI_01      | UI Toolbar Save Icon               | High           | Automated (TC_10)         |
+| TC_SAVE_UI_02      | UI Save Options Dialog             | High           | Automated (TC_10)         |
+| TC_SAVE_UI_03      | UI Logo Size Dialog                | High           | Automated (TC_10)         |
+| TC_SAVE_UI_04      | Visual Baseline Save Dialog        | Medium         | Visual Compare Script     |
+| TC_SAVE_PROJ_01    | Save Project (Edit Later)          | High           | Automated                 |
+| TC_SAVE_PROJ_02    | Verify Project in My Design        | High           | Automated                 |
+| TC_SAVE_PROJ_03    | Reopen Project from My Design      | High           | Automated                 |
+| TC_EXPORT_PNG_01   | Export HD 1024x1024 (Default)      | Critical       | Automated (TC_10)         |
+| TC_EXPORT_PNG_02   | Export Standard 512x512            | High           | Automated                 |
+| TC_EXPORT_PNG_03   | Export HD+ 2048x2048               | High           | Automated                 |
+| TC_EXPORT_PNG_04   | Export Custom Size                 | Medium         | Manual / Automated        |
+| TC_SAVE_CHK_01     | Checkbox Save Project (Checked)    | High           | Automated (TC_10)         |
+| TC_SAVE_CHK_02     | Checkbox Save Project (Unchecked)  | Medium         | Automated                 |
+| TC_SAVE_CANCEL_01  | Dialog Cancel Button               | High           | Automated                 |
+| TC_SAVE_CANCEL_02  | System Back Dismiss Dialog         | Medium         | Automated                 |
+| TC_SAVE_CANCEL_03  | Touch Outside Dismiss Dialog       | Low            | Manual                    |
+| TC_SAVE_FLOW_01    | Reward Ads Handling Post-Save      | Critical       | Automated (TC_10)         |
+| TC_SAVE_FLOW_02    | Rate App Popup Handling            | High           | Automated (TC_10)         |
+| TC_PREV_UI_01      | Preview Screen UI Verification     | Critical       | Automated (TC_10)         |
+| TC_PREV_ACT_01     | Preview Share Feature (btnShare)   | High           | Automated                 |
+| TC_PREV_ACT_02     | Style Magic AI Navigation          | High           | Automated                 |
+| TC_PREV_ACT_03     | Brand Identify Mockup Navigation   | High           | Automated                 |
+| TC_PREV_NAV_01     | Preview Home Navigation (btnHome)  | Critical       | Automated                 |
+| TC_PREV_NAV_02     | Preview Back to Edit Screen        | High           | Automated                 |
+| TC_SAVE_NEG_01     | Empty Custom Size Input            | Medium         | Manual / Automated        |
+| TC_SAVE_NEG_02     | Zero / Negative Custom Size        | Medium         | Manual / Automated        |
+| TC_SAVE_NEG_03     | Giant Custom Size (OOM Prevention) | Medium         | Manual / Automated        |
+| TC_SAVE_NEG_04     | Double / Spam Tap SAVE Button      | Medium         | Manual / Automated        |
+| TC_SAVE_PERF_01    | Export Response Time Benchmark     | Medium         | Automated / Performance   |
+| TC_SAVE_PERF_02    | Storage PNG Integrity Verification | High           | Automated / Storage Check |
+
+====================================================================================================
+KẾT LUẬN & ĐÁNH GIÁ:
+- Tính năng Save Feature trên màn Edit và màn hình đầu ra Preview Screen đã được khám phá, bóc tách cấu
+  trúc UI Hierarchy và phân tích toàn diện trực tiếp trên thiết bị Android thật (Galaxy R3CNA099XKL).
+- Kịch bản kiểm thử tự động mẫu `TC_10_Test_Preview_Screen.yaml` đã được thiết kế và thực thi thành công
+  100% (Pass mọi assertion về Save Dialog, Export HD, Ads/Rate handling và toàn bộ element trên Preview).
+- Toàn bộ 30 test cases trên bao phủ đầy đủ các khía cạnh: UI/UX, Functional Positive, Boundary/Negative,
+  Inter-screen Navigation, Multi-resolution Export, Data Persistence và Storage Integrity.
+====================================================================================================

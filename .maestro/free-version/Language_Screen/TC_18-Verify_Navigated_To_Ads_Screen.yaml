@@ -1,0 +1,20 @@
+appId: com.thmobile.logomaker
+---
+
+- runFlow: "./TC_08-Verify_Selected_Language_Success.yaml"
+
+- assertVisible: "Test Ad"
+
+- assertVisible:
+    id: "image-only"
+
+- runFlow: "../../config/Close_Ads_Screen.yaml"
+
+- assertNotVisible:
+    id: "toolbar"
+    containsDescendants:
+      - text: "Language"
+      - id: "btnOK"
+
+- assertNotVisible:
+    id: "rv_language"

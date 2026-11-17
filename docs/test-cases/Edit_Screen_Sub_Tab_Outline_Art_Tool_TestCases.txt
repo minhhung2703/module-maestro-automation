@@ -1,0 +1,464 @@
+====================================================================================================
+           BỘ TEST CASES KIỂM THỬ TÍNH NĂNG SUB TAB OUTLINE - ART TOOL - MÀN EDIT (LOGO MAKER)
+====================================================================================================
+Ứng dụng: Logo Maker (Logos4U)
+Application ID: com.thmobile.logomaker
+Platform: Android
+Framework kiểm thử: Maestro Automation Framework
+Màn hình kiểm thử: Edit Screen (Template Detail / Trình chỉnh sửa thiết kế)
+Phân hệ tính năng: Sub Tab "Outline" (Tạo đường viền đối tượng) thuộc Art Tool
+Luồng điều hướng: Home > Template > Category "Restaurant" (Template đầu tiên) > Edit Screen > Layer Art > Sub-tab "Outline"
+Ngày tạo: 2026-10-15
+Tài nguyên Hierarchy: layout_art_editor_menu, layout_sticker_outline, sbOutlineWidth, tvOutlineWidth, rvSolidColorPicker...
+====================================================================================================
+
+I. DANH SÁCH RESOURCE-ID & VIEW PHÂN TÍCH TỪ THIẾT BỊ THẬT (UI DUMP)
+----------------------------------------------------------------------------------------------------
+1. Thanh Toolbar & Điều hướng chung trên Edit Screen:
+   - android.widget.ImageButton (desc: "Navigate up")   : Nút quay lại màn hình trước
+   - Text "Logos4U"                                     : Tiêu đề màn hình thiết kế
+   - com.thmobile.logomaker:id/mnItemSave               : Nút Lưu / Xuất logo (Save / Export)
+   - com.thmobile.logomaker:id/imageViewLayerTag        : Icon mở hộp thoại quản lý Layer
+   - com.thmobile.logomaker:id/imageShowGrid            : Icon bật / tắt lưới căn chỉnh (Grid)
+   - com.thmobile.logomaker:id/btnUndo (ivUndo)         : Nút Hoàn tác (Undo)
+   - com.thmobile.logomaker:id/btnRedo (ivRedo)         : Nút Làm lại (Redo)
+   - com.thmobile.logomaker:id/btnClosePanel            : Nút mũi tên thu gọn / đóng bảng công cụ dưới
+
+2. Container Công cụ Art & Thanh Sub-Tab:
+   - com.thmobile.logomaker:id/itemArt                  : Tab công cụ Art (Thanh bottom chính)
+   - com.thmobile.logomaker:id/layout_art_editor_menu   : Container cuộn ngang chứa các sub-tab
+   - Sub-tab "Controls" (Text: "Controls")              : Điều hướng vị trí, layer up/down, duplicate
+   - Sub-tab "Color" (Text: "Color")                    : Thanh công cụ màu sắc, gradient, texture
+   - Sub-tab "Outline" (Text: "Outline")                : Tạo viền & điều chỉnh màu sắc, độ dày viền
+   - Sub-tab "3D" (Text: "3D")                          : Hiệu ứng 3D xoay chiều
+
+3. Các thành phần chính trong Container Outline (`layout_sticker_outline`):
+   A. Khu vực Độ dày đường viền (Outline Width):
+      - android.widget.ImageView (Bounds [24,1701][96,1773]) : Icon 3 thanh ngang biểu thị Outline Width
+      - com.thmobile.logomaker:id/sbOutlineWidth             : Thanh trượt SeekBar điều chỉnh độ dày viền (0 - 100)
+      - com.thmobile.logomaker:id/tvOutlineWidth             : TextView hiển thị giá trị độ dày viền (Mặc định: 0)
+
+   B. Khu vực Màu viền (Outline Color Palette):
+      - com.thmobile.logomaker:id/imgColorPicker             : Icon ống hút màu (Eyedropper) trên Canvas
+      - com.thmobile.logomaker:id/imgPalette                 : Icon bảng màu tròn (Mở dialog chọn màu nâng cao & HEX)
+      - com.thmobile.logomaker:id/rvSolidColorPicker         : RecyclerView cuộn ngang danh sách màu viền
+      - com.thmobile.logomaker:id/color                      : ImageView từng ô màu viền (Đen, Trắng, Đỏ, Xanh lá, Xanh dương, Vàng, Cyan, Hồng, Xám...)
+      - com.thmobile.logomaker:id/outline                    : FrameLayout viền xanh bao quanh ô màu đang được chọn (Mặc định chọn màu Trắng)
+
+   C. Màn hình Hút màu Viền ("Select Color" - Eyedropper):
+      - android.widget.ImageButton (desc: "Navigate up")     : Nút Hủy và quay lại Edit Screen
+      - TextView (text: "Select Color")                      : Tiêu đề màn hình hút màu
+      - com.thmobile.logomaker:id/item_apply                 : Nút Áp dụng (Apply / Tick chọn màu)
+      - com.thmobile.logomaker:id/layout_picker              : Container khung màu xem trước
+      - com.thmobile.logomaker:id/layout_color_picker        : Hộp hiển thị màu được chọn trực tiếp
+      - com.thmobile.logomaker:id/imageView                  : Ảnh canvas logo hiển thị để người dùng chạm hút màu
+
+   D. Hộp thoại Bảng màu Nâng cao ("Select a Color" Dialog):
+      - com.thmobile.logomaker:id/alertTitle                 : Tiêu đề "Select a Color"
+      - com.thmobile.logomaker:id/gridView                   : Lưới chứa 20 ô màu cơ bản
+      - com.thmobile.logomaker:id/cpv_color_panel_view       : Từng ô màu trong bảng
+      - com.thmobile.logomaker:id/cpv_color_image_view       : Dấu checkmark trắng đánh dấu màu đang chọn
+      - com.thmobile.logomaker:id/shades_layout              : Dải 5 sắc độ (Shades) từ đậm đến nhạt của màu đã chọn
+      - android:id/button3 (Text: "CUSTOM")                  : Nút mở giao diện chọn màu tự do & nhập mã HEX
+      - android:id/button1 (Text: "SELECT")                  : Nút xác nhận chọn màu viền
+
+   E. Hộp thoại Tùy biến Màu tự do & Mã HEX ("Custom Color"):
+      - com.thmobile.logomaker:id/cpv_color_picker_view      : Vùng chọn màu 2D (Saturation/Value) + Thanh trượt Hue
+      - com.thmobile.logomaker:id/cpv_color_panel_old        : Khung màu cũ trước khi đổi
+      - com.thmobile.logomaker:id/cpv_arrow_right            : Icon mũi tên chuyển đổi
+      - com.thmobile.logomaker:id/cpv_color_panel_new        : Khung màu mới sau khi đổi
+      - com.thmobile.logomaker:id/cpv_hex                    : EditText nhập/hiển thị mã màu HEX (ví dụ: "FF5722")
+      - android:id/button3 (Text: "PRESETS")                 : Nút quay lại bảng màu mẫu
+      - android:id/button1 (Text: "SELECT")                  : Nút áp dụng màu HEX vừa chọn
+
+
+====================================================================================================
+II. CHI TIẾT CÁC TEST CASES THEO TỪNG NHÓM CHỨC NĂNG
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+NHÓM 1: UI & VISUAL DISPLAY TEST CASES (Kiểm thử Giao diện & Hiển thị Sub Tab Outline)
+----------------------------------------------------------------------------------------------------
+
+[TC_OUTLINE_UI_01] Kiểm tra hiển thị tổng thể Sub Tab Outline trên Edit Screen
+- Mục tiêu: Xác nhận khi chọn đối tượng Art và chuyển sang tab Outline, toàn bộ các công cụ con hiển thị đầy đủ, không vỡ layout.
+- Điều kiện tiên quyết: Mở app -> Chọn Template đầu tiên của chủ đề "Restaurant" -> Đang ở Edit Screen.
+- Các bước thực hiện:
+  1. Nhấn vào đối tượng Art trên Canvas (tọa độ khoảng "50%, 30%").
+  2. Xác nhận thanh công cụ Art hiển thị các sub-tab: Controls, Color, Outline, 3D.
+  3. Nhấn vào sub-tab "Outline".
+  4. Kiểm tra hiển thị các khối chức năng con:
+     + Khối Outline Width: Icon 3 thanh ngang, sbOutlineWidth, tvOutlineWidth (giá trị mặc định là 0).
+     + Khối Outline Color: imgColorPicker, imgPalette, rvSolidColorPicker với các ô màu cơ bản.
+     + Ô màu Trắng đang có khung viền bao quanh (id: outline) biểu thị màu viền mặc định.
+- Kết quả mong đợi:
+  + Tab "Outline" được chọn (có đường gạch chân chỉ báo màu tím/xanh).
+  + Toàn bộ các view trong layout_sticker_outline hiển thị đầy đủ, không bị che khuất bởi banner quảng cáo.
+- Maestro Selectors:
+  - tapOn: { point: "50%, 30%" }
+  - tapOn: "Outline"
+  - assertVisible: { id: "layout_sticker_outline" }
+  - assertVisible: { id: "sbOutlineWidth" }
+  - assertVisible:
+      id: "tvOutlineWidth"
+      text: "0"
+  - assertVisible: { id: "imgColorPicker" }
+  - assertVisible: { id: "imgPalette" }
+  - assertVisible: { id: "rvSolidColorPicker" }
+
+[TC_OUTLINE_UI_02] Visual Regression Testing - So sánh giao diện mặc định Sub Tab Outline với Baseline
+- Mục tiêu: Kiểm tra độ đồng nhất hiển thị giao diện Sub Tab Outline bằng hình ảnh mẫu chuẩn.
+- Điều kiện tiên quyết: Đã có ảnh baseline trong thư mục assets/.
+- Các bước thực hiện:
+  1. Điều hướng tới Edit Screen -> Chọn sub-tab Outline.
+  2. Chụp ảnh màn hình: takeScreenshot: "screenshots/Outline_SubTab_Default".
+  3. Đối soát hình ảnh với ảnh baseline.
+- Kết quả mong đợi: Giao diện đạt độ tương đồng (Match Percentage) >= 95% so với thiết kế chuẩn.
+
+[TC_OUTLINE_UI_03] Kiểm tra màu viền và giá trị độ dày mặc định ban đầu
+- Mục tiêu: Xác nhận ban đầu khi đối tượng chưa có viền, giá trị width bằng 0 và màu viền được chọn sẵn là màu Trắng.
+- Các bước thực hiện:
+  1. Mở sub-tab Outline của một layer Art mới.
+  2. Kiểm tra text của tvOutlineWidth.
+  3. Kiểm tra vị trí của indicator id "outline".
+- Kết quả mong đợi:
+  + tvOutlineWidth có text là "0".
+  + Indicator id "outline" nằm tại vị trí ô màu Trắng (index 1).
+  + Đối tượng trên canvas chưa xuất hiện viền bao quanh.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 2: OUTLINE WIDTH FUNCTIONAL TEST CASES (Kiểm thử Điều chỉnh Độ dày Viền)
+----------------------------------------------------------------------------------------------------
+
+[TC_OUTLINE_WID_01] Tăng độ dày viền lên mức 50% bằng thanh trượt sbOutlineWidth
+- Mục tiêu: Đảm bảo khi kéo hoặc nhấn thanh trượt sbOutlineWidth, giá trị tvOutlineWidth cập nhật thành 50 và đường viền bao quanh đối tượng xuất hiện rõ ràng.
+- Các bước thực hiện:
+  1. Tại sub-tab Outline, nhấn vào vị trí giữa thanh trượt sbOutlineWidth (khoảng 50%).
+  2. Quan sát TextView hiển thị giá trị tvOutlineWidth.
+  3. Quan sát đối tượng Art trên Canvas.
+- Kết quả mong đợi:
+  + tvOutlineWidth hiển thị số "50".
+  + Đối tượng đồ họa trên Canvas xuất hiện một đường viền màu trắng dày 50 bao quanh toàn bộ các chi tiết của layer.
+- Maestro Selectors:
+  - tapOn: { id: "sbOutlineWidth" }
+  - assertVisible: { id: "tvOutlineWidth" }
+
+[TC_OUTLINE_WID_02] Tăng độ dày viền lên mức tối đa (100%)
+- Mục tiêu: Kiểm tra giá trị cực đại của độ dày viền.
+- Các bước thực hiện:
+  1. Kéo hoặc chạm vào phần cuối bên phải của sbOutlineWidth (tọa độ x=890, y=1737).
+  2. Quan sát giá trị hiển thị trên tvOutlineWidth.
+  3. Quan sát đối tượng trên canvas.
+- Kết quả mong đợi:
+  + tvOutlineWidth đạt giá trị từ 95 đến 100.
+  + Đường viền bao quanh đối tượng đạt độ dày tối đa, viền ôm khít các cạnh ngoài của icon.
+
+[TC_OUTLINE_WID_03] Giảm độ dày viền về mức tối thiểu (0%) - Xóa viền
+- Mục tiêu: Đảm bảo khi kéo về 0, đường viền bị gỡ bỏ hoàn toàn khỏi đối tượng.
+- Các bước thực hiện:
+  1. Khi đối tượng đang có viền dày 50.
+  2. Kéo hoặc chạm vào điểm kịch bên trái của sbOutlineWidth (tọa độ x=120, y=1737).
+  3. Quan sát Canvas.
+- Kết quả mong đợi:
+  + tvOutlineWidth hiển thị "0".
+  + Đường viền biến mất hoàn toàn, đối tượng trở lại trạng thái đồ họa ban đầu không có viền.
+
+[TC_OUTLINE_WID_04] Thao tác vuốt/trượt SeekBar liên tục (Smooth Dragging)
+- Mục tiêu: Kiểm tra thanh trượt hoạt động mượt mà khi người dùng vuốt trượt từ từ từ 0 lên 100.
+- Các bước thực hiện:
+  1. Thực hiện thao tác swipe từ đầu bên trái sbOutlineWidth sang đầu bên phải.
+- Kết quả mong đợi: Giá trị tvOutlineWidth và độ dày viền trên canvas tăng dần theo thời gian thực (real-time rendering), không bị đơ giật.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 3: SOLID OUTLINE COLOR PALETTE TEST CASES (Kiểm thử Bảng màu viền Đơn sắc)
+----------------------------------------------------------------------------------------------------
+
+[TC_OUTLINE_COL_01] Đổi màu viền sang màu Đỏ (Red Swatch)
+- Mục tiêu: Đảm bảo chọn ô màu Đỏ sẽ lập tức đổi màu đường viền của đối tượng sang màu Đỏ.
+- Các bước thực hiện:
+  1. Đã thiết lập độ dày viền > 0 (ví dụ width = 50).
+  2. Tại hàng rvSolidColorPicker, nhấn vào ô màu Đỏ (index 2).
+  3. Quan sát đường viền trên Canvas.
+- Kết quả mong đợi:
+  + Khung indicator id "outline" chuyển sang bao quanh ô màu Đỏ.
+  + Đường viền bao quanh đối tượng trên Canvas chuyển sang màu Đỏ nổi bật.
+- Maestro Selectors:
+  - tapOn:
+      id: "color"
+      index: 2
+      childOf:
+        id: "rvSolidColorPicker"
+
+[TC_OUTLINE_COL_02] Đổi màu viền sang màu Đen (Black Swatch)
+- Mục tiêu: Kiểm tra áp dụng màu viền Đen tương phản cao.
+- Các bước thực hiện:
+  1. Nhấn vào ô màu Đen đầu tiên trong rvSolidColorPicker (index 0).
+- Kết quả mong đợi: Đường viền đối tượng chuyển thành màu Đen.
+
+[TC_OUTLINE_COL_03] Đổi màu viền sang màu Vàng (Yellow Swatch)
+- Mục tiêu: Kiểm tra áp dụng màu viền Vàng sáng.
+- Các bước thực hiện:
+  1. Nhấn vào ô màu Vàng trong danh sách màu đơn sắc.
+- Kết quả mong đợi: Đường viền đối tượng chuyển thành màu Vàng.
+
+[TC_OUTLINE_COL_04] Đổi màu viền sang màu Xanh dương (Blue Swatch)
+- Mục tiêu: Kiểm tra áp dụng màu viền Xanh dương.
+- Các bước thực hiện:
+  1. Nhấn vào ô màu Xanh dương trong danh sách màu đơn sắc.
+- Kết quả mong đợi: Đường viền đối tượng chuyển thành màu Xanh dương.
+
+[TC_OUTLINE_COL_05] Cuộn ngang bảng màu viền (Horizontal Scrolling)
+- Mục tiêu: Đảm bảo danh sách rvSolidColorPicker cuộn ngang trơn tru để hiển thị thêm các ô màu phụ.
+- Các bước thực hiện:
+  1. Thực hiện thao tác vuốt danh sách rvSolidColorPicker từ phải sang trái.
+  2. Chọn một màu ở cuối danh sách (ví dụ màu Xám / Tím / Cam).
+- Kết quả mong đợi: Danh sách cuộn mượt mà, màu mới được áp dụng chuẩn xác vào đường viền.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 4: EYEDROPPER COLOR PICKER TEST CASES (Kiểm thử Ống hút màu cho Viền)
+----------------------------------------------------------------------------------------------------
+
+[TC_OUTLINE_EYE_01] Mở màn hình Select Color từ nút ống hút màu (imgColorPicker)
+- Mục tiêu: Xác nhận nhấn vào icon imgColorPicker trên sub-tab Outline mở ra màn hình hút màu chuyên dụng.
+- Các bước thực hiện:
+  1. Tại sub-tab Outline, nhấn vào icon id "imgColorPicker".
+- Kết quả mong đợi:
+  + Màn hình chuyển sang giao diện "Select Color".
+  + Hiển thị Toolbar có tiêu đề "Select Color", nút Back và nút Apply (id: item_apply).
+  + Hiển thị ô hộp màu xem trước (layout_color_picker).
+  + Hiển thị ảnh Canvas logo thu nhỏ (id: imageView) để chấm chọn điểm màu.
+- Maestro Selectors:
+  - tapOn: { id: "imgColorPicker" }
+  - assertVisible: "Select Color"
+  - assertVisible: { id: "item_apply" }
+  - assertVisible: { id: "layout_color_picker" }
+
+[TC_OUTLINE_EYE_02] Chấm chọn màu trên Canvas logo và áp dụng làm màu viền (Apply)
+- Mục tiêu: Kiểm tra hút màu từ một tọa độ bất kỳ trên canvas (ví dụ màu vàng ruy băng) và gán làm màu viền cho layer Art.
+- Các bước thực hiện:
+  1. Tại màn hình "Select Color", nhấn vào vùng màu vàng của dải ruy băng trên ảnh logo.
+  2. Quan sát ô layout_color_picker hiển thị màu vừa hút.
+  3. Nhấn nút tick hoàn tất (id: "item_apply").
+- Kết quả mong đợi:
+  + Ứng dụng đóng màn hình "Select Color" và quay về Edit Screen.
+  + Đường viền của đối tượng Art được cập nhật chính xác theo màu vừa hút.
+- Maestro Selectors:
+  - tapOn: { point: "50%, 50%" }
+  - tapOn: { id: "item_apply" }
+  - assertVisible: "Logos4U"
+
+[TC_OUTLINE_EYE_03] Hủy thao tác hút màu bằng nút Back (Navigate up)
+- Mục tiêu: Đảm bảo khi nhấn nút Back trên màn hình Select Color, không có màu viền mới nào bị áp dụng.
+- Các bước thực hiện:
+  1. Nhấn mở "imgColorPicker".
+  2. Chấm chọn màu ngẫu nhiên.
+  3. Nhấn nút Back ("Navigate up") trên Toolbar.
+- Kết quả mong đợi: Quay lại Edit Screen, đường viền giữ nguyên màu sắc trước đó.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 5: ADVANCED PALETTE & CUSTOM HEX COLOR TEST CASES (Kiểm thử Bảng màu & Mã HEX)
+----------------------------------------------------------------------------------------------------
+
+[TC_OUTLINE_HEX_01] Mở hộp thoại "Select a Color" từ icon imgPalette
+- Mục tiêu: Xác nhận nhấn icon imgPalette trên sub-tab Outline mở popup chọn màu Grid 20 màu kèm dải Shades.
+- Các bước thực hiện:
+  1. Tại sub-tab Outline, nhấn vào icon id "imgPalette".
+- Kết quả mong đợi:
+  + Hộp thoại Dialog hiển thị tiêu đề "Select a Color".
+  + Hiển thị GridView chứa 20 màu thông dụng.
+  + Màu đang được chọn có dấu tick trắng (id: cpv_color_image_view).
+  + Phía dưới hiển thị dải sắc độ (shades_layout) với 5 mức sáng/tối.
+  + Có 2 nút điều hướng: "CUSTOM" và "SELECT".
+- Maestro Selectors:
+  - tapOn: { id: "imgPalette" }
+  - assertVisible: "Select a Color"
+  - assertVisible: "CUSTOM"
+  - assertVisible: "SELECT"
+
+[TC_OUTLINE_HEX_02] Chọn một màu trong Grid và chọn sắc độ (Shade), sau đó nhấn SELECT
+- Mục tiêu: Kiểm tra chọn màu viền kèm sắc độ cụ thể từ Dialog.
+- Các bước thực hiện:
+  1. Tại dialog "Select a Color", nhấn vào ô màu Xanh lá bất kỳ trong GridView.
+  2. Nhấn chọn ô sắc độ đậm trong shades_layout.
+  3. Nhấn nút "SELECT".
+- Kết quả mong đợi:
+  + Dialog đóng lại.
+  + Đường viền của đối tượng Art chuyển sang màu xanh lá đậm vừa chọn.
+
+[TC_OUTLINE_HEX_03] Chuyển sang giao diện Tùy biến mã màu tự do bằng nút "CUSTOM"
+- Mục tiêu: Xác nhận nút CUSTOM mở ra giao diện chọn màu 2D và trường nhập mã màu HEX cho viền.
+- Các bước thực hiện:
+  1. Mở dialog "Select a Color".
+  2. Nhấn nút "CUSTOM".
+- Kết quả mong đợi:
+  + Giao diện dialog chuyển sang chế độ Custom.
+  + Hiển thị bảng chọn màu 2D (cpv_color_picker_view) và thanh Hue.
+  + Hiển thị ô so sánh: Màu cũ (cpv_color_panel_old) -> Màu mới (cpv_color_panel_new).
+  + Hiển thị ô EditText cpv_hex chứa mã HEX của màu hiện tại.
+  + Nút "CUSTOM" chuyển thành nút "PRESETS".
+- Maestro Selectors:
+  - tapOn: "CUSTOM"
+  - assertVisible: { id: "cpv_hex" }
+  - assertVisible: { id: "cpv_color_panel_new" }
+  - assertVisible: "PRESETS"
+  - assertVisible: "SELECT"
+
+[TC_OUTLINE_HEX_04] Nhập mã màu HEX tùy chỉnh cho viền (ví dụ: #FF5722)
+- Mục tiêu: Kiểm tra tính năng nhập trực tiếp mã HEX để gán màu viền chính xác theo Brand Guideline.
+- Các bước thực hiện:
+  1. Tại màn hình Custom Color, nhấn vào ô EditText id "cpv_hex".
+  2. Xóa mã cũ và nhập: "FF5722" (màu Cam rực).
+  3. Ẩn bàn phím (hideKeyboard).
+  4. Nhấn nút "SELECT".
+- Kết quả mong đợi:
+  + Dialog đóng lại.
+  + Đường viền của đối tượng áp dụng chính xác mã màu #FF5722.
+
+[TC_OUTLINE_HEX_05] Quay lại danh sách màu mẫu bằng nút "PRESETS"
+- Mục tiêu: Kiểm tra chuyển đổi qua lại giữa chế độ Custom và Presets mà không bị mất trạng thái.
+- Các bước thực hiện:
+  1. Tại màn hình Custom Color, nhấn nút "PRESETS".
+- Kết quả mong đợi: Dialog lập tức quay lại giao diện Grid 20 màu ban đầu.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 6: HISTORY & ACTION INTERACTIONS (Kiểm thử Hoàn tác Undo, Redo & Thao tác bổ trợ)
+----------------------------------------------------------------------------------------------------
+
+[TC_OUTLINE_ACT_01] Hoàn tác (Undo) sau khi thay đổi độ dày viền
+- Mục tiêu: Xác nhận nút Undo khôi phục lại giá trị độ dày viền trước đó.
+- Các bước thực hiện:
+  1. Đang ở độ dày viền 0.
+  2. Kéo thanh trượt lên mức 50.
+  3. Nhấn nút Undo (id: "ivUndo" hoặc "btnUndo").
+- Kết quả mong đợi:
+  + tvOutlineWidth quay lại mức 0.
+  + Đường viền trên canvas biến mất.
+- Maestro Selectors:
+  - tapOn: { id: "ivUndo" }
+
+[TC_OUTLINE_ACT_02] Hoàn tác (Undo) sau khi đổi màu viền
+- Mục tiêu: Xác nhận nút Undo khôi phục lại màu viền trước đó.
+- Các bước thực hiện:
+  1. Viền đang màu Trắng (width 50).
+  2. Đổi sang màu Đỏ.
+  3. Nhấn nút Undo (id: "ivUndo").
+- Kết quả mong đợi: Đường viền lập tức chuyển ngược lại thành màu Trắng.
+
+[TC_OUTLINE_ACT_03] Làm lại (Redo) phục hồi lại trạng thái viền vừa Undo
+- Mục tiêu: Xác nhận nút Redo áp dụng lại thay đổi viền vừa bị hoàn tác.
+- Các bước thực hiện:
+  1. Sau khi đã Undo về màu Trắng.
+  2. Nhấn nút Redo (id: "ivRedo" hoặc "btnRedo").
+- Kết quả mong đợi: Đường viền đổi lại thành màu Đỏ.
+- Maestro Selectors:
+  - tapOn: { id: "ivRedo" }
+
+[TC_OUTLINE_ACT_04] Thu gọn bảng công cụ Outline bằng nút btnClosePanel
+- Mục tiêu: Kiểm tra nút mũi tên xuống thu gọn bảng công cụ giúp tăng không gian nhìn cho Canvas.
+- Các bước thực hiện:
+  1. Nhấn nút mũi tên xuống bên phải (id: "btnClosePanel").
+- Kết quả mong đợi: Bảng công cụ sub-tab Outline trượt thu gọn xuống dưới, mở rộng tầm nhìn Canvas.
+
+[TC_OUTLINE_ACT_05] Chuyển đổi qua lại giữa các sub-tab (Controls <-> Color <-> Outline <-> 3D)
+- Mục tiêu: Đảm bảo đường viền đã tạo vẫn được bảo toàn nguyên vẹn khi chuyển sang các sub-tab khác chỉnh sửa.
+- Các bước thực hiện:
+  1. Đang có viền màu Đỏ dày 50 tại tab Outline.
+  2. Nhấn sang tab "Controls" (thực hiện di chuyển layer).
+  3. Nhấn sang tab "Color" (thực hiện đổi màu thân icon).
+  4. Nhấn quay lại tab "Outline".
+- Kết quả mong đợi:
+  + Đường viền vẫn giữ nguyên màu Đỏ và độ dày 50.
+  + Giá trị trên sbOutlineWidth và tvOutlineWidth hiển thị chính xác trạng thái trước đó.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 7: COMBINATION & RENDERING WITH OTHER TOOLS (Kiểm thử Kết hợp Viền với Màu/Texture)
+----------------------------------------------------------------------------------------------------
+
+[TC_OUTLINE_CMB_01] Áp dụng Outline kết hợp khi layer Art đang có màu đơn sắc
+- Mục tiêu: Kiểm tra tính hiển thị phân tách giữa màu thân icon và màu đường viền ngoài.
+- Các bước thực hiện:
+  1. Tại sub-tab Color: Đổi thân icon sang màu Xanh dương.
+  2. Tại sub-tab Outline: Thiết lập viền màu Vàng dày 40.
+- Kết quả mong đợi: Thân icon hiển thị màu Xanh dương, viền ngoài bao quanh màu Vàng sắc nét, không bị loang màu.
+
+[TC_OUTLINE_CMB_02] Áp dụng Outline kết hợp khi layer Art đang có dải màu Gradient
+- Mục tiêu: Đảm bảo Outline vẽ chuẩn xác bao quanh đối tượng có hiệu ứng dải chuyển màu Gradient.
+- Các bước thực hiện:
+  1. Áp dụng hiệu ứng Gradient cho layer Art.
+  2. Chuyển sang sub-tab Outline, tạo viền màu Trắng dày 30.
+- Kết quả mong đợi: Viền trắng bao quanh dải màu gradient mượt mà, đường nét sắc sảo.
+
+[TC_OUTLINE_CMB_03] Áp dụng Outline kết hợp khi layer Art đang có Texture hoa văn
+- Mục tiêu: Đảm bảo Outline không bị ảnh hưởng bởi họa tiết chất liệu bên trong.
+- Các bước thực hiện:
+  1. Áp dụng Texture kẻ sọc cho layer Art.
+  2. Chuyển sang sub-tab Outline, tạo viền màu Đen dày 50.
+- Kết quả mong đợi: Họa tiết kẻ sọc nằm trọn vẹn bên trong đường viền đen bao quanh.
+
+[TC_OUTLINE_CMB_04] Điều chỉnh độ mờ đục (Opacity) của layer và kiểm tra độ mờ của Outline
+- Mục tiêu: Xác nhận thanh trượt Opacity trong sub-tab Color làm mờ đồng thời cả thân layer và đường viền Outline.
+- Các bước thực hiện:
+  1. Tạo viền dày 50 cho layer.
+  2. Chuyển sang tab Color -> Kéo seekbarTransparent về 50%.
+- Kết quả mong đợi: Toàn bộ đối tượng bao gồm cả đường viền Outline giảm độ đậm và trở nên bán trong suốt đồng bộ.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 8: PERSISTENCE & EXPORT TEST CASES (Kiểm thử Lưu trữ & Xuất file)
+----------------------------------------------------------------------------------------------------
+
+[TC_OUTLINE_EXP_01] Lưu dự án (Save Project) và kiểm tra Outline được lưu lại
+- Mục tiêu: Đảm bảo thông tin đường viền (độ dày, mã màu) được lưu chính xác vào bản nháp dự án (Draft Project).
+- Các bước thực hiện:
+  1. Tạo Outline màu Đỏ dày 50.
+  2. Nhấn nút Save trên Toolbar (id: "mnItemSave") -> Chọn "Save Project (Edit Later)".
+  3. Quay lại Home -> Mở "My Design" -> Mở lại bản thảo vừa lưu.
+- Kết quả mong đợi: Bản thảo mở ra trên Edit Screen với layer Art vẫn giữ nguyên đường viền màu Đỏ dày 50.
+
+[TC_OUTLINE_EXP_02] Xuất file ảnh PNG HD và kiểm tra Outline trên màn Preview
+- Mục tiêu: Đảm bảo ảnh PNG xuất ra render đúng đường viền Outline như thiết kế.
+- Các bước thực hiện:
+  1. Nhấn nút Save trên Toolbar (id: "mnItemSave") -> Chọn "Export Logo (PNG)".
+  2. Chọn độ phân giải "HD (1024 * 1024)" -> Nhấn Save (id: "tvSave").
+  3. Xử lý popup quảng cáo -> Vào màn hình Preview Screen.
+- Kết quả mong đợi:
+  + Ảnh logo trong khung Preview (id: imageTransparentGrid) hiển thị đầy đủ và sắc nét đường viền Outline.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 9: EDGE CASES & SYSTEM STABILITY TEST CASES (Kiểm thử Ngoại lệ & Độ ổn định)
+----------------------------------------------------------------------------------------------------
+
+[TC_OUTLINE_SYS_01] Kéo slider độ dày liên tục qua lại từ 0 đến 100 (Stress Slider Dragging)
+- Mục tiêu: Kiểm tra hiệu năng render Canvas khi người dùng kéo thanh trượt liên tục với tốc độ cao.
+- Các bước thực hiện:
+  1. Kéo nhanh qua lại giữa 0% và 100% 10 lần liên tiếp.
+- Kết quả mong đợi: Ứng dụng không bị crash, không bị giật lag nghiêm trọng, giá trị tvOutlineWidth phản hồi chính xác.
+
+[TC_OUTLINE_SYS_02] Đổi màu viền liên tục và dồn dập (Stress Color Tapping)
+- Mục tiêu: Kiểm tra ứng dụng không bị rò rỉ bộ nhớ (memory leak) khi đổi màu viền liên tục.
+- Các bước thực hiện:
+  1. Nhấn liên tục vào các ô màu: Đen -> Trắng -> Đỏ -> Xanh lá -> Xanh dương -> Vàng trong thời gian ngắn.
+- Kết quả mong đợi: Canvas cập nhật mượt mà, không xảy ra hiện tượng Application Not Responding (ANR).
+
+[TC_OUTLINE_SYS_03] Đưa ứng dụng xuống Background khi đang bật Outline rồi mở lại
+- Mục tiêu: Đảm bảo trạng thái viền và thanh công cụ được bảo lưu khi có ngắt quãng hệ thống.
+- Các bước thực hiện:
+  1. Đang ở sub-tab Outline với viền màu Đỏ dày 50.
+  2. Nhấn nút Home thiết bị để đưa app xuống Background 5 giây.
+  3. Mở lại Logo Maker từ Recent Apps.
+- Kết quả mong đợi: Ứng dụng khôi phục ngay tại Edit Screen, layer vẫn có viền màu Đỏ dày 50, sub-tab Outline vẫn đang được chọn.
+
+[TC_OUTLINE_SYS_04] Kiểm tra vùng tương tác an toàn tránh Banner Ads
+- Mục tiêu: Đảm bảo quảng cáo banner AdMob (id: "flAdsContainer") phía dưới không đè lên hàng chọn màu rvSolidColorPicker.
+- Kết quả mong đợi: Người dùng có thể nhấn vào tất cả các ô màu viền mà không bị bấm nhầm vào banner quảng cáo.
+
+====================================================================================================
+KẾT THÚC BỘ TEST CASES KIỂM THỬ SUB TAB OUTLINE - ART TOOL - MÀN EDIT
+====================================================================================================

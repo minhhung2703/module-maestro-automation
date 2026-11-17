@@ -1,0 +1,29 @@
+appId: com.thmobile.logomaker
+---
+- runFlow:
+    when:
+      visible:
+        id: "btn_cancel"
+    commands:
+      - tapOn:
+          id: "btn_cancel"
+
+- runFlow:
+    when:
+      visible:
+        id: "btnDialogNotNow"
+    commands:
+      - tapOn:
+          id: "btnDialogNotNow"
+
+- runFlow:
+    when:
+      visible: "No thanks"
+    commands:
+      - tapOn: "No thanks"
+
+- runFlow:
+    when:
+      visible: ".*(Subscribe|Đăng ký|Starting today|Google Play).*"
+    commands:
+      - back

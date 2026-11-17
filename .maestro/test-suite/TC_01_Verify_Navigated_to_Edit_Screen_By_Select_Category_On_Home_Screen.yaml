@@ -1,0 +1,133 @@
+appId: com.thmobile.logomaker
+---
+
+# ==============================================================================
+# TC_01_Verify_Navigated_to_Edit_Screen_By_Select_Category_On_Home_Screen
+# Mục tiêu: Kiểm thử điều hướng từ Home Screen qua Template Catalog và xác thực giao diện Edit Screen:
+#           - Khởi động ứng dụng > Đóng popup IAP nếu xuất hiện
+#           - Tại Home Screen: Nhấn vào thẻ tính năng "Template" (btnTemplate) và xác nhận chuyển sang màn hình "Select Template"
+#           - Kiểm thử tính năng Back Action: Quay trở lại màn hình Home và chạm mở lại tính năng "Template"
+#           - Tại màn hình Select Template: Lựa chọn mẫu thiết kế đầu tiên thuộc danh mục "Beauty & Wellness"
+#           - Xử lý đóng quảng cáo Collapsible Ads nếu xuất hiện sau khi chọn mẫu
+#           - Xác minh điều hướng thành công vào màn hình chỉnh sửa Edit Screen và kiểm tra hiển thị đầy đủ các thành phần:
+#             1. Thanh Toolbar trên cùng: Tiêu đề "Logos4U", nút "Navigate up", nút Lưu "mnItemSave", icon Layer Drawer, Grid, nút Undo/Redo
+#             2. Thanh công cụ chính dưới đáy (Bottom Bar): Đầy đủ 6 công cụ thiết kế cốt lõi (Background, Art, Text, Effect, Palette, Image)
+# ==============================================================================
+
+# Step 1: Khởi động ứng dụng
+- runFlow: "../config/Launch_App.yaml"
+
+- runFlow:
+    when:
+      visible:
+        text: "Get Full Access"
+    file: "../config/Close_IAP_Screen.yaml"
+
+- tapOn:
+    id: "btnTemplate"
+    containsDescendants:
+        - text: "Template"
+        - text: "Edit and Save Logo Template"
+        - id: "tvCreateLogoStart"
+    
+- assertVisible: "Select Template"
+
+- runFlow: "../config/Back_Action.yaml"
+
+- tapOn:
+    id: "btnTemplate"
+    containsDescendants:
+        - text: "Template"
+        - text: "Edit and Save Logo Template"
+        - id: "tvCreateLogoStart"
+    
+# Chọn template đầu tiên dưới mục "Beauty & Wellness" (index 3: 0..2 là Fashion, 3 là Beauty & Wellness đầu tiên)
+- tapOn:
+    id: "imageView"
+    index: 3
+    below: "Beauty & Wellness"
+
+
+# Close Collapsible Ads
+- runFlow:
+    when:
+      visible:
+        text: "Test Ad"
+    commands: 
+        - tapOn: "Close button"
+
+# Xử lý dialog tải tài nguyên template nếu có
+- runFlow:
+    when:
+      visible: "Downloading resources"
+    commands:
+      - runFlow:
+          when:
+            visible: "Download in background"
+          commands:
+            - tapOn: "Download in background"
+      - extendedWaitUntil:
+          notVisible: "Downloading resources"
+          timeout: 30000
+
+- extendedWaitUntil:
+    visible: "Logos4U"
+    timeout: 20000
+
+- assertVisible: "Logos4U"
+
+- assertVisible: "Navigate up"
+
+- assertVisible:
+    id: "mnItemSave"
+
+
+- assertVisible:
+    id: "imageViewLayerTag"
+
+- assertVisible:
+    id: "imageShowGrid"
+
+- assertVisible:
+    id: "btnUndo"
+    enabled: true
+
+- assertVisible:
+    id: "btnRedo"
+    enabled: true
+
+- assertVisible:
+    id: "itemBackground"
+    containsDescendants: 
+        - text: "Background"
+        - id: "img"
+
+- assertVisible:
+    id: "itemArt"
+    containsDescendants: 
+        - text: "Art"
+        - id: "img"
+
+- assertVisible:
+    id: "itemText"
+    containsDescendants: 
+        - text: "Text"
+        - id: "img"
+
+- assertVisible:
+    id: "itemEffect"
+    containsDescendants: 
+        - text: "Effect"
+        - id: "img"
+
+- assertVisible:
+    id: "itemPalette"
+    containsDescendants: 
+        - text: "Palette"
+        - id: "img"
+
+- assertVisible:
+    id: "itemImage"
+    containsDescendants: 
+        - text: "Image"
+        - id: "img"

@@ -1,0 +1,7 @@
+appId: com.thmobile.logomaker
+---
+
+- tapOn: "English"
+
+- tapOn:
+    id: "btnOK"

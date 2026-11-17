@@ -1,0 +1,784 @@
+====================================================================================================
+           BỘ TEST CASES KIỂM THỬ TÍNH NĂNG SUB TAB CONTROLS - TEXT TOOL - MÀN EDIT (LOGO MAKER)
+====================================================================================================
+Ứng dụng: Logo Maker (Logos4U)
+Application ID: com.thmobile.logomaker
+Platform: Android
+Framework kiểm thử: Maestro Automation Framework
+Màn hình kiểm thử: Edit Screen (Template Detail / Trình chỉnh sửa thiết kế)
+Phân hệ tính năng: Sub Tab "Controls" thuộc Text Tool (Thực thi nối tiếp ngay sau khi dùng Text Tool)
+Luồng điều hướng: Home > Template > Category "Restaurant" (Template đầu tiên) > Edit Screen > Dùng Text Tool (Nhập/Áp dụng văn bản) > Tự động mở tiếp tool Control (Sub-tab Controls) > Kiểm thử các tính năng Controls
+Ngày cập nhật: 2026-10-15
+Tài nguyên Hierarchy: layout_text_editor_menu, layout_text_controls, imgMoveUp, imgMoveDown, imgMoveLeft, imgMoveRight, btnLayerUp, tvLayerUp, btnLayerDown, tvLayerDown, layout_text_align, btnAlignLeft, btnAlignCenter, btnAlignRight, layout_text_action, btnDuplicate, btnEdit, btnClosePanel, btnUndo, btnRedo, imageViewLayerTag, imageShowGrid...
+====================================================================================================
+
+I. DANH SÁCH RESOURCE-ID & VIEW PHÂN TÍCH TỪ THIẾT BỊ THẬT (UI DUMP)
+----------------------------------------------------------------------------------------------------
+1. Thanh Toolbar & Điều hướng chung trên Edit Screen:
+   - android.widget.ImageButton (desc: "Navigate up")   : Nút quay lại màn hình Select Template
+   - Text "Logos4U"                                     : Tiêu đề ứng dụng
+   - TextView (text: "Design_Thu_28_08_2025_10_24_28")   : Tên phiên thiết kế tự động sinh
+   - com.thmobile.logomaker:id/mnItemSave (desc: "save"): Nút Lưu dự án hoặc Xuất logo (PNG/JPG)
+   - com.thmobile.logomaker:id/imageViewLayerTag        : Icon mở thanh trượt quản lý Layer (Layer Drawer)
+   - com.thmobile.logomaker:id/imageShowGrid            : Icon bật / tắt lưới căn chỉnh tọa độ (Grid)
+   - com.thmobile.logomaker:id/btnUndo (ivUndo)         : Nút Hoàn tác (Undo)
+   - com.thmobile.logomaker:id/btnRedo (ivRedo)         : Nút Làm lại (Redo)
+   - com.thmobile.logomaker:id/btnClosePanel            : Nút mũi tên đóng / thu gọn bảng công cụ
+
+2. Bước tiền đề: Công cụ Text Tool (Tạo/Nhập Text):
+   - com.thmobile.logomaker:id/itemText                 : Tab công cụ "Text" ở thanh điều hướng dưới cùng
+   - com.thmobile.logomaker:id/editText                 : Trường nhập nội dung văn bản (Hint: "Your Text Here...")
+   - com.thmobile.logomaker:id/item_apply (desc: Apply) : Nút Checkmark xác nhận áp dụng text và quay lại Edit Screen
+
+3. Container Công cụ Text & Thanh Sub-Tab (HorizontalScrollView):
+   - com.thmobile.logomaker:id/layout_text_editor_menu  : Thanh cuộn ngang chứa danh sách các sub-tab Text
+   - Sub-tab "Controls" (Text: "Controls")              : Sub-tab điều khiển vị trí, căn lề, thứ tự, duplicate, edit (TỰ ĐỘNG MỞ SAU KHI DÙNG TEXT TOOL)
+   - Sub-tab "Fonts" (Text: "Fonts")                    : Danh mục phông chữ nghệ thuật
+   - Sub-tab "Color" (Text: "Color")                    : Màu đơn sắc, Gradient, Texture
+   - Sub-tab "Shadow" (Text: "Shadow")                  : Hiệu ứng bóng đổ văn bản
+   - Sub-tab "Background" (Text: "Background")          : Nền văn bản
+   - Sub-tab "Outline" (Text: "Outline")                : Viền chữ nghệ thuật
+   - Sub-tab "Curve" (Text: "Curve")                    : Uốn cong chữ
+   - Sub-tab "3D" (Text: "3D")                          : Tùy biến góc xoay không gian 3 chiều
+
+4. Các thành phần chính trong Container Sub-Tab Controls (`layout_text_controls`):
+   A. Bộ phím điều hướng vị trí (D-pad Movement Group):
+      - com.thmobile.logomaker:id/imgMoveUp             : Nút di chuyển layer Text lên trên (Up)
+      - com.thmobile.logomaker:id/imgMoveDown           : Nút di chuyển layer Text xuống dưới (Down)
+      - com.thmobile.logomaker:id/imgMoveLeft           : Nút di chuyển layer Text sang trái (Left)
+      - com.thmobile.logomaker:id/imgMoveRight          : Nút di chuyển layer Text sang phải (Right)
+
+   B. Bộ nút quản lý thứ tự hiển thị Layer (Layer Depth Reordering):
+      - com.thmobile.logomaker:id/btnLayerUp            : Nút đẩy layer Text lên 1 bậc z-index
+      - com.thmobile.logomaker:id/tvLayerUp             : Nhãn văn bản "Layer up"
+      - com.thmobile.logomaker:id/btnLayerDown          : Nút hạ layer Text xuống 1 bậc z-index
+      - com.thmobile.logomaker:id/tvLayerDown           : Nhãn văn bản "Layer down"
+
+   C. Nhóm căn chỉnh lề văn bản (`layout_text_align`):
+      - com.thmobile.logomaker:id/btnAlignLeft          : Nút căn lề Trái (Left Align)
+      - com.thmobile.logomaker:id/btnAlignCenter        : Nút căn lề Giữa (Center Align - Mặc định active xanh dương)
+      - com.thmobile.logomaker:id/btnAlignRight         : Nút căn lề Phải (Right Align)
+
+   D. Nhóm nút tác vụ nhanh (`layout_text_action`):
+      - com.thmobile.logomaker:id/btnDuplicate          : Nút màu vàng cam, text "DUPLICATE" (Nhân bản layer đang chọn)
+      - com.thmobile.logomaker:id/btnEdit               : Nút màu vàng cam, text "EDIT" (Mở lại màn hình Input Text)
+
+5. Bounding Box & Thao tác trực tiếp trên Canvas:
+   - com.thmobile.logomaker:id/layout_designer          : Khung vẽ thiết kế Canvas
+   - com.thmobile.logomaker:id/stickerView              : View quản lý các sticker / text layer trên Canvas
+   - Handle Top-Left (Nút X)                            : Nút xóa nhanh layer Text đang chọn
+   - Handle Bottom-Left (Nút Rotate)                    : Handle xoay tròn tự do quanh tâm layer
+   - Handle Top-Right (Nút Flip/Mirror)                 : Handle lật đối xứng gương văn bản
+   - Handle Bottom-Right (Nút Scale/Resize)             : Handle kéo dãn phóng to / thu nhỏ văn bản
+   - Direct Touch Drag                                  : Chạm giữ và kéo trực tiếp thân layer để di chuyển tự do
+
+6. Bảng quản lý Layer Drawer liên kết (`layerListView`):
+   - com.thmobile.logomaker:id/checkboxLockAll          : Checkbox khóa toàn bộ layers
+   - com.thmobile.logomaker:id/recyclerView             : Danh sách các layer đang có trên canvas
+   - com.thmobile.logomaker:id/textView                 : Tên hiển thị của text layer (VD: "DELICIOUS", "FOOD", "BEST")
+   - com.thmobile.logomaker:id/imageViewLock            : Icon khóa / mở khóa từng layer
+   - com.thmobile.logomaker:id/imageViewHandle          : Handle kéo thả sắp xếp lại thứ tự layer
+
+
+====================================================================================================
+II. CHI TIẾT CÁC TEST CASES THEO TỪNG NHÓM CHỨC NĂNG
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+NHÓM 1: UI & WORKFLOW TRANSITION TEST CASES (Chuyển Tiếp từ Text Tool sang Sub Tab Controls)
+----------------------------------------------------------------------------------------------------
+
+[TC_CTRL_FLOW_01] Tự động kích hoạt Sub Tab Controls ngay sau khi hoàn thành tạo Text mới qua Text Tool
+- Mục tiêu: Xác nhận luồng nối tiếp: Người dùng dùng tính năng Text Tool (nhập text mới -> Apply) -> Hệ thống tự động chuyển thẳng vào sub-tab Controls của layer vừa tạo với đầy đủ các nút chức năng.
+- Điều kiện tiên quyết: Mở app -> Chọn Template Restaurant đầu tiên -> Đang ở màn hình Edit Screen.
+- Các bước thực hiện:
+  1. Nhấn vào tab "Text" (id: "itemText") ở thanh bottom bar.
+  2. Tại màn hình Input Text: Nhập nội dung "DELICIOUS".
+  3. Nhấn nút Checkmark Apply (id: "item_apply").
+  4. Đóng quảng cáo Collapsible nếu xuất hiện.
+  5. Kiểm tra giao diện Edit Screen sau khi quay lại:
+     + Chữ "DELICIOUS" xuất hiện tại trung tâm Canvas kèm khung Bounding Box.
+     + Thanh sub-tab Text tự động mở với tab "Controls" được chọn (selected="true").
+     + Container "layout_text_controls" hiển thị đầy đủ: 4 nút di chuyển D-pad, 2 nút Layer up/down, 3 nút Căn lề, 2 nút DUPLICATE/EDIT.
+- Kết quả mong đợi:
+  + Quá trình chuyển tiếp diễn ra tự động, mượt mà, không cần người dùng phải bấm chọn layer thủ công.
+  + Toàn bộ các công cụ trong sub-tab Controls sẵn sàng nhận lệnh điều khiển.
+- Maestro Selectors:
+  - tapOn: { id: "itemText" }
+  - inputText: "DELICIOUS"
+  - tapOn: { id: "item_apply" }
+  - assertVisible: { id: "layout_text_controls" }
+  - assertVisible: { id: "imgMoveUp" }
+  - assertVisible: { id: "imgMoveDown" }
+  - assertVisible: { id: "imgMoveLeft" }
+  - assertVisible: { id: "imgMoveRight" }
+  - assertVisible: { id: "btnLayerUp" }
+  - assertVisible: { id: "btnLayerDown" }
+  - assertVisible: { id: "btnAlignLeft" }
+  - assertVisible: { id: "btnAlignCenter" }
+  - assertVisible: { id: "btnAlignRight" }
+  - assertVisible: { id: "btnDuplicate" }
+  - assertVisible: { id: "btnEdit" }
+
+[TC_CTRL_FLOW_02] Visual Regression Testing - So sánh giao diện Controls vừa mở sau Text Tool với Baseline
+- Mục tiêu: Kiểm tra độ đồng nhất hiển thị giao diện Sub Tab Controls vừa kích hoạt với ảnh chuẩn thiết kế (Pixel-perfect matching).
+- Điều kiện tiên quyết: Đã có ảnh baseline trong thư mục assets/.
+- Các bước thực hiện:
+  1. Hoàn tất Text Tool -> Edit Screen mở sub-tab Controls của text layer vừa tạo.
+  2. Chụp ảnh màn hình: takeScreenshot: "screenshots/Controls_SubTab_After_Text_Tool".
+  3. Đối soát hình ảnh với ảnh baseline trong assets/.
+- Kết quả mong đợi: Độ tương đồng hình ảnh đạt >= 95%, các nút hiển thị đúng màu sắc và vị trí.
+
+[TC_CTRL_FLOW_03] Trạng thái kích hoạt mặc định của cụm nút Căn lề ngay sau khi tạo Text
+- Mục tiêu: Đảm bảo nút căn lề mặc định của text layer mới tạo luôn là Align Center.
+- Các bước thực hiện:
+  1. Vừa hoàn thành Text Tool và quay lại Edit Screen.
+  2. Quan sát màu sắc hiển thị của 3 nút căn lề trong layout_text_align.
+- Kết quả mong đợi:
+  + Nút căn lề giữa (id: "btnAlignCenter") hiển thị màu xanh dương (active).
+  + Hai nút căn lề trái (btnAlignLeft) và căn lề phải (btnAlignRight) hiển thị màu xám/đen trung tính (inactive).
+
+[TC_CTRL_FLOW_04] Trạng thái enable/disable của các nút Layer Up / Layer Down trên Text mới tạo
+- Mục tiêu: Xác nhận nút điều chỉnh tầng layer thể hiện đúng khả năng di chuyển theo vị trí thực tế trong stack.
+- Các bước thực hiện:
+  1. Text vừa tạo được thêm vào đỉnh trên cùng của stack layers.
+  2. Kiểm tra trạng thái của btnLayerUp và btnLayerDown.
+- Kết quả mong đợi:
+  + btnLayerDown ở trạng thái kích hoạt (enabled=true) cho phép hạ text xuống dưới các layer khác.
+  + btnLayerUp hiển thị theo trạng thái đỉnh layer.
+
+[TC_CTRL_FLOW_05] Thu gọn và mở lại bảng Controls bằng nút Close Panel (`btnClosePanel`)
+- Mục tiêu: Kiểm tra hoạt động của nút mũi tên thu gọn bảng điều khiển sau khi dùng Text Tool.
+- Các bước thực hiện:
+  1. Đang ở sub-tab Controls của text vừa tạo.
+  2. Nhấn nút Close Panel (id: "btnClosePanel") tại góc trên bên phải thanh công cụ.
+  3. Quan sát giao diện màn hình.
+  4. Nhấn lại vào layer Text "DELICIOUS" trên Canvas.
+- Kết quả mong đợi:
+  + Khi nhấn Close Panel: Bảng công cụ dưới thu gọn xuống, bounding box trên Canvas biến mất, trả lại toàn bộ không gian nhìn cho Canvas thiết kế.
+  + Khi chạm lại vào Text: Bảng Controls mở lại đầy đủ như trạng thái trước đó.
+- Maestro Selectors:
+  - tapOn: { id: "btnClosePanel" }
+  - assertNotVisible: { id: "layout_text_controls" }
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 2: D-PAD MOVEMENT TEST CASES (Kiểm thử Di chuyển Vị trí Layer Text sau khi Dùng Text Tool)
+----------------------------------------------------------------------------------------------------
+
+[TC_CTRL_MOVE_01] Di chuyển Text mới tạo lên trên bằng nút `imgMoveUp`
+- Mục tiêu: Xác nhận layer Text dịch chuyển lên phía trên từng bước pixel chính xác mỗi khi nhấn nút mũi tên lên.
+- Các bước thực hiện:
+  1. Text "DELICIOUS" vừa tạo đang nằm đè lên icon đĩa ăn ở trung tâm.
+  2. Nhấn vào nút di chuyển lên (id: "imgMoveUp") 3 lần.
+  3. Chụp ảnh kết quả: takeScreenshot: "screenshots/Text_Move_Up".
+- Kết quả mong đợi:
+  + Bounding box và nội dung chữ "DELICIOUS" dịch chuyển dần lên trên khỏi vùng đĩa ăn.
+  + Tọa độ Y giảm dần, tọa độ X giữ nguyên.
+- Maestro Selectors:
+  - tapOn: { id: "imgMoveUp" }
+
+[TC_CTRL_MOVE_02] Di chuyển Text mới tạo xuống dưới bằng nút `imgMoveDown`
+- Mục tiêu: Xác nhận layer Text dịch chuyển xuống phía dưới từng bước khi nhấn nút mũi tên xuống.
+- Các bước thực hiện:
+  1. Nhấn vào nút di chuyển xuống (id: "imgMoveDown") 5 lần.
+  2. Quan sát vị trí chữ "DELICIOUS" trên Canvas.
+- Kết quả mong đợi:
+  + Bounding box và nội dung chữ "DELICIOUS" dịch chuyển xuống phía dưới.
+  + Tọa độ Y tăng dần, tọa độ X giữ nguyên.
+- Maestro Selectors:
+  - tapOn: { id: "imgMoveDown" }
+
+[TC_CTRL_MOVE_03] Di chuyển Text sang trái bằng nút `imgMoveLeft`
+- Mục tiêu: Xác nhận layer Text dịch chuyển sang trái từng bước khi nhấn nút mũi tên trái.
+- Các bước thực hiện:
+  1. Nhấn vào nút di chuyển trái (id: "imgMoveLeft") 4 lần.
+  2. Chụp ảnh kết quả: takeScreenshot: "screenshots/Text_Move_Left".
+- Kết quả mong đợi:
+  + Bounding box và nội dung chữ dịch chuyển sang phía trái.
+  + Tọa độ X giảm dần, tọa độ Y giữ nguyên.
+- Maestro Selectors:
+  - tapOn: { id: "imgMoveLeft" }
+
+[TC_CTRL_MOVE_04] Di chuyển Text sang phải bằng nút `imgMoveRight`
+- Mục tiêu: Xác nhận layer Text dịch chuyển sang phải từng bước khi nhấn nút mũi tên phải.
+- Các bước thực hiện:
+  1. Nhấn vào nút di chuyển phải (id: "imgMoveRight") 4 lần.
+  2. Quan sát vị trí chữ trên Canvas.
+- Kết quả mong đợi:
+  + Bounding box và nội dung chữ dịch chuyển sang phía phải.
+  + Tọa độ X tăng dần, tọa độ Y giữ nguyên.
+- Maestro Selectors:
+  - tapOn: { id: "imgMoveRight" }
+
+[TC_CTRL_MOVE_05] Nhấn liên tiếp nhiều lần các phím D-pad để định vị chính xác (Micro-adjustment)
+- Mục tiêu: Đảm bảo người dùng có thể căn chỉnh vị trí tinh vi bằng cách nhấn liên tiếp nhiều lần mà không bị nuốt sự kiện cảm ứng.
+- Các bước thực hiện:
+  1. Nhấn liên tiếp 5 lần nút imgMoveRight.
+  2. Nhấn liên tiếp 5 lần nút imgMoveDown.
+- Kết quả mong đợi:
+  + Layer Text dịch chuyển tích lũy tương ứng 5 bước sang phải và 5 bước xuống dưới.
+  + Hiển thị mượt mà, không bị khựng, không đơ giao diện.
+
+[TC_CTRL_MOVE_06] Di chuyển Text vượt biên giới hạn Canvas (Boundary / Edge Testing)
+- Mục tiêu: Kiểm tra hành vi ứng dụng khi người dùng di chuyển layer Text ra sát mép hoặc một phần ra ngoài vùng Canvas.
+- Các bước thực hiện:
+  1. Nhấn giữ hoặc nhấn liên tục nút imgMoveLeft cho đến khi chữ chạm mép trái Canvas và vượt ra ngoài.
+- Kết quả mong đợi:
+  + Ứng dụng không bị crash, bounding box vẫn bám theo layer.
+  + Phần chữ nằm ngoài Canvas bị che khuất hoặc ẩn tự nhiên theo khung hình vẽ, không gây tràn vỡ layout hệ thống.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 3: TEXT ALIGNMENT TEST CASES (Kiểm thử Căn lề Văn bản)
+----------------------------------------------------------------------------------------------------
+
+[TC_CTRL_ALIGN_01] Căn lề Trái văn bản bằng nút `btnAlignLeft`
+- Mục tiêu: Xác nhận văn bản được căn sát về phía lề trái của khung chữ.
+- Điều kiện tiên quyết: Layer Text đang mở trong sub-tab Controls.
+- Các bước thực hiện:
+  1. Nhấn nút căn lề Trái (id: "btnAlignLeft").
+  2. Quan sát icon nút btnAlignLeft và vị trí chữ trong bounding box.
+  3. Chụp ảnh màn hình: takeScreenshot: "screenshots/Text_Align_Left".
+- Kết quả mong đợi:
+  + Nút btnAlignLeft chuyển sang màu xanh dương (highlight kích hoạt).
+  + Nút btnAlignCenter và btnAlignRight chuyển về màu trung tính.
+  + Văn bản trong khung được gióng hàng theo lề trái.
+- Maestro Selectors:
+  - tapOn: { id: "btnAlignLeft" }
+
+[TC_CTRL_ALIGN_02] Căn lề Giữa văn bản bằng nút `btnAlignCenter`
+- Mục tiêu: Xác nhận văn bản được căn đều vào chính giữa khung chữ.
+- Các bước thực hiện:
+  1. Nhấn nút căn lề Giữa (id: "btnAlignCenter").
+  2. Quan sát icon nút btnAlignCenter và vị trí chữ.
+  3. Chụp ảnh màn hình: takeScreenshot: "screenshots/Text_Align_Center".
+- Kết quả mong đợi:
+  + Nút btnAlignCenter chuyển sang màu xanh dương (highlight kích hoạt).
+  + Nút btnAlignLeft và btnAlignRight chuyển về màu trung tính.
+  + Văn bản trong khung được gióng đều vào tâm giữa.
+- Maestro Selectors:
+  - tapOn: { id: "btnAlignCenter" }
+
+[TC_CTRL_ALIGN_03] Căn lề Phải văn bản bằng nút `btnAlignRight`
+- Mục tiêu: Xác nhận văn bản được căn sát về phía lề phải của khung chữ.
+- Các bước thực hiện:
+  1. Nhấn nút căn lề Phải (id: "btnAlignRight").
+  2. Quan sát icon nút btnAlignRight và vị trí chữ.
+  3. Chụp ảnh màn hình: takeScreenshot: "screenshots/Text_Align_Right".
+- Kết quả mong đợi:
+  + Nút btnAlignRight chuyển sang màu xanh dương (highlight kích hoạt).
+  + Nút btnAlignLeft và btnAlignCenter chuyển về màu trung tính.
+  + Văn bản trong khung được gióng hàng theo lề phải.
+- Maestro Selectors:
+  - tapOn: { id: "btnAlignRight" }
+
+[TC_CTRL_ALIGN_04] Chuyển đổi liên tục giữa 3 chế độ căn lề (Alignment Toggle State)
+- Mục tiêu: Xác nhận trạng thái độc quyền (mutually exclusive) của nhóm 3 nút căn lề.
+- Các bước thực hiện:
+  1. Nhấn lần lượt: btnAlignLeft -> btnAlignRight -> btnAlignCenter -> btnAlignLeft.
+- Kết quả mong đợi:
+  + Tại mọi thời điểm chỉ có DUY NHẤT một nút căn lề sáng xanh.
+  + Hiển thị văn bản trên Canvas chuyển đổi mượt mà theo đúng chế độ vừa chọn.
+
+[TC_CTRL_ALIGN_05] Kiểm thử Căn lề với chuỗi văn bản nhiều dòng vừa nhập qua Text Tool
+- Mục tiêu: Xác nhận hiệu ứng căn lề thể hiện rõ nét và chính xác trên các đoạn văn bản có nhiều dòng.
+- Các bước thực hiện:
+  1. Dùng Text Tool nhập văn bản 2 dòng: "HOT & FRESH\nPIZZA" -> Apply.
+  2. Tại sub-tab Controls, nhấn btnAlignLeft -> Quan sát 2 dòng chữ.
+  3. Nhấn btnAlignCenter -> Quan sát 2 dòng chữ.
+  4. Nhấn btnAlignRight -> Quan sát 2 dòng chữ.
+- Kết quả mong đợi:
+  + Khi Align Left: Cả 2 dòng có ký tự đầu tiên thẳng hàng dọc bên trái.
+  + Khi Align Center: Tâm của cả 2 dòng nằm trên cùng một trục dọc ở giữa.
+  + Khi Align Right: Ký tự cuối cùng của cả 2 dòng thẳng hàng dọc bên phải.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 4: DUPLICATE & EDIT ACTION TEST CASES (Kiểm thử Tác vụ Nhân bản & Sửa Nối Tiếp)
+----------------------------------------------------------------------------------------------------
+
+[TC_CTRL_ACT_01] Nhân bản Text Layer vừa tạo bằng nút `DUPLICATE`
+- Mục tiêu: Xác nhận khi nhấn nút DUPLICATE, một layer Text mới giống hệt được tạo ra ngay trên Canvas.
+- Điều kiện tiên quyết: Text layer đang active trong sub-tab Controls.
+- Các bước thực hiện:
+  1. Nhấn nút "DUPLICATE" (id: "btnDuplicate").
+  2. Quan sát Canvas và thanh công cụ.
+  3. Chụp ảnh màn hình: takeScreenshot: "screenshots/Text_Duplicate_Result".
+- Kết quả mong đợi:
+  + Một layer Text mới mang cùng nội dung xuất hiện trên Canvas.
+  + Layer mới có vị trí lệch nhẹ xuống dưới và sang phải (offset khoảng 15-20 pixels) so với layer gốc.
+  + Layer mới được tự động gán bounding box và trở thành layer đang được chọn (active).
+- Maestro Selectors:
+  - tapOn: { id: "btnDuplicate" }
+
+[TC_CTRL_ACT_02] Kiểm tra tính kế thừa thuộc tính của Layer vừa Duplicate
+- Mục tiêu: Đảm bảo layer bản sao kế thừa 100% các thuộc tính định dạng của layer gốc.
+- Các bước thực hiện:
+  1. Layer gốc có: Nội dung "DELICIOUS", căn lề phải.
+  2. Nhấn nút DUPLICATE.
+  3. So sánh layer mới với layer gốc.
+- Kết quả mong đợi: Layer mới giữ nguyên font chữ, màu sắc, cỡ chữ, căn lề và góc xoay tương đương layer gốc.
+
+[TC_CTRL_ACT_03] Nhân bản liên tiếp nhiều lần (Multi-duplicate Stress Test)
+- Mục tiêu: Kiểm tra độ ổn định của ứng dụng và bộ nhớ khi tạo liên tiếp nhiều bản sao.
+- Các bước thực hiện:
+  1. Nhấn nút DUPLICATE 3 lần liên tiếp.
+  2. Mở Layer Drawer (id: "imageViewLayerTag") để xem danh sách layer.
+- Kết quả mong đợi:
+  + 3 layer mới lần lượt được tạo ra và xếp chồng theo thứ tự offset.
+  + Layer Drawer hiển thị thêm 3 dòng layer mới.
+  + Không bị văng app, không lag giật giao diện.
+
+[TC_CTRL_ACT_04] Điều hướng quay lại màn hình Input Text qua nút `EDIT`
+- Mục tiêu: Xác nhận nút EDIT màu vàng cam mở trực tiếp màn hình soạn thảo Input Text để sửa nhanh layer đang chọn.
+- Các bước thực hiện:
+  1. Đang ở Controls của layer "DELICIOUS".
+  2. Nhấn nút "EDIT" (id: "btnEdit").
+  3. Quan sát giao diện chuyển đổi.
+- Kết quả mong đợi:
+  + Ứng dụng chuyển sang màn hình "Input Text".
+  + Trường nhập liệu (id: "editText") chứa sẵn chuỗi "DELICIOUS".
+  + Bộ đếm ký tự (id: "numOfLetters") hiển thị "9/40".
+  + Bàn phím ảo hệ thống tự động bật lên.
+- Maestro Selectors:
+  - tapOn: { id: "btnEdit" }
+  - assertVisible: "Input Text"
+  - assertVisible: { id: "editText", text: "DELICIOUS" }
+  - assertVisible: { id: "numOfLetters", text: "9/40" }
+
+[TC_CTRL_ACT_05] Chỉnh sửa nội dung qua nút EDIT và xác nhận cập nhật tại Controls
+- Mục tiêu: Kiểm tra chu trình khép kín: dùng Text Tool -> Controls -> Edit -> Sửa chữ -> Apply -> trở về Controls với layer đã đổi nội dung.
+- Các bước thực hiện:
+  1. Nhấn nút "EDIT" trên sub-tab Controls.
+  2. Xóa chữ "DELICIOUS" và nhập "SUPER TASTY" -> Nhấn nút Apply (id: "item_apply").
+  3. Quay lại màn hình Edit.
+- Kết quả mong đợi:
+  + Chữ trên Canvas cập nhật thành "SUPER TASTY".
+  + Bounding box tự động co giãn theo chiều dài từ mới.
+  + Sub-tab Controls vẫn đang mở và sẵn sàng thao tác trên layer "SUPER TASTY".
+- Maestro Selectors:
+  - tapOn: { id: "btnEdit" }
+  - eraseText: 15
+  - inputText: "SUPER TASTY"
+  - tapOn: { id: "item_apply" }
+  - assertVisible: { id: "layout_text_controls" }
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 5: LAYER DEPTH REORDERING TEST CASES (Kiểm thử Thứ tự Hiển thị Tầng Layer)
+----------------------------------------------------------------------------------------------------
+
+[TC_CTRL_LAYER_01] Đẩy Layer Text lên trên 1 bậc bằng nút `btnLayerUp`
+- Mục tiêu: Xác nhận layer Text được nâng lên 1 bậc trong trục z-index, hiển thị đè lên các layer nằm bên dưới nó.
+- Các bước thực hiện:
+  1. Text vừa tạo đang nằm đè lên một phần của icon đĩa ăn (Art layer).
+  2. Nếu chữ đang nằm bên dưới icon đĩa ăn: Nhấn nút "Layer up" (id: "btnLayerUp").
+  3. Quan sát độ che phủ trên Canvas và thứ tự trong Layer Drawer.
+- Kết quả mong đợi:
+  + Chữ lập tức hiển thị nổi lên phía trên, che phủ phần đồ họa của icon đĩa ăn.
+  + Trong Layer Drawer, dòng text dịch chuyển lên trên 1 vị trí so với icon đĩa ăn.
+- Maestro Selectors:
+  - tapOn: { id: "btnLayerUp" }
+
+[TC_CTRL_LAYER_02] Hạ Layer Text xuống dưới 1 bậc bằng nút `btnLayerDown`
+- Mục tiêu: Xác nhận layer Text bị hạ xuống 1 bậc trong trục z-index, nằm ẩn bên dưới layer khác.
+- Các bước thực hiện:
+  1. Chữ đang nằm đè lên icon đĩa ăn.
+  2. Nhấn nút "Layer down" (id: "btnLayerDown").
+  3. Quan sát độ che phủ trên Canvas.
+- Kết quả mong đợi:
+  + Chữ chìm xuống phía dưới, bị đồ họa của icon đĩa ăn che lấp một phần.
+  + Trong Layer Drawer, dòng text dịch chuyển xuống dưới 1 vị trí.
+- Maestro Selectors:
+  - tapOn: { id: "btnLayerDown" }
+
+[TC_CTRL_LAYER_03] Kiểm tra trạng thái giới hạn khi Layer ở đỉnh cao nhất (Top of Stack)
+- Mục tiêu: Xác nhận khi một layer đã ở đỉnh cao nhất của tất cả layers, nút Layer Up sẽ bị vô hiệu hóa hoặc không còn tác dụng.
+- Các bước thực hiện:
+  1. Nhấn nút btnLayerUp liên tục cho đến khi layer text nằm ở vị trí cao nhất trên Layer Drawer.
+  2. Quan sát nút btnLayerUp và nhấn thử tiếp 1 lần nữa.
+- Kết quả mong đợi:
+  + Nút btnLayerUp bị mờ (enabled=false) hoặc nhấn không gây xáo trộn gì thêm.
+  + Không phát sinh lỗi hoặc đơ ứng dụng.
+
+[TC_CTRL_LAYER_04] Kiểm tra trạng thái giới hạn khi Layer ở đáy thấp nhất (Bottom of Stack)
+- Mục tiêu: Xác nhận khi một layer đã ở đáy thấp nhất, nút Layer Down sẽ bị vô hiệu hóa hoặc không còn tác dụng.
+- Các bước thực hiện:
+  1. Nhấn nút btnLayerDown liên tục cho đến khi layer text chạm đáy danh sách layers.
+  2. Quan sát nút btnLayerDown và nhấn thử tiếp 1 lần nữa.
+- Kết quả mong đợi:
+  + Nút btnLayerDown bị mờ (enabled=false) hoặc nhấn không làm thay đổi thứ tự.
+  + Layer Text không bị rớt ra ngoài vùng quản lý của Canvas.
+
+[TC_CTRL_LAYER_05] Đồng bộ thời gian thực giữa phím Controls và danh sách Layer Drawer
+- Mục tiêu: Đảm bảo thứ tự layer thay đổi qua Controls phản ánh chính xác 100% trong danh sách Layer Drawer.
+- Các bước thực hiện:
+  1. Tại sub-tab Controls, nhấn btnLayerDown.
+  2. Mở Layer Drawer (id: "imageViewLayerTag").
+  3. Kiểm tra vị trí dòng text trong danh sách.
+- Kết quả mong đợi: Thứ tự hiển thị trong danh sách RecyclerView khớp hoàn toàn với thao tác vừa thực hiện.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 6: CANVAS BOUNDING BOX & HANDLES TEST CASES (Kiểm thử Thao tác Trực tiếp trên Khung Bounding Box)
+----------------------------------------------------------------------------------------------------
+
+[TC_CTRL_CANVAS_01] Xóa nhanh Layer Text bằng nút `X` (Delete Handle) ở góc trên bên trái
+- Mục tiêu: Xác nhận chạm vào icon "X" ở góc trên bên trái bounding box sẽ xóa vĩnh viễn layer Text đang chọn khỏi Canvas.
+- Các bước thực hiện:
+  1. Chọn layer Text để xuất hiện bounding box với 4 handle ở 4 góc.
+  2. Nhấn vào handle "X" ở góc trên bên trái của khung bounding box.
+  3. Quan sát Canvas và thanh công cụ.
+- Kết quả mong đợi:
+  + Layer chữ biến mất hoàn toàn khỏi Canvas.
+  + Khung bounding box biến mất.
+  + Bảng công cụ Text tự động đóng hoặc chuyển về trạng thái không chọn layer.
+  + Trong Layer Drawer không còn dòng text tương ứng.
+
+[TC_CTRL_CANVAS_02] Xoay tròn tự do Layer Text bằng Handle Rotate ở góc dưới bên trái
+- Mục tiêu: Xác nhận chạm và kéo handle xoay ở góc dưới bên trái cho phép xoay chữ tự do quanh tâm.
+- Các bước thực hiện:
+  1. Chọn layer Text "SUPER VIP" trên Canvas để kích hoạt khung Bounding Box.
+  2. Chạm giữ handle Rotate (góc dưới bên trái bounding box, tọa độ: "32%, 56%").
+  3. Kéo vuốt lên theo cung tròn đến tọa độ: "27%, 51%" (duration: 800ms).
+  4. Chụp ảnh kết quả: takeScreenshot: "screenshots/Control_Text_Rotated".
+- Kết quả mong đợi:
+  + Layer "SUPER VIP" nghiêng một góc ~25 độ ngược chiều kim đồng hồ.
+  + Bounding box xoay đồng bộ theo hướng chữ.
+  + Văn bản hiển thị sắc nét, không bị răng cưa hay vỡ font.
+- Maestro Selectors & Actions:
+  - swipe: { start: "32%, 56%", end: "27%, 51%", duration: 800 }
+  - takeScreenshot: "screenshots/Control_Text_Rotated"
+- Visual Regression: Template "assets/Control_Text_Rotated.png" (Tỷ lệ khớp thực tế: 99.25% - PASSED)
+
+[TC_CTRL_CANVAS_03] Lật đối xứng gương bằng Handle Flip/Mirror ở góc trên bên phải
+- Mục tiêu: Xác nhận chạm vào handle Flip ở góc trên bên phải sẽ đảo chiều chữ theo trục đối xứng gương ngang.
+- Các bước thực hiện:
+  1. Chọn layer Text "SUPER VIP" trên Canvas.
+  2. Nhấn vào handle Flip ở góc trên bên phải bounding box (tọa độ: "73%, 51%").
+  3. Chụp ảnh kết quả: takeScreenshot: "screenshots/Control_Text_Flipped".
+  4. Nhấn lại vào handle Flip ("73%, 51%") để trả về chiều chữ thuận ban đầu.
+- Kết quả mong đợi:
+  + Chữ "SUPER VIP" bị lật ngược đối xứng gương ngang ("PIV REPUS").
+  + Khung bounding box và các handle giữ nguyên vị trí tọa độ.
+  + Nhấn lần 2: Chữ phục hồi chiều đọc bình thường.
+- Maestro Selectors & Actions:
+  - tapOn: { point: "73%, 51%" }
+  - takeScreenshot: "screenshots/Control_Text_Flipped"
+  - tapOn: { point: "73%, 51%" }
+- Visual Regression: Template "assets/Control_Text_Flipped.png" (Tỷ lệ khớp thực tế: 99.31% - PASSED)
+
+[TC_CTRL_CANVAS_04] Phóng to / Thu nhỏ bằng Handle Scale ở góc dưới bên phải
+- Mục tiêu: Xác nhận kéo handle góc dưới bên phải giúp phóng to thu nhỏ kích thước chữ tỉ lệ thuận.
+- Các bước thực hiện:
+  1. Chọn layer Text "SUPER VIP" trên Canvas.
+  2. Chạm giữ handle Scale/Zoom ở góc dưới bên phải bounding box (tọa độ: "73%, 56%").
+  3. Kéo hướng vào tâm về tọa độ: "65%, 54%" (duration: 800ms) để thu nhỏ kích thước chữ.
+  4. Chụp ảnh kết quả: takeScreenshot: "screenshots/Control_Text_Zoomed".
+  5. Kéo lại từ "65%, 54%" về "73%, 56%" để phục hồi kích thước chuẩn.
+- Kết quả mong đợi:
+  + Layer chữ co nhỏ lại tỉ lệ thuận theo cả chiều rộng và chiều cao.
+  + Bounding box tự động thu hẹp ôm khít từ.
+  + Phục hồi mượt mà về kích thước ban đầu.
+- Maestro Selectors & Actions:
+  - swipe: { start: "73%, 56%", end: "65%, 54%", duration: 800 }
+  - takeScreenshot: "screenshots/Control_Text_Zoomed"
+  - swipe: { start: "65%, 54%", end: "73%, 56%", duration: 800 }
+- Visual Regression: Template "assets/Control_Text_Zoomed.png" (Tỷ lệ khớp thực tế: 99.31% - PASSED)
+
+[TC_CTRL_CANVAS_05] Kéo thả di chuyển trực tiếp Text Layer trên Canvas (Touch Drag & Drop)
+- Mục tiêu: Xác nhận người dùng có thể chạm trực tiếp vào thân chữ và kéo di chuyển sang một vị trí khác trên Canvas.
+- Các bước thực hiện:
+  1. Chạm vào tâm layer Text "SUPER VIP" tại tọa độ xuất phát (tọa độ: "50%, 38%").
+  2. Vuốt kéo thẳng xuống vị trí mới tại tọa độ: "50%, 55%" (duration: 800ms).
+  3. Thả tay và chờ giao diện ổn định.
+  4. Chụp ảnh kết quả: takeScreenshot: "screenshots/Control_Text_Frame_Moved".
+- Kết quả mong đợi:
+  + Layer "SUPER VIP" di chuyển mượt mà theo ngón tay từ giữa Canvas xuống vùng trống phía dưới.
+  + Khung bounding box và 4 handle bám theo layer tại vị trí mới (Y: 55%).
+  + Sub-tab Controls bên dưới vẫn duy trì trạng thái active.
+- Maestro Selectors & Actions:
+  - tapOn: { point: "50%, 38%" }
+  - swipe: { start: "50%, 38%", end: "50%, 55%", duration: 800 }
+  - takeScreenshot: "screenshots/Control_Text_Frame_Moved"
+- Visual Regression: Template "assets/Control_Text_Frame_Moved.png" (Tỷ lệ khớp thực tế: 99.15% - PASSED)
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 7: UNDO & REDO TEST CASES (Kiểm thử Hoàn tác & Làm lại với các Tác vụ Controls)
+----------------------------------------------------------------------------------------------------
+
+[TC_CTRL_UNDO_01] Undo thao tác di chuyển D-pad
+- Mục tiêu: Xác nhận nút Undo hoàn tác lại bước dịch chuyển vị trí vừa thực hiện.
+- Các bước thực hiện:
+  1. Chọn layer Text trong Controls.
+  2. Nhấn nút imgMoveLeft 3 lần.
+  3. Nhấn nút Undo trên toolbar (id: "btnUndo").
+- Kết quả mong đợi: Layer lùi lại 1 bước sang phải (về vị trí trước lần nhấn thứ 3).
+- Maestro Selectors:
+  - tapOn: { id: "imgMoveLeft" }
+  - tapOn: { id: "btnUndo" }
+
+[TC_CTRL_UNDO_02] Undo thao tác căn lề Text (Align)
+- Mục tiêu: Xác nhận nút Undo khôi phục lại trạng thái căn lề trước đó.
+- Các bước thực hiện:
+  1. Layer đang ở trạng thái Căn giữa (Align Center).
+  2. Nhấn nút Căn phải (id: "btnAlignRight") -> Chữ căn phải, btnAlignRight sáng xanh.
+  3. Nhấn nút Undo (id: "btnUndo").
+- Kết quả mong đợi:
+  + Chữ quay trở lại căn lề Giữa.
+  + Nút btnAlignCenter sáng xanh trở lại, nút btnAlignRight trở về màu xám.
+- Maestro Selectors:
+  - tapOn: { id: "btnAlignRight" }
+  - tapOn: { id: "btnUndo" }
+
+[TC_CTRL_UNDO_03] Undo thao tác nhân bản layer (Duplicate)
+- Mục tiêu: Xác nhận nút Undo xóa bỏ layer vừa được tạo ra từ thao tác Duplicate.
+- Các bước thực hiện:
+  1. Chọn layer -> Nhấn nút "DUPLICATE" (id: "btnDuplicate") -> Xuất hiện layer mới.
+  2. Nhấn nút Undo (id: "btnUndo").
+  3. Quan sát Canvas và Layer Drawer.
+- Kết quả mong đợi:
+  + Layer vừa nhân bản bị xóa bỏ hoàn toàn.
+  + Canvas chỉ còn lại 1 layer ban đầu.
+  + Layer gốc được khôi phục trạng thái active.
+- Maestro Selectors:
+  - tapOn: { id: "btnDuplicate" }
+  - tapOn: { id: "btnUndo" }
+
+[TC_CTRL_UNDO_04] Redo phục hồi lại layer đã Undo sau khi Duplicate
+- Mục tiêu: Xác nhận nút Redo tái tạo lại layer nhân bản vừa bị Undo.
+- Các bước thực hiện:
+  1. Vừa thực hiện Undo thao tác Duplicate ở test case trên.
+  2. Nhấn nút Redo trên toolbar (id: "btnRedo").
+- Kết quả mong đợi:
+  + Layer nhân bản xuất hiện trở lại tại đúng vị trí offset trên Canvas.
+  + Nút Undo lại sáng lên sẵn sàng hoàn tác tiếp.
+- Maestro Selectors:
+  - tapOn: { id: "btnRedo" }
+
+[TC_CTRL_UNDO_05] Undo thao tác xóa layer bằng nút `X` (Delete Handle)
+- Mục tiêu: Xác nhận nút Undo có khả năng phục hồi lại layer Text vừa bị vô tình xóa mất.
+- Các bước thực hiện:
+  1. Chọn layer -> Nhấn handle "X" trên bounding box để xóa layer.
+  2. Layer biến mất.
+  3. Nhấn nút Undo (id: "btnUndo").
+- Kết quả mong đợi:
+  + Chữ lập tức xuất hiện trở lại tại đúng vị trí, định dạng và góc xoay ban đầu.
+  + Bounding box xuất hiện trở lại bao quanh chữ.
+- Maestro Selectors:
+  - tapOn: { id: "btnUndo" }
+
+[TC_CTRL_UNDO_06] Chuỗi Undo/Redo đa thao tác phức hợp (Composite History)
+- Mục tiêu: Đảm bảo ngăn xếp lịch sử Undo/Redo hoạt động chuẩn xác theo nguyên tắc LIFO (Last In First Out).
+- Các bước thực hiện:
+  1. Nhấn imgMoveUp -> Nhấn btnAlignLeft -> Nhấn btnDuplicate -> Nhấn btnLayerDown.
+  2. Nhấn Undo liên tục 4 lần.
+  3. Nhấn Redo liên tục 4 lần.
+- Kết quả mong đợi:
+  + Mỗi lần Undo lùi lại đúng một trạng thái theo thứ tự ngược lại.
+  + Mỗi lần Redo tiến lên một trạng thái theo đúng trình tự ban đầu.
+  + Không xảy ra xung đột dữ liệu hay crash app.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 8: INTERACTION & INTEGRATION TEST CASES (Kiểm thử Tương tác Chéo & Tích hợp)
+----------------------------------------------------------------------------------------------------
+
+[TC_CTRL_INT_01] Chuyển đổi qua lại giữa Sub-Tab Controls và các Sub-Tab khác trong Text Tool
+- Mục tiêu: Đảm bảo khi người dùng chuyển sang các sub-tab khác (Fonts, Color, Shadow...) rồi quay lại Controls, trạng thái không bị reset.
+- Các bước thực hiện:
+  1. Đang ở sub-tab Controls của text vừa tạo, di chuyển chữ lên trên 3 bước và chọn Align Right.
+  2. Nhấn chuyển sang sub-tab "Fonts" (chọn font khác).
+  3. Nhấn chuyển sang sub-tab "Color" (chọn màu khác).
+  4. Nhấn quay lại sub-tab "Controls".
+- Kết quả mong đợi:
+  + Sub-tab Controls mở ra với vị trí đã dịch chuyển được bảo toàn.
+  + Nút Align Right vẫn đang được highlight xanh dương.
+- Maestro Selectors:
+  - tapOn: "Fonts"
+  - tapOn: "Color"
+  - tapOn: "Controls"
+  - assertVisible: { id: "layout_text_controls" }
+
+[TC_CTRL_INT_02] Chuyển đổi chọn giữa các Text Layer khác nhau trên Canvas (Context Switch)
+- Mục tiêu: Xác nhận bảng Controls cập nhật thông tin và trạng thái tương thích tức thì khi chuyển sang chọn layer Text khác.
+- Các bước thực hiện:
+  1. Đang chọn layer vừa tạo (Align Right).
+  2. Nhấn vào layer Text khác có sẵn trên Template (chữ "FOOD" hoặc "BEST").
+  3. Quan sát các nút trên sub-tab Controls.
+- Kết quả mong đợi:
+  + Bounding box chuyển sang bao quanh layer mới được chọn.
+  + Cụm nút căn lề cập nhật lại trạng thái active theo thuộc tính của layer mới.
+  + Cụm nút Layer Up / Layer Down cập nhật trạng thái enable/disable theo vị trí tầng của layer mới.
+
+[TC_CTRL_INT_03] Tương tác Controls trên Layer Text bị Khóa (Locked Layer Protection)
+- Mục tiêu: Kiểm tra xem khi một layer Text đã bị khóa trong Layer Drawer thì các nút trong Controls có bị hạn chế để bảo vệ đối tượng hay không.
+- Các bước thực hiện:
+  1. Mở Layer Drawer -> Nhấn vào icon khóa (id: "imageViewLock") của dòng text vừa tạo.
+  2. Đóng Layer Drawer -> Thử nhấn các nút di chuyển D-pad, DUPLICATE, EDIT.
+- Kết quả mong đợi:
+  + Ứng dụng hiển thị thông báo layer đang bị khóa hoặc các nút điều khiển bị vô hiệu hóa, ngăn chặn việc chỉnh sửa nhầm lẫn.
+
+[TC_CTRL_INT_04] Bật / Tắt Lưới căn chỉnh (imageShowGrid) kết hợp phím di chuyển D-pad
+- Mục tiêu: Kiểm tra việc sử dụng phím D-pad để căn chỉnh tọa độ chính xác theo các đường kẻ ô lưới.
+- Các bước thực hiện:
+  1. Nhấn icon bật lưới (id: "imageShowGrid") trên Toolbar.
+  2. Nhấn các phím D-pad để đưa mép chữ trùng khít với đường kẻ lưới.
+- Kết quả mong đợi: Lưới hiển thị rõ ràng bên dưới layer, việc di chuyển bằng D-pad giúp căn chữ chính xác từng pixel theo đường lưới.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 9: PERSISTENCE, EXPORT & STABILITY TEST CASES (Kiểm thử Lưu trữ, Xuất file & Ổn định)
+----------------------------------------------------------------------------------------------------
+
+[TC_CTRL_EXP_01] Lưu dự án (Save Project) và kiểm tra vị trí, căn lề của Text sau khi dùng Controls
+- Mục tiêu: Xác nhận thông tin vị trí tọa độ, chế độ căn lề, thứ tự layer được ghi nhận chuẩn xác vào file dự án.
+- Các bước thực hiện:
+  1. Thiết lập text vừa tạo: Di chuyển bằng D-pad, căn lề phải, nhân bản thêm 1 layer.
+  2. Nhấn nút Save trên Toolbar (id: "mnItemSave") -> Chọn "Save Project (Edit Later)".
+  3. Quay lại Home -> Mở "My Design" -> Mở lại bản thiết kế vừa lưu.
+- Kết quả mong đợi: Toàn bộ vị trí mới, chế độ căn lề phải và layer nhân bản xuất hiện đầy đủ, chính xác như lúc lưu.
+
+[TC_CTRL_EXP_02] Xuất file ảnh PNG HD và đối soát vị trí Text trên màn Preview
+- Mục tiêu: Đảm bảo bộ dựng đồ họa (Render Engine) xuất ảnh chính xác theo các thay đổi Controls trên Canvas.
+- Các bước thực hiện:
+  1. Nhấn nút Save trên Toolbar (id: "mnItemSave") -> Chọn "Export Logo (PNG)".
+  2. Chọn độ phân giải "HD (1024 * 1024)" -> Nhấn Save -> Đóng quảng cáo.
+  3. Quan sát màn hình Preview Screen.
+- Kết quả mong đợi: Ảnh xuất ra hiển thị chuẩn xác vị trí các layer Text đã được căn chỉnh và nhân bản, không bị lệch tọa độ.
+
+[TC_CTRL_SYS_01] Spam nhấn nhanh các nút D-pad di chuyển (Rapid Tap Stress Test)
+- Mục tiêu: Đảm bảo hàng đợi sự kiện cảm ứng (UI event queue) không bị tràn hoặc gây giật lag khi người dùng bấm liên tục với tốc độ cao.
+- Các bước thực hiện:
+  1. Nhấn liên tục 20 lần vào nút imgMoveUp với tốc độ cực nhanh (< 100ms/lần).
+- Kết quả mong đợi:
+  + Ứng dụng phản hồi trơn tru, chữ di chuyển đều đặn lên phía trên.
+  + Không xảy ra hiện tượng treo ứng dụng (ANR) hay văng app (Crash).
+
+[TC_CTRL_SYS_02] Đưa ứng dụng xuống Background khi đang ở Sub-Tab Controls rồi mở lại (Lifecycle)
+- Mục tiêu: Xác nhận Activity Lifecycle (onPause / onResume) không làm mất trạng thái đang chọn của layer Text và sub-tab Controls.
+- Các bước thực hiện:
+  1. Đang ở sub-tab Controls của layer text.
+  2. Nhấn phím Home của điện thoại đưa app xuống Background trong 5 giây.
+  3. Mở lại app từ danh sách Recent Apps.
+- Kết quả mong đợi:
+  + Ứng dụng phục hồi ngay lập tức tại Edit Screen.
+  + Layer text vẫn đang có bounding box và sub-tab Controls vẫn đang được kích hoạt.
+
+
+====================================================================================================
+III. BẢNG TỔNG HỢP MA TRẬN TEST CASES & MỨC ĐỘ ƯU TIÊN (TRACEABILITY MATRIX)
+====================================================================================================
+
+| Mã Test Case        | Tên Test Case                                                | Phân loại     | Mức ưu tiên | Tự động hóa |
+|---------------------|--------------------------------------------------------------|---------------|-------------|-------------|
+| TC_CTRL_FLOW_01     | Tự động mở Sub Tab Controls ngay sau khi dùng Text Tool      | Flow / UI     | P1 (High)   | Maestro     |
+| TC_CTRL_FLOW_02     | Visual Regression Testing giao diện Controls sau Text Tool   | Visual Match  | P2 (Medium) | Python CV   |
+| TC_CTRL_FLOW_03     | Trạng thái kích hoạt mặc định của cụm nút Căn lề             | UI / State    | P2 (Medium) | Maestro     |
+| TC_CTRL_FLOW_04     | Trạng thái enable/disable của các nút Layer Up / Layer Down   | UI / State    | P2 (Medium) | Maestro     |
+| TC_CTRL_FLOW_05     | Thu gọn và mở lại bảng Controls bằng nút Close Panel         | UI / Flow     | P2 (Medium) | Maestro     |
+| TC_CTRL_MOVE_01     | Di chuyển Text lên trên bằng nút imgMoveUp                   | Functional    | P1 (High)   | Maestro     |
+| TC_CTRL_MOVE_02     | Di chuyển Text xuống dưới bằng nút imgMoveDown               | Functional    | P1 (High)   | Maestro     |
+| TC_CTRL_MOVE_03     | Di chuyển Text sang trái bằng nút imgMoveLeft                | Functional    | P1 (High)   | Maestro     |
+| TC_CTRL_MOVE_04     | Di chuyển Text sang phải bằng nút imgMoveRight               | Functional    | P1 (High)   | Maestro     |
+| TC_CTRL_MOVE_05     | Nhấn liên tiếp nhiều lần các phím D-pad (Micro-adjustment)   | Functional    | P2 (Medium) | Maestro     |
+| TC_CTRL_MOVE_06     | Di chuyển Text vượt biên giới hạn Canvas (Boundary Test)     | Boundary      | P3 (Low)    | Maestro     |
+| TC_CTRL_ALIGN_01    | Căn lề Trái văn bản bằng nút btnAlignLeft                    | Functional    | P1 (High)   | Maestro     |
+| TC_CTRL_ALIGN_02    | Căn lề Giữa văn bản bằng nút btnAlignCenter                  | Functional    | P1 (High)   | Maestro     |
+| TC_CTRL_ALIGN_03    | Căn lề Phải văn bản bằng nút btnAlignRight                   | Functional    | P1 (High)   | Maestro     |
+| TC_CTRL_ALIGN_04    | Chuyển đổi liên tục giữa 3 chế độ căn lề                     | Functional    | P2 (Medium) | Maestro     |
+| TC_CTRL_ALIGN_05    | Căn lề với chuỗi văn bản nhiều dòng vừa nhập qua Text Tool   | Functional    | P2 (Medium) | Maestro     |
+| TC_CTRL_ACT_01      | Nhân bản Text Layer bằng nút DUPLICATE                       | Functional    | P1 (High)   | Maestro     |
+| TC_CTRL_ACT_02      | Tính kế thừa thuộc tính của Layer vừa Duplicate              | Functional    | P2 (Medium) | Maestro     |
+| TC_CTRL_ACT_03      | Nhân bản liên tiếp nhiều lần (Multi-duplicate Stress)        | Stress Test   | P3 (Low)    | Maestro     |
+| TC_CTRL_ACT_04      | Điều hướng sang màn hình Input Text qua nút EDIT             | Navigation    | P1 (High)   | Maestro     |
+| TC_CTRL_ACT_05      | Sửa nội dung qua nút EDIT và xác nhận cập nhật tại Controls  | End-to-End    | P1 (High)   | Maestro     |
+| TC_CTRL_LAYER_01    | Đẩy Layer Text lên trên 1 bậc bằng nút btnLayerUp            | Functional    | P1 (High)   | Maestro     |
+| TC_CTRL_LAYER_02    | Hạ Layer Text xuống dưới 1 bậc bằng nút btnLayerDown         | Functional    | P1 (High)   | Maestro     |
+| TC_CTRL_LAYER_03    | Giới hạn khi Layer ở đỉnh cao nhất (Top of Stack)            | Edge Case     | P2 (Medium) | Maestro     |
+| TC_CTRL_LAYER_04    | Giới hạn khi Layer ở đáy thấp nhất (Bottom of Stack)         | Edge Case     | P2 (Medium) | Maestro     |
+| TC_CTRL_LAYER_05    | Đồng bộ thời gian thực giữa Controls và Layer Drawer         | Integration   | P2 (Medium) | Maestro     |
+| TC_CTRL_CANVAS_01   | Xóa nhanh Layer Text bằng nút X (Delete Handle)              | Canvas Handle | P1 (High)   | Maestro     |
+| TC_CTRL_CANVAS_02   | Xoay tròn tự do Layer Text bằng Handle Rotate                | Canvas Handle | P2 (Medium) | Maestro     |
+| TC_CTRL_CANVAS_03   | Lật đối xứng gương bằng Handle Flip/Mirror                   | Canvas Handle | P2 (Medium) | Maestro     |
+| TC_CTRL_CANVAS_04   | Phóng to / Thu nhỏ bằng Handle Scale                         | Canvas Handle | P2 (Medium) | Maestro     |
+| TC_CTRL_CANVAS_05   | Kéo thả di chuyển trực tiếp Text Layer trên Canvas           | Gesture       | P1 (High)   | Maestro     |
+| TC_CTRL_UNDO_01     | Undo thao tác di chuyển D-pad                                | History/Undo  | P1 (High)   | Maestro     |
+| TC_CTRL_UNDO_02     | Undo thao tác căn lề Text (Align)                            | History/Undo  | P2 (Medium) | Maestro     |
+| TC_CTRL_UNDO_03     | Undo thao tác nhân bản layer (Duplicate)                     | History/Undo  | P1 (High)   | Maestro     |
+| TC_CTRL_UNDO_04     | Redo phục hồi lại layer đã Undo sau khi Duplicate            | History/Redo  | P2 (Medium) | Maestro     |
+| TC_CTRL_UNDO_05     | Undo thao tác xóa layer bằng nút X (Delete Handle)           | History/Undo  | P1 (High)   | Maestro     |
+| TC_CTRL_UNDO_06     | Chuỗi Undo/Redo đa thao tác phức hợp (Composite History)     | History/LIFO  | P2 (Medium) | Maestro     |
+| TC_CTRL_INT_01      | Chuyển đổi qua lại giữa Controls và các sub-tab khác         | Integration   | P2 (Medium) | Maestro     |
+| TC_CTRL_INT_02      | Chuyển đổi chọn giữa các Text Layer khác nhau                | Context Switch| P2 (Medium) | Maestro     |
+| TC_CTRL_INT_03      | Tương tác Controls trên Layer Text bị Khóa                   | Security/Lock | P3 (Low)    | Manual/Auto |
+| TC_CTRL_INT_04      | Bật / Tắt Lưới căn chỉnh (imageShowGrid) kết hợp D-pad       | Visual Assist | P3 (Low)    | Maestro     |
+| TC_CTRL_EXP_01      | Lưu dự án (Save Project) và kiểm tra trạng thái Text         | Persistence   | P1 (High)   | Maestro     |
+| TC_CTRL_EXP_02      | Xuất file ảnh PNG HD và đối soát vị trí Text                 | Export        | P1 (High)   | Python CV   |
+| TC_CTRL_SYS_01      | Spam nhấn nhanh các nút D-pad di chuyển                      | Performance   | P3 (Low)    | Maestro     |
+| TC_CTRL_SYS_02      | Lifecycle onPause/onResume khi đang mở Controls              | Stability     | P2 (Medium) | Maestro     |
+
+====================================================================================================
+IV. KỊCH BẢN TỰ ĐỘNG HÓA MAESTRO & MAPPING VISUAL REGRESSION TESTING
+====================================================================================================
+
+1. Thông tin Kịch bản Tự động hóa:
+   - File kịch bản Maestro: .maestro/test-suite/TC_08_Test_Sub_Control_Text_Tool_On_Edit_Screen.yaml
+   - Test Runner Windows: .\run_tests_windows.ps1 -Folder test-suite -File "TC_08_Test_Sub_Control_Text_Tool_On_Edit_Screen"
+   - Thiết bị thực thi: Samsung Galaxy (Android 14) kết nối ADB
+   - Tổng thời gian thực thi: ~174 giây
+   - Kết quả tổng thể: 1/1 Test PASSED | 9/9 Visual Comparisons PASSED (Độ tương đồng >= 99.15%)
+
+2. Trình tự 20 bước kiểm thử (Steps Execution Flow):
+   - Step 1: Khởi chạy ứng dụng qua common flow Launch_App.yaml
+   - Step 2: Xử lý đóng màn hình IAP Paywall qua Close_IAP_Screen.yaml
+   - Step 3: Đóng quảng cáo toàn màn hình nếu xuất hiện qua Close_Ads_Screen.yaml
+   - Step 4: Chờ tải màn hình chính Home Screen và giao diện ổn định
+   - Step 5: Nhấn vào mục "Template" (id: "btnTemplate")
+   - Step 6: Chọn Template đầu tiên của chủ đề "Restaurant" để vào màn Edit Screen
+   - Step 7: Nhấn vào công cụ Text Tool (id: "itemText") tại thanh bottom bar
+   - Step 8: Tại Input Text Screen, nhập nội dung văn bản "DELICIOUS"
+   - Step 9: Nhấn Apply (id: "item_apply") để áp dụng text và quay lại Edit Screen
+   - Step 10: Tự động kích hoạt Sub-Tab Controls (id: "layout_text_controls")
+              Assert toàn bộ 12 controls: 4 phím D-pad, 2 phím Layer, 3 nút Align, Duplicate, Edit
+              Visual Check 1: takeScreenshot "screenshots/Control_SubTab_Opened_After_Text"
+   - Step 11: Kiểm thử cụm phím điều hướng D-pad (Move Up x3, Move Left x2, Move Right x1, Move Down x1)
+              Visual Check 2: takeScreenshot "screenshots/Control_Move_Result"
+   - Step 12: Kiểm thử Căn lề văn bản (Align Left -> Align Right -> Align Center mặc định)
+              Visual Check 3: takeScreenshot "screenshots/Control_Align_Result"
+   - Step 13: Kiểm thử Thay đổi thứ tự tầng hiển thị (btnLayerDown -> btnLayerUp)
+   - Step 14: Kiểm thử Nhân bản layer bằng nút DUPLICATE (id: "btnDuplicate")
+              Visual Check 4: takeScreenshot "screenshots/Control_Duplicate_Result"
+   - Step 15: Kiểm thử Chỉnh sửa nhanh bằng nút EDIT (id: "btnEdit"), đổi text thành "SUPER VIP" -> Apply
+   - Step 16: Kiểm thử Hoàn tác (id: "ivUndo") và Làm lại (id: "ivRedo") trên Toolbar
+              Visual Check 5: takeScreenshot "screenshots/Control_Final_Result"
+   - Step 17: Di chuyển frame text trên Canvas sang vị trí mới (Touch Drag & Drop từ 50%, 38% xuống 50%, 55%)
+              Visual Check 6: takeScreenshot "screenshots/Control_Text_Frame_Moved"
+   - Step 18: Lật đối xứng văn bản bằng icon Flip ở góc trên bên phải bounding box ("73%, 51%")
+              Visual Check 7: takeScreenshot "screenshots/Control_Text_Flipped"
+              Nhấn lại icon Flip để trả về chiều chữ thuận ban đầu
+   - Step 19: Co giãn kích thước chữ bằng icon Zoom/Scale ở góc dưới bên phải ("73%, 56%" về "65%, 54%")
+              Visual Check 8: takeScreenshot "screenshots/Control_Text_Zoomed"
+              Kéo ngược lại để phục hồi kích thước chuẩn ban đầu
+   - Step 20: Xoay văn bản tự do bằng icon Rotate ở góc dưới bên trái ("32%, 56%" lên "27%, 51%")
+              Visual Check 9: takeScreenshot "screenshots/Control_Text_Rotated"
+
+3. Bảng Mapping Visual Regression Testing trong run_tests_windows.ps1:
+
+| STT | Tên Screenshot Runtime | Đường dẫn Baseline (Template) | Tính năng kiểm tra | Tỷ lệ khớp thực tế | Kết quả |
+|:---:|:---|:---|:---|:---:|:---:|
+| 1 | Control_SubTab_Opened_After_Text | assets\Control_SubTab_Opened_After_Text.png | Giao diện Controls tự mở sau Text Tool | 99.50% | PASSED |
+| 2 | Control_Move_Result | assets\Control_Move_Result.png | Di chuyển vị trí text bằng cụm phím D-pad | 99.29% | PASSED |
+| 3 | Control_Align_Result | assets\Control_Align_Result.png | Căn lề văn bản (Left / Right / Center) | 99.58% | PASSED |
+| 4 | Control_Duplicate_Result | assets\Control_Duplicate_Result.png | Nhân bản layer bằng nút DUPLICATE | 99.29% | PASSED |
+| 5 | Control_Final_Result | assets\Control_Final_Result.png | Sửa text qua EDIT và hoàn tất Undo/Redo | 99.30% | PASSED |
+| 6 | Control_Text_Frame_Moved | assets\Control_Text_Frame_Moved.png | Kéo thả di chuyển frame text trên Canvas | 99.15% | PASSED |
+| 7 | Control_Text_Flipped | assets\Control_Text_Flipped.png | Lật đối xứng ngang qua icon Flip | 99.31% | PASSED |
+| 8 | Control_Text_Zoomed | assets\Control_Text_Zoomed.png | Co giãn kích thước qua icon Zoom (Scale) | 99.31% | PASSED |
+| 9 | Control_Text_Rotated | assets\Control_Text_Rotated.png | Xoay góc chữ tự do qua icon Rotate | 99.25% | PASSED |
+
+====================================================================================================
+KẾT THÚC BỘ TEST CASES KIỂM THỬ SUB TAB CONTROLS - TEXT TOOL - MÀN EDIT
+====================================================================================================

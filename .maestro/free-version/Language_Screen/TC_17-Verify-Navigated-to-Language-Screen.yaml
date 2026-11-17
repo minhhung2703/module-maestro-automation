@@ -1,0 +1,18 @@
+appId: com.thmobile.logomaker
+---
+- runFlow: "../../config/Launch_App_Clear_State.yaml"
+
+- assertVisible: "Language"
+
+# Click on Tick button "v"
+- assertVisible:
+    id: "btnOK"
+    enabled: false
+
+- takeScreenshot: "language_screen"
+
+- assertWithAI:
+    assertion: "On this screen, there is a list of language options. Each language option has a radio button on the right side. Verify that all radio buttons are in the unselected state (none of them are filled or checked). Do not evaluate anything else on the screen."
+
+- assertWithAI:
+    assertion: "Verify if a native advertisement is displayed on the screen. The advertisement must contain a visible label or badge with the exact word 'Ad'. If the word 'Ad' is present on the advertisement, this check passes; otherwise, it fails."

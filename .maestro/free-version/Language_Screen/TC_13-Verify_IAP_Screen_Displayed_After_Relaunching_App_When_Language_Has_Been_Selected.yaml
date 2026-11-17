@@ -1,0 +1,35 @@
+appId: com.thmobile.logomaker
+---
+
+- runFlow: "../../config/Launch_App_Clear_State.yaml"
+
+- assertVisible: "Language"
+
+- tapOn: "English"
+
+- assertVisible:
+    id: "checkbox"
+    childOf:
+      id: "rlItem"
+      containsChild: "English"
+    selected: true
+
+- tapOn:
+    id: "btnOK"
+    enabled: true
+
+# 2. Kill app (Đóng ứng dụng hoàn toàn)
+- stopApp
+
+# 3. Khởi chạy lại ứng dụng (Relaunch - giữ nguyên state)
+- runFlow: "../../config/Launch_App.yaml"
+
+# Chờ thêm để IAP screen load xong
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# 4. Kiểm tra hiển thị màn IAP
+- assertVisible: "Get Premium"
+
+- assertVisible:
+    id: "rvAllFeatures"

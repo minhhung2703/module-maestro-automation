@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Logo Maker — Kiểm thử luồng trọng yếu & tính năng chính để kịp Release</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF2F7; --surface:#FFFFFF; --ink:#14213D; --muted:#56627A; --line:#D9E0EA;
+  --pass:#0E9F8E; --info:#2F6FED; --heavy:#B5476B; --warn:#B7791F; --warn-bg:#FBF1DE;
+  --zone-a:rgba(14,159,142,.18); --zone-b:rgba(47,111,237,.16);
+  --sans:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1424; --surface:#162038; --ink:#E7ECF5; --muted:#9BA7BE; --line:#2A3654;
+    --pass:#2CC4B0; --info:#6B9BFF; --heavy:#E07A9C; --warn:#E3AE57; --warn-bg:#3A2E17;
+    --zone-a:rgba(44,196,176,.2); --zone-b:rgba(107,155,255,.2);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1424; --surface:#162038; --ink:#E7ECF5; --muted:#9BA7BE; --line:#2A3654;
+  --pass:#2CC4B0; --info:#6B9BFF; --heavy:#E07A9C; --warn:#E3AE57; --warn-bg:#3A2E17;
+  --zone-a:rgba(44,196,176,.2); --zone-b:rgba(107,155,255,.2);
+  color-scheme:dark;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);overflow:hidden;-webkit-font-smoothing:antialiased}
+code,.mono{font-family:var(--mono);font-size:.86em}
+
+/* stage */
+.viewport{position:relative;width:100%;height:100%;display:grid;place-items:center;overflow:hidden}
+.stage{width:1280px;height:720px;position:relative;transform-origin:center center;flex:none}
+.slide{position:absolute;inset:0;background:var(--surface);border-radius:14px;padding:52px 68px 60px;display:none;flex-direction:column;box-shadow:0 1px 0 var(--line),0 24px 60px -30px rgba(20,33,61,.35);overflow:hidden}
+.slide.active{display:flex}
+.slide h2{font-size:38px;line-height:1.18;font-weight:700;margin:0 0 8px;letter-spacing:-.01em;max-width:36ch}
+.slide .lede{font-size:18.5px;color:var(--muted);margin:0 0 24px;max-width:85ch;line-height:1.5}
+.foot{position:absolute;left:68px;right:68px;bottom:20px;display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+.est{display:inline-block;font-size:12px;font-weight:600;color:var(--pass);background:rgba(14,159,142,.12);padding:2px 8px;border-radius:999px;vertical-align:middle;margin-left:6px}
+.backup-tag{font-size:13px;color:var(--muted);margin-bottom:8px}
+
+/* title slide */
+.s-title{flex-direction:row;gap:52px;align-items:center}
+.s-title .copy{flex:1}
+.s-title h1{font-size:46px;line-height:1.15;font-weight:800;letter-spacing:-.02em;margin:0 0 18px}
+.s-title p{font-size:19px;color:var(--muted);line-height:1.5;margin:0 0 26px;max-width:48ch}
+.stack{display:flex;gap:10px;flex-wrap:wrap}
+.stack span{border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:14.5px;font-weight:500}
+
+/* phone diagram */
+.phone{flex:none}
+.phone svg{display:block}
+
+/* grids */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px 36px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.item h3{font-size:20px;margin:0 0 6px;font-weight:700}
+.item p{font-size:16px;line-height:1.55;color:var(--muted);margin:0}
+.item{border-top:3px solid var(--line);padding-top:14px}
+
+/* layers */
+.layers{display:flex;flex-direction:column;gap:14px;flex:1}
+.layer{display:grid;grid-template-columns:220px 1fr 1.3fr;align-items:center;gap:28px;border:1px solid var(--line);border-left:6px solid var(--c);border-radius:10px;padding:16px 22px}
+.layer .n{font-size:14px;color:var(--muted)}
+.layer .t{font-size:21px;font-weight:700}
+.layer .tech{font-size:16.5px;font-weight:600}
+.layer .d{font-size:15.5px;color:var(--muted);line-height:1.5}
+
+/* algorithms */
+.algo{display:grid;grid-template-columns:210px 1fr;gap:40px;flex:1}
+.algo-list{display:flex;flex-direction:column;gap:16px}
+.algo-row{display:grid;grid-template-columns:250px 1fr;gap:22px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.algo-row:last-child{border-bottom:0}
+.algo-row h3{font-size:19px;margin:0;line-height:1.3}
+.algo-row h3 small{display:block;font-size:13.5px;font-weight:500;color:var(--muted);margin-top:3px}
+.algo-row p{margin:0;font-size:15.5px;line-height:1.5;color:var(--muted)}
+.algo-row p b{color:var(--ink);font-weight:600}
+
+/* modes / quality gate */
+.modes{display:flex;flex-direction:column;gap:18px;margin-top:12px}
+.mode{display:grid;grid-template-columns:310px 1fr 140px;align-items:center;gap:24px}
+.mode .lbl{font-size:17px;font-weight:600}
+.mode .lbl small{display:block;font-weight:400;color:var(--muted);font-size:13.5px;margin-top:2px}
+.track{height:32px;background:var(--bg);border-radius:6px;position:relative;overflow:hidden}
+.fill{position:absolute;inset:0 auto 0 0;border-radius:6px;background:var(--c)}
+.mode .val{font-size:18px;font-weight:700;text-align:right;color:var(--c, var(--ink));white-space:nowrap}
+.note{font-size:14.5px;color:var(--muted);margin-top:22px;line-height:1.55;max-width:90ch}
+
+/* results */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:26px}
+.kpi{border:1px solid var(--line);border-radius:12px;padding:18px 22px}
+.kpi .v{font-size:44px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.kpi .k{font-size:15.5px;color:var(--muted);margin-top:8px;line-height:1.4}
+.areas{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 28px}
+.area{font-size:15.5px;line-height:1.5}
+.area b{display:block;font-size:16.5px}
+.area span{color:var(--muted)}
+
+/* business value cards */
+.val-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;flex:1}
+.val-card{border:1px solid var(--line);border-left:5px solid var(--c);border-radius:10px;padding:18px 22px;display:flex;flex-direction:column;gap:8px}
+.val-card h3{font-size:18.5px;margin:0;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:8px}
+.val-card p{font-size:15px;color:var(--muted);line-height:1.55;margin:0}
+.val-card ul{margin:4px 0 0;padding-left:18px;font-size:14.5px;color:var(--muted);line-height:1.5}
+.val-card li{margin-bottom:3px}
+.val-card li b{color:var(--ink)}
+
+/* demo */
+.demo{display:grid;grid-template-columns:1fr 350px;gap:40px;flex:1}
+.steps{list-style:none;margin:0;padding:0;counter-reset:s;display:flex;flex-direction:column;gap:12px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:34px 1fr;gap:12px;font-size:17px;line-height:1.45;align-items:start}
+.steps li::before{content:counter(s);width:28px;height:28px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-weight:700;font-size:14px}
+.cmd{background:var(--bg);border-radius:10px;padding:12px 16px;font-family:var(--mono);font-size:13.5px;margin-top:18px;overflow-x:auto;white-space:nowrap}
+.video{border:2px dashed var(--line);border-radius:16px;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:15.5px;padding:24px;line-height:1.5}
+.video b{display:block;font-size:42px;color:var(--pass);font-weight:800;margin-bottom:6px}
+
+/* limits / end */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:40px;flex:1}
+.two h3{font-size:20px;margin:0 0 12px}
+.two ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:10px}
+.two li{font-size:16px;line-height:1.5}
+.two li span{color:var(--muted)}
+
+.s-end{justify-content:center}
+.s-end h2{font-size:48px;max-width:none;margin:0 0 18px}
+.s-end p{font-size:20.5px;color:var(--muted);max-width:none;line-height:1.6;margin:0}
+
+/* Q&A */
+.qa{display:grid;grid-template-columns:1fr 1fr;gap:24px 38px;flex:1;align-content:start}
+.q h3{font-size:18px;margin:0 0 8px;line-height:1.35}
+.q p{font-size:15px;line-height:1.55;color:var(--muted);margin:0}
+.q p b{color:var(--ink)}
+
+/* chrome */
+.bar-ui{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted);z-index:5;pointer-events:none}
+.bar-ui button{pointer-events:auto;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+.bar-ui button:focus-visible{outline:2px solid var(--info);outline-offset:2px}
+.bar-ui .count{pointer-events:auto;margin-right:auto;font-variant-numeric:tabular-nums}
+.progress{position:fixed;left:0;top:env(safe-area-inset-top,0px);height:3px;background:var(--pass);transition:width .25s ease;z-index:6}
+.notes{position:fixed;left:0;right:0;bottom:0;max-height:38vh;overflow:auto;background:var(--surface);border-top:1px solid var(--line);padding:18px 24px calc(64px + env(safe-area-inset-bottom,0px));font-size:15.5px;line-height:1.6;display:none;z-index:4}
+.notes.open{display:block}
+.notes h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+.notes p{margin:0 0 10px;max-width:90ch}
+.slide .speaker{display:none}
+@media (prefers-reduced-motion:reduce){.progress{transition:none}}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="viewport" id="viewport">
+<div class="stage" id="stage">
+
+<!-- SLIDE 1 -->
+<section class="slide s-title" data-title="Mở đầu">
+  <div class="copy">
+    <h1>Kiểm thử luồng trọng yếu & tính năng cốt lõi: Bảo đảm kịp tiến độ Release</h1>
+    <p>Hệ sinh thái Mobile Automation kiểm thử tự động trên thiết bị thật cho ứng dụng đồ họa Logo Maker (Android).</p>
+    <div class="stack"><span>Quality Gate</span><span>6 Luồng Trọng Yếu</span><span>Maestro YAML</span><span>Python + OpenCV</span><span>Samsung S20 FE · Android 13</span></div>
+  </div>
+  <div class="phone" aria-hidden="true">
+    <svg width="240" height="500" viewBox="0 0 250 520">
+      <rect x="4" y="4" width="242" height="512" rx="30" fill="none" stroke="var(--ink)" stroke-width="3"/>
+      <rect x="16" y="16" width="218" height="488" rx="20" fill="var(--bg)"/>
+      <rect x="16" y="16" width="218" height="22" rx="0" fill="var(--line)"/>
+      <rect x="16" y="70" width="218" height="249" fill="var(--zone-a)"/>
+      <rect x="16" y="333" width="218" height="151" fill="var(--zone-b)"/>
+      <rect x="16" y="484" width="218" height="20" fill="var(--line)"/>
+      <circle cx="125" cy="190" r="50" fill="none" stroke="var(--pass)" stroke-width="3"/>
+      <path d="M100 205 L125 160 L150 205 Z" fill="var(--pass)" opacity=".75"/>
+      <rect x="30" y="350" width="40" height="40" rx="8" fill="var(--surface)" stroke="var(--line)"/>
+      <rect x="80" y="350" width="40" height="40" rx="8" fill="var(--surface)" stroke="var(--line)"/>
+      <rect x="130" y="350" width="40" height="40" rx="8" fill="var(--surface)" stroke="var(--line)"/>
+      <rect x="180" y="350" width="40" height="40" rx="8" fill="var(--surface)" stroke="var(--line)"/>
+      <rect x="30" y="410" width="190" height="10" rx="5" fill="var(--surface)" stroke="var(--line)"/>
+      <circle cx="140" cy="415" r="9" fill="var(--info)"/>
+    </svg>
+  </div>
+  <div class="foot"><span>Studio 1 · Taka Technology Vietnam</span><span>Báo cáo cho Ban lãnh đạo & Studio Manager</span></div>
+  <div class="speaker">
+    <p>Chào Ban Giám đốc và toàn thể anh chị em trong studio. Hôm nay tôi xin đại diện đội ngũ QA trình bày giải pháp Mobile Automation Testing trên thiết bị thật cho sản phẩm Logo Maker.</p>
+    <p>Mục tiêu trọng tâm: Thiết lập Cổng kiểm soát chất lượng (Quality Gate) tự động, bảo vệ toàn diện 6 luồng trải nghiệm sống còn trước giờ phát hành, giúp sản phẩm tự tin ra mắt đúng hẹn mà không bị chậm trễ do khâu test thủ công; chạy trực tiếp trên thiết bị thật với chi phí hạ tầng $0; và framework sẵn sàng nhân bản.</p>
+  </div>
+</section>
+
+<!-- SLIDE 2 -->
+<section class="slide" data-title="Đặt vấn đề">
+  <h2>Nút thắt kiểm thử trước Release & Thách thức app đồ họa</h2>
+  <p class="lede">Quy trình kiểm thử thủ công truyền thống không theo kịp tốc độ phát hành tính năng và tiềm ẩn rủi ro hồi quy cao.</p>
+  <div class="grid2" style="margin-top:10px">
+    <div class="item" style="border-top-color:var(--heavy)">
+      <h3>Nút thắt kiểm thử thủ công</h3>
+      <p>Hàng trăm bước test lặp đi lặp lại trước ngày gửi Store. Dễ mệt mỏi, dễ sót lỗi và làm chậm lịch release.</p>
+    </div>
+    <div class="item" style="border-top-color:var(--info)">
+      <h3>Thách thức app đồ họa</h3>
+      <p>Kho mẫu lớn, canvas vẽ động, icon không có ID hay Text cố định. Công cụ thông thường không thể nhận diện.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Thực trạng</span><span>2</span></div>
+  <div class="speaker">
+    <p>Trước mỗi đợt release, đội ngũ đối mặt với áp lực kép: vừa phải đảm bảo app lên Store đúng ngày, vừa phải bảo đảm không bị lỗi vỡ giao diện hay lỗi thanh toán dẫn đến bão 1 sao.</p>
+    <p>Kiểm thử thủ công không thể đáp ứng được nhịp độ release liên tục, trong khi ứng dụng đồ họa lại không có ID rõ ràng. Đây chính là lý do chúng tôi xây dựng hệ thống tự động hóa chuyên biệt này.</p>
+  </div>
+</section>
+
+<!-- SLIDE 3 -->
+<section class="slide" data-title="Kiến trúc">
+  <h2>Kiến trúc 3 tầng: Tinh gọn, Mạnh mẽ & Dễ bảo trì</h2>
+  <p class="lede">Mỗi tầng đảm nhận một sứ mệnh độc lập, hỗ trợ tối đa cho việc kiểm thử tự động trên thiết bị thật.</p>
+  <div class="layers">
+    <div class="layer" style="--c:var(--pass)"><div><div class="n">Tầng 1</div><div class="t">Thực thi Native</div></div><div class="tech">Maestro Framework (YAML)</div><div class="d">Tương tác trực tiếp tầng Accessibility của Android. Kịch bản khai báo rõ ràng, không phụ thuộc WebDriver trung gian, triệt tiêu lỗi rớt kết nối.</div></div>
+    <div class="layer" style="--c:var(--info)"><div><div class="n">Tầng 2</div><div class="t">Thị giác máy tính</div></div><div class="tech">Python 3 + OpenCV + PIL</div><div class="d">Đóng vai trò 'đôi mắt' hệ thống: so sánh ảnh theo vùng (Dynamic Multi-Zone), đo sai số màu MAE, và daemon nhận diện template đồ họa.</div></div>
+    <div class="layer" style="--c:var(--heavy)"><div><div class="n">Tầng 3</div><div class="t">Điều phối & CI/CD</div></div><div class="tech">PowerShell Runner + GitHub Actions</div><div class="d">Điều phối test suite trên thiết bị thật, tự động dọn dẹp môi trường sau mỗi lượt chạy, trích xuất báo cáo JSON và đối sánh visual trực quan.</div></div>
+  </div>
+  <div class="foot"><span>Giải pháp</span><span>3</span></div>
+  <div class="speaker">
+    <p>Tầng 1 Maestro tương tác trực tiếp ở tầng OS/Accessibility, ổn định hơn nhiều so với WebDriver. Tầng 2 Python + OpenCV giải quyết bài toán thị giác máy tính cho app đồ họa. Tầng 3 điều phối kiểm thử trên thiết bị thật và đồng bộ CI/CD.</p>
+  </div>
+</section>
+
+<!-- SLIDE 4 -->
+<section class="slide" data-title="3 kỹ thuật cốt lõi">
+  <h2>Ba kỹ thuật cốt lõi giúp kiểm thử ổn định trên app đồ họa</h2>
+  <div class="algo" style="margin-top:16px">
+    <div class="phone" aria-label="Sơ đồ chia vùng so sánh ảnh">
+      <svg width="200" height="440" viewBox="0 0 230 500">
+        <rect x="2" y="2" width="226" height="496" rx="26" fill="none" stroke="var(--ink)" stroke-width="2.5"/>
+        <rect x="12" y="12" width="206" height="476" rx="16" fill="var(--bg)"/>
+        <defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="var(--muted)" stroke-width="2" opacity=".5"/></pattern></defs>
+        <rect x="12" y="12" width="206" height="21" fill="url(#hatch)"/>
+        <rect x="12" y="64" width="206" height="243" fill="var(--zone-a)" stroke="var(--pass)" stroke-width="1.5"/>
+        <rect x="12" y="321" width="206" height="148" fill="var(--zone-b)" stroke="var(--info)" stroke-width="1.5"/>
+        <rect x="12" y="469" width="206" height="19" fill="url(#hatch)"/>
+        <text x="115" y="170" text-anchor="middle" font-family="Be Vietnam Pro, sans-serif" font-size="15" font-weight="700" fill="var(--ink)">Vùng Canvas</text>
+        <text x="115" y="190" text-anchor="middle" font-family="Be Vietnam Pro, sans-serif" font-size="12.5" fill="var(--muted)">y 11–62% · ngưỡng khắt khe</text>
+        <text x="115" y="390" text-anchor="middle" font-family="Be Vietnam Pro, sans-serif" font-size="15" font-weight="700" fill="var(--ink)">Vùng công cụ</text>
+        <text x="115" y="410" text-anchor="middle" font-family="Be Vietnam Pro, sans-serif" font-size="12.5" fill="var(--muted)">y 65–96% · ngưỡng dung sai</text>
+        <text x="115" y="54" text-anchor="middle" font-family="Be Vietnam Pro, sans-serif" font-size="11.5" fill="var(--muted)">Safe Insets bỏ thanh trạng thái</text>
+      </svg>
+    </div>
+    <div class="algo-list">
+      <div class="algo-row"><h3>So sánh ảnh theo vùng<small>Dynamic Multi-Zone & MAE</small></h3><p>Cắt bỏ thanh trạng thái và thanh cử chỉ (Safe Insets). Chia màn hình thành <b>vùng Canvas</b> và <b>vùng công cụ</b>. Khi nền đổi màu phẳng, hệ thống <b>tự chuyển sang đo sai số màu MAE</b>, loại bỏ triệt để hiện tượng báo fail oan.</p></div>
+      <div class="algo-row"><h3>Tìm phần tử bằng hình ảnh<small>OpenCV Template Matching Daemon</small></h3><p>Dịch vụ Python chạy ngầm nhận yêu cầu từ Maestro JS Bridge, dùng <code>cv2.matchTemplate</code> quét ma trận ảnh màn hình, xác định tâm tọa độ và tự động gửi lệnh tap chính xác vào các mẫu logo <b>không có ID hay Text</b>.</p></div>
+      <div class="algo-row"><h3>Selector đa hình & Rẽ nhánh thích ứng<small>Adaptive Save Flow</small></h3><p>Biểu thức chính quy <code>.*mnItemSave.*</code> nhận diện nút Lưu trên cả bản Free và Premium. Cơ chế tự động rẽ nhánh xử lý dialog watermark ở Free hoặc chuyển sang Share ở Premium mà <b>không cần viết 2 bộ test riêng</b>.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Giải pháp</span><span>4</span></div>
+  <div class="speaker">
+    <p>Ba kỹ thuật này là chìa khóa: Safe Insets chia vùng và thích ứng MAE tránh fail oan; OpenCV daemon bấm chính xác các icon không có ID; và selector đa hình giúp 1 kịch bản chạy thông suốt cả 2 môi trường.</p>
+  </div>
+</section>
+
+<!-- SLIDE 5 -->
+<section class="slide" data-title="Quality Gate">
+  <h2>Quality Gate tự động trên thiết bị thật: Bảo đảm kịp Release</h2>
+  <p class="lede">Kiểm thử trực tiếp trên phần cứng thật (Samsung Galaxy S20 FE, Android 13) với GPU, màn hình và bộ nhớ thực tế.</p>
+  <div class="modes" id="modes"></div>
+  <p class="note">Báo cáo tự động tổng hợp JSON, trích xuất lỗi và đối sánh hình ảnh trực quan về GitHub Summary. Cơ chế tự động dọn dẹp artifact lưu trữ giúp kiểm soát chi phí hạ tầng ở mức 0 USD.</p>
+  <div class="foot"><span>Hạ tầng</span><span>5</span></div>
+  <div class="speaker">
+    <p>Thay vì chạy trên máy ảo giả lập dễ sai lệch màu và thiếu ổn định, chúng tôi chọn thực thi trực tiếp trên phần cứng máy thật Samsung Galaxy S20 FE.</p>
+    <p>Hệ thống hoạt động như một Cổng kiểm soát chất lượng (Quality Gate) tự động: thay cho các đợt test tay kéo dài và căng thẳng, toàn bộ kịch bản được máy móc thực hiện khách quan, chính xác, sẵn sàng nghiệm thu bất kỳ lúc nào để kịp tiến độ release.</p>
+  </div>
+</section>
+
+<!-- SLIDE 6 -->
+<section class="slide" data-title="Bao phủ 6 luồng">
+  <h2>Bao phủ toàn diện 100% các luồng người dùng trọng yếu</h2>
+  <div class="kpis">
+    <div class="kpi"><div class="v" style="color:var(--pass)">16 / 16</div><div class="k">bộ kịch bản tự động hóa đều đạt (PASSED 100%)</div></div>
+    <div class="kpi"><div class="v">317</div><div class="k">ca kiểm thử chi tiết được tự động hóa toàn diện</div></div>
+    <div class="kpi"><div class="v" style="color:var(--info)">6 / 6</div><div class="k">luồng trải nghiệm sống còn được bảo vệ nghiêm ngặt</div></div>
+  </div>
+  <div class="areas">
+    <div class="area"><b>1. Thanh toán (IAP Flow)</b><span>Paywall gói VIP tuần/năm, dùng thử, đóng mở an toàn</span></div>
+    <div class="area"><b>2. Điều hướng & Chọn mẫu</b><span>Duyệt danh mục, chọn template, tải tài nguyên vào Edit</span></div>
+    <div class="area"><b>3. Chỉnh sửa cốt lõi</b><span>Background đổi màu, Art viền/3D, Text font/size/14 tab con</span></div>
+    <div class="area"><b>4. Lưu & Xuất bản đồ họa</b><span>Lưu nháp Draft, xuất PNG HD, Rate dialog, Preview, Share</span></div>
+    <div class="area"><b>5. Nhận diện thương hiệu</b><span>Duyệt 5 mẫu Mockup, lưu có/không watermark, chuyển Share</span></div>
+    <div class="area"><b>6. Sáng tạo bằng AI</b><span>Nhập prompt ý tưởng, chọn style preset, sinh logo AI</span></div>
+  </div>
+  <p class="note">Toàn bộ dữ liệu số hóa trong <code>LogoMaker_Automation_TestSuite.xlsx</code>: Overview Dashboard, Ma trận 16 kịch bản, và Danh mục 317 ca kiểm thử chi tiết.</p>
+  <div class="foot"><span>Kết quả</span><span>6</span></div>
+  <div class="speaker">
+    <p>16/16 kịch bản lớn đạt 100% PASSED, tương ứng với 317 ca kiểm thử chi tiết. Phủ kín 6 luồng sống còn: Thanh toán IAP, Chọn template, Chỉnh sửa Canvas, Xuất ảnh HD, Mockup Preview và AI Studio.</p>
+    <p>Tất cả đã được xác thực trước giờ release, bảo đảm ứng dụng sẵn sàng phát hành lên Google Play Store.</p>
+  </div>
+</section>
+
+<!-- SLIDE 7 -->
+<section class="slide" data-title="Bảo đảm tiến độ & Tối ưu thời gian">
+  <h2>Bảo đảm tiến độ phát hành & Tối ưu thời gian làm việc</h2>
+  <p class="lede">Tự động hóa giúp đội ngũ loại bỏ áp lực kiểm thử dồn dập, làm việc hiệu quả và chủ động hơn.</p>
+  <div class="val-grid">
+    <div class="val-card" style="--c:var(--pass)">
+      <h3>Kịp tiến độ Release</h3>
+      <p><b>Không chờ đợi test tay:</b> Tự động kiểm tra toàn bộ luồng chính, tự tin gửi Store ngay khi xong tính năng.</p>
+    </div>
+    <div class="val-card" style="--c:var(--info)">
+      <h3>Hotfix thần tốc</h3>
+      <p><b>An toàn & Nhanh chóng:</b> Kiểm tra ngay tính toàn vẹn khi vá lỗi Production, không lo vỡ tính năng cũ.</p>
+    </div>
+    <div class="val-card" style="--c:var(--heavy)">
+      <h3>Tối ưu thời gian làm việc</h3>
+      <p><b>Làm việc thông minh:</b> Giảm áp lực deadline và làm thêm giờ (OT). Đội ngũ có thêm thời gian hoàn thiện tính năng và trải nghiệm.</p>
+    </div>
+    <div class="val-card" style="--c:var(--warn)">
+      <h3>Hiệu quả bền vững</h3>
+      <p><b>Hạ tầng $0 & Tái sử dụng:</b> Chi phí hạ tầng 0 USD, khung kiểm thử sẵn sàng nhân bản sang app tiếp theo của studio.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Giá trị kinh doanh</span><span>7</span></div>
+  <div class="speaker">
+    <p>Bốn giá trị cốt lõi: Đảm bảo phát hành đúng hẹn; Khả năng hotfix thần tốc và an toàn; Tối ưu thời gian làm việc và giảm tải áp lực OT cho đội ngũ; cùng Chi phí hạ tầng 0 USD và khả năng tái sử dụng cao.</p>
+  </div>
+</section>
+
+<!-- SLIDE 8 -->
+<section class="slide" data-title="Demo">
+  <h2>Demo thực tế: Kịch bản TC_11 Mockup Preview Screen</h2>
+  <div class="demo" style="margin-top:16px">
+    <div>
+      <ol class="steps">
+        <li>Mở app an toàn, bảo toàn trạng thái Premium.</li>
+        <li>Tạo logo từ template, tự vượt popup lưu, vào Brand Identify.</li>
+        <li>Cuộn qua 5 mẫu mockup: biển hiệu, mũ, áo, cốc.</li>
+        <li>Lưu mockup thích ứng và chuyển đổi trạng thái nút sang Share.</li>
+        <li>OpenCV chụp màn hình và đo đạc độ khớp so với ảnh chuẩn.</li>
+      </ol>
+      <div class="cmd">.\run_tests_windows.ps1 -File "TC_11_Test_Mockup_Preview_Screen.yaml" -Version "Premium"</div>
+    </div>
+    <div class="video"><div><b>96.49%</b>độ khớp với ảnh chuẩn trong lần chạy mẫu<br><br>Chiếu máy thật Samsung S20 FE hoặc video tại đây</div></div>
+  </div>
+  <div class="foot"><span>Trình diễn thực tế</span><span>8</span></div>
+  <div class="speaker">
+    <p>TC_11 là kịch bản end-to-end điển hình: app tự mở, tự chọn template, tự vượt qua popup, duyệt 5 mẫu mockup, lưu ảnh và chuyển nút Share. Cuối cùng OpenCV so khớp đạt 96.49% với ảnh chuẩn mà không cần bất kỳ thao tác tay nào.</p>
+  </div>
+</section>
+
+<!-- SLIDE 9 -->
+<section class="slide" data-title="Tổng kết">
+  <h2>Sẵn sàng cho Production Release & Đề xuất tiếp theo</h2>
+  <div class="two" style="margin-top:20px">
+    <div>
+      <h3>Chốt chặn chất lượng đã sẵn sàng</h3>
+      <ul>
+        <li>16/16 kịch bản và 317 ca kiểm thử đã <b>PASSED 100%</b> trên thiết bị thật.</li>
+        <li>Bảo vệ toàn diện <b>6 luồng trải nghiệm sống còn</b> trước giờ release.</li>
+        <li>Tài liệu bàn giao và bộ file Excel ma trận đã <b>hoàn thiện đầy đủ</b>.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Đề xuất triển khai tiếp theo</h3>
+      <ul>
+        <li>Đưa bộ test vào <b>quy trình release bắt buộc</b> của Logo Maker Android.</li>
+        <li>Tích hợp kiểm thử tự động vào <b>trigger CI/CD</b> mỗi khi hoàn thành tính năng.</li>
+        <li>Chọn <b>1 app tiếp theo</b> trong studio để nhân bản framework và chia sẻ kinh nghiệm.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span>Hành động</span><span>9</span></div>
+  <div class="speaker">
+    <p>Hệ sinh thái tự động hóa đã hoàn thiện và sẵn sàng phục vụ cho các đợt phát hành Production. Đề xuất đưa vào quy trình bắt buộc trước release và chuẩn bị nhân bản sang app tiếp theo.</p>
+  </div>
+</section>
+
+<!-- SLIDE 10 -->
+<section class="slide s-end" data-title="Cảm ơn & Q&A">
+  <h2>Cảm ơn mọi người đã lắng nghe</h2>
+  <p>Hệ thống Mobile Automation đã sẵn sàng bảo đảm chất lượng và tiến độ phát hành.<br>Mời mọi người cùng trao đổi và đặt câu hỏi.</p>
+  <div class="foot"><span>Q&A</span><span>10</span></div>
+  <div class="speaker"><p>Mở phiên hỏi đáp và lắng nghe ý kiến chỉ đạo từ Ban Giám đốc và các Studio Manager.</p></div>
+</section>
+
+<!-- SLIDE 11 backup -->
+<section class="slide" data-title="Dự phòng: Q&A Công nghệ">
+  <div class="backup-tag">Slide dự phòng · Q&A</div>
+  <h2>Câu hỏi về công nghệ</h2>
+  <div class="qa" style="margin-top:16px">
+    <div class="q"><h3>Tại sao chọn Maestro thay vì Appium?</h3><p>Appium cần server WebDriver và driver trung gian, dễ rớt kết nối khi chạy CI/CD. Maestro giao tiếp trực tiếp ở tầng OS/Accessibility, kịch bản YAML <b>dễ đọc, dễ bảo trì</b>, cả tester và dev đều hiểu được.</p></div>
+    <div class="q"><h3>So ảnh có bị fail oan khi đổi máy hoặc cử chỉ không?</h3><p>Hệ thống có cơ chế <b>Safe Insets loại bỏ thanh trạng thái và vạch cử chỉ</b>. Nút Back dùng mã phím <code>KEYCODE_BACK</code> tầng kernel thay vì tọa độ ảo, đảm bảo chạy ổn định trên mọi thiết bị.</p></div>
+    <div class="q"><h3>Dev đổi ID nút thì kịch bản có bị vỡ không?</h3><p>Không: Selector Regex <code>.*mnItemSave.*</code> tự nhận diện được tiền tố/hậu tố. Nếu UI đổi thiết kế hợp lệ, cờ <code>-UpdateBaseline</code> cho phép cập nhật ảnh chuẩn tự động mà không cần cắt ảnh bằng tay.</p></div>
+  </div>
+  <div class="foot"><span>Dự phòng</span><span>11</span></div>
+  <div class="speaker"><p>Trả lời tự tin về tính ổn định của Maestro và độ bền vững của bộ 3 thuật toán.</p></div>
+</section>
+
+<!-- SLIDE 12 backup -->
+<section class="slide" data-title="Dự phòng: Q&A Chi phí & Thời gian làm việc">
+  <div class="backup-tag">Slide dự phòng · Q&A</div>
+  <h2>Câu hỏi về chi phí & thời gian làm việc</h2>
+  <div class="qa" style="margin-top:16px">
+    <div class="q"><h3>GitHub Actions có phát sinh chi phí hoặc đầy ổ cứng không?</h3><p>Hạn mức Spending Limit được đặt <b>0 USD</b> nên không thể bị trừ tiền. Ảnh chụp artifact được tự động dọn dẹp sau khi kiểm thử, dung lượng luôn duy trì trong ngưỡng an toàn miễn phí.</p></div>
+    <div class="q"><h3>Hiệu quả đầu tư và thời gian làm việc được tối ưu thế nào?</h3><p>Hệ thống giúp <b>tối ưu thời gian làm việc của đội ngũ</b> trước mỗi đợt phát hành, giảm thiểu áp lực làm ngoài giờ (OT), đồng thời phòng ngừa rủi ro chậm lịch release hay lỗi nghiêm trọng trên Store.</p></div>
+    <div class="q"><h3>Khả năng nhân bản sang các app khác của studio?</h3><p>Toàn bộ Tầng 2 (xử lý hình ảnh OpenCV) và Tầng 3 (runner điều phối, CI/CD) <b>tái sử dụng 100%</b>. Chỉ cần viết mới kịch bản Tầng 1 theo flow riêng của từng app, giúp tiết kiệm tối đa công sức thiết lập.</p></div>
+  </div>
+  <div class="foot"><span>Dự phòng</span><span>12</span></div>
+  <div class="speaker"><p>Nhấn mạnh chi phí hạ tầng $0 và khả năng tái sử dụng module hóa cao cho các dự án tiếp theo.</p></div>
+</section>
+
+</div>
+</div>
+
+<div class="notes" id="notes" aria-live="polite"></div>
+<div class="bar-ui">
+  <span class="count" id="count"></span>
+  <button id="prev" aria-label="Slide trước">‹ Trước</button>
+  <button id="next" aria-label="Slide sau">Sau ›</button>
+  <button id="notesBtn" aria-pressed="false">Lời thoại (N)</button>
+  <button id="fsBtn">Toàn màn hình (F)</button>
+</div>
+
+<script>
+(function(){
+  // Quality Gate modes comparison (ngắn gọn, dễ hiểu, không xuống dòng)
+  const modes=[
+    {l:"Kiểm thử thủ công",s:"Nhiều vòng lặp lại trước release",v:"Rất chậm",m:100,c:"var(--muted)"},
+    {l:"Quality Gate tự động",s:"Toàn bộ 16 bộ test trên máy thật",v:"Nhanh chóng",m:30,c:"var(--pass)"},
+    {l:"Kiểm tra 1 màn hình",s:"Xác thực tức thì khi dev sửa code",v:"Tức thì",m:12,c:"var(--info)"}
+  ];
+  const max=100;
+  document.getElementById("modes").innerHTML=modes.map(x=>`<div class="mode"><div class="lbl">${x.l}<small>${x.s}</small></div><div class="track"><div class="fill" style="--c:${x.c};width:${Math.max(.6,x.m/max*100)}%"></div></div><div class="val" style="color:${x.c}">${x.v}</div></div>`).join("");
+
+  // deck navigation
+  const slides=[...document.querySelectorAll(".slide")];
+  const stage=document.getElementById("stage");
+  const notes=document.getElementById("notes");
+  const count=document.getElementById("count");
+  const progress=document.getElementById("progress");
+  const notesBtn=document.getElementById("notesBtn");
+  let i=0, showNotes=false;
+
+  function fit(){
+    const vp=document.getElementById("viewport");
+    const pad=window.innerWidth<700?8:40;
+    const reserve=(showNotes?notes.offsetHeight:0)+56;
+    const w=vp.clientWidth-pad*2, h=vp.clientHeight-pad-reserve;
+    const s=Math.max(.1,Math.min(w/1280,h/720));
+    stage.style.transform=`translateY(${-reserve/2+pad/2}px) scale(${s})`;
+  }
+  function go(n,push){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,k)=>s.classList.toggle("active",k===i));
+    count.textContent=`${i+1} / ${slides.length} · ${slides[i].dataset.title}`;
+    progress.style.width=((i+1)/slides.length*100)+"%";
+    const sp=slides[i].querySelector(".speaker");
+    notes.innerHTML=`<h4>Lời thoại · slide ${i+1}</h4>`+(sp?sp.innerHTML:"<p>Không có lời thoại.</p>");
+    const h="#s"+(i+1);
+    if(push!==false && location.hash!==h){try{history.replaceState(null,"",h)}catch(e){location.hash=h}}
+    fit();
+  }
+  function fromHash(){const m=/^#s(\d+)$/.exec(location.hash);return m?parseInt(m[1],10)-1:0}
+  function toggleNotes(){showNotes=!showNotes;notes.classList.toggle("open",showNotes);notesBtn.setAttribute("aria-pressed",showNotes);fit()}
+  function fs(){if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen().catch(()=>{})}else{document.exitFullscreen()}}
+
+  document.getElementById("prev").onclick=()=>go(i-1);
+  document.getElementById("next").onclick=()=>go(i+1);
+  notesBtn.onclick=toggleNotes;
+  document.getElementById("fsBtn").onclick=fs;
+  document.addEventListener("keydown",e=>{
+    if(e.target.closest&&e.target.closest("button")&&(e.key===" "||e.key==="Enter"))return;
+    if(["ArrowRight","PageDown"," "].includes(e.key)){e.preventDefault();go(i+1)}
+    else if(["ArrowLeft","PageUp"].includes(e.key)){e.preventDefault();go(i-1)}
+    else if(e.key==="Home")go(0);
+    else if(e.key==="End")go(slides.length-1);
+    else if(e.key==="n"||e.key==="N")toggleNotes();
+    else if(e.key==="f"||e.key==="F")fs();
+  });
+  let tx=null;
+  document.addEventListener("touchstart",e=>{tx=e.touches[0].clientX},{passive:true});
+  document.addEventListener("touchend",e=>{if(tx===null)return;const d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>50)go(i+(d<0?1:-1));tx=null},{passive:true});
+  window.addEventListener("hashchange",()=>go(fromHash(),false));
+  window.addEventListener("resize",fit);
+  go(fromHash(),false);
+})();
+</script>
+</body>
+</html>

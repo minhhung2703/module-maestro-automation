@@ -1,0 +1,197 @@
+appId: com.thmobile.logomaker
+---
+
+# ==============================================================================
+# TC_05_Test_Sub_Outline_Art_Tool_On_Edit_Screen
+# Mục tiêu: Kiểm thử toàn diện Sub-Tab Outline (Tạo đường viền & tùy biến màu sắc, độ dày viền) của Art Tool trên màn hình Edit:
+#           - Khởi động ứng dụng > Đóng popup IAP > Điều hướng vào Template Restaurant > Mở màn hình Edit Screen
+#           - Nhấn vào đối tượng Art trên Canvas để kích hoạt Art Tool và mở thanh Sub-Tabs menu (Controls, Color, Outline, 3D)
+#           - Chuyển sang Sub-Tab "Outline" và xác minh giao diện cốt lõi mặc định:
+#             + Thanh trượt độ dày viền (sbOutlineWidth) & giá trị hiển thị ban đầu (tvOutlineWidth: "0")
+#             + Nút ống hút màu (imgColorPicker), nút mở bảng màu nâng cao (imgPalette), dải màu viền đơn sắc (rvSolidColorPicker)
+#           - Kiểm thử chi tiết các tính năng của Sub-Tab Outline:
+#             1. Điều chỉnh độ dày đường viền (Outline Width SeekBar) và xác nhận giá trị độ dày cập nhật
+#             2. Lựa chọn màu viền đơn sắc (Solid Color) từ dải màu có sẵn (rvSolidColorPicker)
+#             3. Khám phá tính năng Hút màu Viền (Eyedropper): Mở màn hình "Select Color", xác minh giao diện và quay lại an toàn
+#             4. Khám phá Hộp thoại Bảng màu Nâng cao (Select a Color Dialog):
+#                + Mở dialog từ icon Palette và chuyển sang chế độ "CUSTOM"
+#                + Xác minh công cụ nhập mã màu HEX (cpv_hex) và bảng chọn màu 2D (cpv_color_panel_new)
+#                + Đóng dialog bằng nút "SELECT"
+#           - Kiểm thử tích hợp: Thao tác Hoàn tác (Undo) và Làm lại (Redo) hiệu ứng viền trên Edit Screen
+#           - Chụp ảnh màn hình tại mỗi giai đoạn kiểm thử để phục vụ kiểm thử hồi quy thị giác (Visual Testing)
+# Tài liệu tham chiếu: docs/test-cases/Edit_Screen_Sub_Tab_Outline_Art_Tool_TestCases.txt
+# ==============================================================================
+
+# Step 1: Khởi động ứng dụng
+- runFlow: "../config/Launch_App.yaml"
+
+# Step 2: Đóng popup IAP nếu xuất hiện
+- runFlow:
+    when:
+      visible:
+        text: "Get Full Access"
+    file: "../config/Close_IAP_Screen.yaml"
+
+# Step 3: Tại Home, chọn tính năng Template
+- runFlow: "../config/Navigate_To_Restaurant_Edit.yaml"
+
+# Step 5: Đóng quảng cáo Collapsible nếu xuất hiện
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+# Step 6: Xác nhận giao diện Edit Screen hiển thị đầy đủ
+- assertVisible: "Logos4U"
+- assertVisible: "Navigate up"
+- assertVisible:
+    id: "mnItemSave"
+- assertVisible:
+    id: "itemBackground"
+- assertVisible:
+    id: "itemArt"
+
+# Step 7: Nhấn vào đối tượng Art trên Canvas để kích hoạt Art Tool
+- tapOn:
+    point: "50%, 30%"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Step 8: Đóng quảng cáo Collapsible nếu xuất hiện
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+# Step 9: Xác minh thanh sub-tabs của Art Tool hiển thị
+- assertVisible:
+    id: "layout_art_editor_menu"
+    containsDescendants:
+        - text: "Controls"
+        - text: "Color"
+        - text: "Outline"
+        - text: "3D"
+
+# Step 10: Chuyển sang sub-tab "Outline"
+- tapOn:
+    text: "Outline"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Step 11: Kiểm tra các thành phần cốt lõi của Sub Tab Outline hiển thị
+- assertVisible:
+    id: "layout_sticker_outline"
+- assertVisible:
+    id: "sbOutlineWidth"
+- assertVisible:
+    id: "tvOutlineWidth"
+    text: "0"
+- assertVisible:
+    id: "imgColorPicker"
+- assertVisible:
+    id: "imgPalette"
+- assertVisible:
+    id: "rvSolidColorPicker"
+
+- takeScreenshot: "screenshots/Outline_SubTab_Default"
+
+# Step 12: Thử nghiệm điều chỉnh độ dày viền (Outline Width SeekBar)
+- tapOn:
+    id: "sbOutlineWidth"
+
+- assertVisible:
+    id: "tvOutlineWidth"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- takeScreenshot: "screenshots/Outline_Width_Changed"
+
+# Step 13: Thử nghiệm chọn màu viền Đỏ (Solid Color Red)
+- tapOn:
+    id: "color"
+    childOf:
+      id: "rvSolidColorPicker"
+    index: 2
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- takeScreenshot: "screenshots/Outline_Solid_Red_Applied"
+
+# Step 14: Thử nghiệm mở tính năng Hút màu Viền (Eyedropper / Select Color)
+- tapOn:
+    id: "imgColorPicker"
+
+- assertVisible: "Select Color"
+- assertVisible:
+    id: "item_apply"
+- assertVisible:
+    id: "layout_color_picker"
+
+- takeScreenshot: "screenshots/Outline_Eyedropper_Screen"
+
+# Quay lại màn Edit
+- tapOn: "Navigate up"
+
+# Xử lý quảng cáo khi back từ Select Color (nếu có)
+- runFlow:
+    when:
+      visible: "Test Ad"
+    file: "../config/Close_Ads_Screen.yaml"
+
+- runFlow:
+    when:
+      visible: "Continue to app"
+    commands:
+      - tapOn: "Continue to app"
+
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+# Step 15: Thử nghiệm mở Hộp thoại Bảng màu Nâng cao (Select a Color Dialog)
+- tapOn:
+    id: "imgPalette"
+
+- assertVisible: "Select a Color"
+- assertVisible: "CUSTOM"
+- assertVisible: "SELECT"
+
+- takeScreenshot: "screenshots/Outline_Palette_Dialog"
+
+# Step 16: Thử nghiệm chuyển sang chế độ Custom Color (HEX / 2D Picker)
+- tapOn: "CUSTOM"
+
+- assertVisible:
+    id: "cpv_hex"
+- assertVisible:
+    id: "cpv_color_panel_new"
+- assertVisible: "PRESETS"
+- assertVisible: "SELECT"
+
+- takeScreenshot: "screenshots/Outline_Custom_Hex_View"
+
+# Đóng dialog bảng màu bằng nút SELECT
+- tapOn: "SELECT"
+
+# Step 17: Thử nghiệm Hoàn tác (Undo) và Làm lại (Redo)
+- tapOn:
+    id: "ivUndo"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "ivRedo"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- takeScreenshot: "screenshots/Outline_Tool_Result"

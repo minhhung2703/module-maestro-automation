@@ -1,0 +1,13 @@
+appId: com.thmobile.logomaker
+---
+- runFlow: "../../config/Launch_App_Clear_State.yaml"
+
+- assertVisible: "Language"
+
+# Click on Tick button "v"
+- assertVisible:
+    id: "btnOK"
+    enabled: false
+
+- assertWithAI:
+    assertion: "The screen shows a list of languages. Each row in the list contains a small flag image on the left and a language name text on the right. Verify this layout is correct for the visible rows. Do not evaluate whether the flag correctly represents the language culturally."

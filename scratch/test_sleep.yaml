@@ -1,0 +1,6 @@
+appId: com.thmobile.logomaker
+---
+- swipe:
+    start: 50%, 50%
+    end: 50%, 50%
+    duration: 3500

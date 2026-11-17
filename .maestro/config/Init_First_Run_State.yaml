@@ -1,0 +1,190 @@
+appId: com.thmobile.logomaker
+---
+# ====================================================================
+# Init_First_Run_State.yaml
+# Mục tiêu: Flow tiền khởi tạo (Bootstrap Flow) chỉ chạy 1 lần duy nhất
+#           khi vừa cài đặt app mới (trên máy ảo GitHub Actions hoặc máy mới)
+# Quy trình:
+#   1. Mở app lần đầu sau khi cài đặt.
+#   2. Chờ chuyển qua Splash Screen.
+#   3. Vượt qua màn Language (Chọn English -> Bấm OK/Next).
+#   4. Vượt qua 3 màn Onboarding (Next -> Next -> Get Start).
+#   5. Đóng màn IAP Screen nếu xuất hiện.
+#   6. Vào Home Screen -> Vào 1 template chi tiết -> Màn Edit.
+#   7. Tự động nhấn back giải phóng 8 màn Intro hướng dẫn.
+#   8. Thoát an toàn về lại Home Screen (Lưu trạng thái hoàn tất).
+# ====================================================================
+
+# Step 1: Khởi động ứng dụng
+- runFlow: "./Launch_App.yaml"
+
+# Chờ animation của Splash screen kết thúc
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Step 2: Xử lý vượt qua các màn hình khởi động lần đầu (Language -> Onboarding -> IAP -> Home)
+# Dùng vòng lặp kiểm tra lặp lại nhiều lần để thích ứng với tốc độ tải chậm trên máy ảo CI
+- repeat:
+    times: 8
+    commands:
+      # Màn Language nếu xuất hiện
+      - runFlow:
+          when:
+            visible: "Language"
+          commands:
+            - tapOn: "English"
+            - waitForAnimationToEnd:
+                timeout: 1000
+            - tapOn:
+                id: "btnOK"
+            - waitForAnimationToEnd:
+                timeout: 3000
+
+      # Màn Onboarding: Bấm Next
+      - runFlow:
+          when:
+            visible: "Next"
+          commands:
+            - tapOn: "Next"
+            - waitForAnimationToEnd:
+                timeout: 2000
+
+      # Màn Onboarding cuối: Bấm Get Start / Get Started
+      - runFlow:
+          when:
+            visible: "Get Start"
+          commands:
+            - tapOn: "Get Start"
+            - waitForAnimationToEnd:
+                timeout: 2500
+
+      - runFlow:
+          when:
+            visible: "Get Started"
+          commands:
+            - tapOn: "Get Started"
+            - waitForAnimationToEnd:
+                timeout: 2500
+
+      # Đóng quảng cáo nếu có
+      - runFlow:
+          when:
+            visible: "Close"
+          file: "./Close_Ads_Screen.yaml"
+
+      # Đóng màn hình thanh toán IAP nếu xuất hiện
+      - runFlow:
+          when:
+            visible:
+              text: "Get Full Access"
+          file: "./Close_IAP_Screen.yaml"
+
+      - runFlow:
+          when:
+            visible: "Get Premium"
+          file: "./Close_IAP_Screen.yaml"
+
+      - runFlow:
+          when:
+            visible: "START FREE TRIAL"
+          file: "./Close_IAP_Screen.yaml"
+
+      - runFlow:
+          when:
+            visible: "Skip the free trial?"
+          file: "./Close_Skip_The_Free_Trial_Popup.yaml"
+
+      - waitForAnimationToEnd:
+          timeout: 2000
+
+# Step 5: Xác nhận đã vào Home Screen
+- extendedWaitUntil:
+    visible:
+      id: "btnTemplate"
+    timeout: 15000
+
+# Step 6: Điều hướng vào Edit Screen bằng template bất kỳ để kích hoạt và giải phóng 8 màn Intro
+- tapOn:
+    id: "btnTemplate"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- runFlow:
+    when: 
+      visible: "Dismiss"
+    commands:
+      - tapOn: "Dismiss"
+
+- tapOn:
+    id: "imageView"
+    index: 0
+
+# Xử lý dialog tải tài nguyên template nếu có
+- runFlow:
+    when:
+      visible: "Downloading resources"
+    commands:
+      - runFlow:
+          when:
+            visible: "Download in background"
+          commands:
+            - tapOn: "Download in background"
+      - extendedWaitUntil:
+          notVisible: "Downloading resources"
+          timeout: 30000
+
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+      - tapOn: "Close button"
+
+- runFlow:
+    when:
+      visible: "Close"
+    file: "./Close_Ads_Screen.yaml"
+
+- extendedWaitUntil:
+    visible: "Logos4U"
+    timeout: 20000
+
+# Step 7: Tự động nhấn back giải phóng 8 màn Intro hướng dẫn
+- repeat:
+    times: 8
+    commands:
+      - back
+      - waitForAnimationToEnd:
+          timeout: 2000
+
+- assertVisible:
+    id: ".*mnItemSave.*"
+
+# Step 8: Thoát an toàn và đưa app về lại Home Screen sạch sẽ
+- stopApp
+
+- launchApp:
+    clearState: false
+    permissions:
+      all: allow
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- runFlow:
+    when:
+      visible: "Close"
+    file: "./Close_Ads_Screen.yaml"
+
+- runFlow:
+    when:
+      visible: "Skip the free trial?"
+    file: "./Close_Skip_The_Free_Trial_Popup.yaml"
+
+- extendedWaitUntil:
+    visible:
+      id: "btnTemplate"
+    timeout: 15000
+
+- assertVisible:
+    id: "btnTemplate"

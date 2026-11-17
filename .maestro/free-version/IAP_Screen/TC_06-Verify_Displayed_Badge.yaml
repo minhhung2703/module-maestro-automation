@@ -1,0 +1,14 @@
+appId: com.thmobile.logomaker
+---
+
+- runFlow: "../../config/Launch_App.yaml"
+
+# Verify displayed IAP screen
+- assertVisible: "Get Premium"
+- assertVisible: "Unlock all Features"
+- assertVisible:
+    id: "rvAllFeatures"
+
+# Verify BEST PRICE badge on Yearly Plan
+- assertWithAI:
+    assertion: "Verify that a blue badge with the text 'BEST PRICE' is displayed attached to the top-left border of the 'YEARLY PLAN' subscription option box."

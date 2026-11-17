@@ -1,0 +1,502 @@
+====================================================================================================
+           BỘ TEST CASES FUNCTIONAL: SỬ DỤNG TỪNG TÍNH NĂNG TRÊN MÀN EDIT VÀ THỰC HIỆN LƯU LẠI
+                    (TÍNH NĂNG EDIT FEATURE APPLIED -> SAVE -> PREVIEW SCREEN OUTPUT)
+====================================================================================================
+Ứng dụng: Logo Maker (Logos4U)
+Application ID: com.thmobile.logomaker
+Platform: Android (Đã thực thi & kiểm chứng trực tiếp trên Samsung Galaxy Android 14)
+Framework kiểm thử tự động: Maestro Automation Framework
+Màn hình kiểm thử:
+  1. Edit Screen (Template Detail / LogoDesignActivity): Toàn bộ các công cụ biên tập và thiết kế
+  2. Save Dialog & Options (parentPanel, customPanel): Các phương thức lưu dự án và xuất logo PNG
+  3. Preview Screen (LogoPreviewActivity): Màn hình kết quả đầu ra sau khi lưu thành công
+Luồng thao tác tổng quát (Workflow):
+  Home Screen > Nút "Template" (btnTemplate) > Chọn Template đầu tiên của chủ đề "Restaurant" >
+  Điều hướng tới màn Template Detail (Edit Screen) > Sử dụng TỪNG TÍNH NĂNG cụ thể (Background, Art,
+  Text, Effect, Palette, Image, Layer, Canvas Control, Undo/Redo) > Nhấn icon Save ở góc phải trên
+  (mnItemSave) > Chọn phương thức lưu (Save Project / Export Logo PNG) > Xử lý Ads & Popup >
+  Kiểm tra kết quả đầu ra tại màn hình Preview Screen và tệp tin trong hệ thống lưu trữ.
+Ngày tạo: 2026-10-21
+Tài nguyên Hierarchy chính:
+  itemBackground, itemArt, itemText, itemEffect, itemPalette, itemImage,
+  imageViewLayerTag, imageShowGrid, btnUndo, btnRedo, mnItemSave,
+  layout_designer, layout_transparent, bgDesignArea, layout_layer_list,
+  layout_background_editor_menu, layout_art_editor_menu, layout_text_editor_menu,
+  llExportLogo, llSaveProject, layout_hd, tvSave,
+  toolbar, btnHome, btnShare, btnAiLogoStyle, btnBrandIdentify, imageTransparentGrid, logoBitmap
+====================================================================================================
+
+I. DANH SÁCH RESOURCE-ID & CẤU TRÚC VIEW PHÂN TÍCH TỪ THIẾT BỊ THẬT (UI DUMP)
+----------------------------------------------------------------------------------------------------
+1. Thanh Toolbar Điều hướng & Công cụ Thượng tầng (Top Bar):
+   - android.widget.ImageButton (desc: "Navigate up")   : Nút quay lại màn hình chọn template trước đó
+   - TextView (text: "Logos4U")                         : Tiêu đề ứng dụng
+   - TextView (text: "Design_...")                      : Tên mã phiên bản thiết kế tự động theo thời gian
+   - com.thmobile.logomaker:id/imageShowGrid            : Nút bật/tắt hiển thị lưới toạ độ (Grid)
+   - com.thmobile.logomaker:id/imageViewLayerTag        : Nút mở bảng điều khiển quản lý Layer (Layer Drawer)
+   - com.thmobile.logomaker:id/mnItemSave (desc: "save"): Nút Save góc trên bên phải (Bounds: [936,100][1080,244])
+   - com.thmobile.logomaker:id/btnUndo (ivUndo)         : Nút Hoàn tác (Undo) thao tác vừa thực hiện
+   - com.thmobile.logomaker:id/btnRedo (ivRedo)         : Nút Làm lại (Redo) thao tác vừa hoàn tác
+
+2. Vùng Canvas Thiết kế Chính (Design Canvas Area):
+   - com.thmobile.logomaker:id/layout_designer          : Khung chứa toàn bộ vùng thiết kế ([0,304][1080,1384])
+   - com.thmobile.logomaker:id/layout_transparent       : Vùng lưới nền trong suốt chứa các layer đối tượng
+   - com.thmobile.logomaker:id/bgDesignArea             : Lớp nền màu/ảnh của vùng thiết kế
+   - com.thmobile.logomaker:id/stickerView              : Khung chứa các sticker Art, Text Frame đang được chọn
+   - com.thmobile.logomaker:id/layout_layer_list        : Drawer danh sách layer trượt từ cạnh trái màn hình
+
+3. Thanh Công cụ Chính Phía Dưới (Bottom Main Tools):
+   - com.thmobile.logomaker:id/itemBackground          : Công cụ 1 - Background (Đổi nền thiết kế)
+   - com.thmobile.logomaker:id/itemArt                 : Công cụ 2 - Art (Chèn và chỉnh sửa sticker đồ hoạ)
+   - com.thmobile.logomaker:id/itemText                : Công cụ 3 - Text (Thêm và biên tập chữ nghệ thuật)
+   - com.thmobile.logomaker:id/itemEffect              : Công cụ 4 - Effect (Bộ lọc hiệu ứng phủ nghệ thuật)
+   - com.thmobile.logomaker:id/itemPalette             : Công cụ 5 - Palette (Bảng phối màu toàn diện cho logo)
+   - com.thmobile.logomaker:id/itemImage               : Công cụ 6 - Image (Chèn ảnh cá nhân từ thiết bị)
+
+4. Cấu trúc Panel Con của Từng Tính năng (Feature Sub-Panels):
+   A. Tính năng Background (`layout_background_editor_menu`):
+      - Sub-tab "Color"        : Bảng chọn màu nền đơn sắc (Solid Color)
+      - Sub-tab "Gradient"     : Bảng chọn màu chuyển sắc nền (Linear/Radial Gradient)
+      - Sub-tab "Background"   : Thư viện mẫu nền có sẵn theo chủ đề
+      - Sub-tab "Texture"      : Thư viện hoa văn chất liệu nền
+      - Sub-tab "Image"        : Chọn ảnh từ máy làm nền logo
+      - com.thmobile.logomaker:id/tvTransparent: Nhãn hiển thị độ trong suốt của nền (0 - 100)
+
+   B. Tính năng Art Tool (`layout_art_editor_menu` & `layout_art_control`):
+      - Sub-tab "Controls"     : Điều khiển vị trí (Up, Down, Left, Right), Layer Up/Down, Duplicate
+      - Sub-tab "Color"        : Đổi màu vector của Art
+      - Sub-tab "Outline"      : Tạo viền cho sticker Art
+      - Sub-tab "3D"           : Xoay không gian 3 chiều trục X, Y, Z cho Art
+
+   C. Tính năng Text Tool (`layout_text_editor_menu`):
+      - Sub-tab "Controls"     : Căn lề, di chuyển, lật, nhân bản, sửa nội dung chữ
+      - Sub-tab "Fonts"        : Thư viện phông chữ nghệ thuật đa phong cách
+      - Sub-tab "Color"        : Màu chữ đơn sắc, gradient, texture, độ mờ chữ
+      - Sub-tab "Shadow"       : Bóng đổ chữ nghệ thuật
+      - Sub-tab "Background"   : Nền đóng khung cho chữ
+      - Sub-tab "Outline"      : Viền chữ nghệ thuật
+      - Sub-tab "Curve"        : Uốn cong chữ và giãn cách dòng / ký tự
+      - Sub-tab "3D"           : Góc xoay 3 chiều của chữ
+
+   D. Tính năng Effect Tool:
+      - com.thmobile.logomaker:id/recyclerView         : Danh sách các hiệu ứng phủ ánh sáng, texture, khói bụi
+      - com.thmobile.logomaker:id/tvTransparent        : Thanh trượt độ đậm nhạt của hiệu ứng
+
+   E. Tính năng Palette Tool:
+      - com.thmobile.logomaker:id/recyclerView         : Danh sách các bộ màu mẫu (Color Themes)
+
+5. Hộp thoại Lưu & Xuất Logo (Save Feature Dialogs):
+   - Hộp thoại lựa chọn phương thức lưu:
+     + com.thmobile.logomaker:id/llExportLogo          : Tuỳ chọn "Export Logo (PNG)" (Xuất ảnh PNG)
+     + com.thmobile.logomaker:id/llSaveProject         : Tuỳ chọn "Save Project (Edit Later)" (Lưu dự án)
+   - Hộp thoại kích thước xuất ảnh (Logo Size Dialog):
+     + com.thmobile.logomaker:id/rbStandar / layout_default: Standard (512 * 512)
+     + com.thmobile.logomaker:id/rbHD / layout_hd          : HD (1024 * 1024) [Mặc định]
+     + com.thmobile.logomaker:id/rbHDPlus / layout_hd_plus : HD+ (2048 * 2048)
+     + com.thmobile.logomaker:id/rbCustom / edtCustomSize  : Custom Size tuỳ chỉnh
+     + com.thmobile.logomaker:id/checkboxSaveProject       : Checkbox lưu kèm dự án
+     + com.thmobile.logomaker:id/tvCancel                  : Nút Huỷ bỏ
+     + com.thmobile.logomaker:id/tvSave                    : Nút Xác nhận Lưu/Xuất
+
+6. Màn hình Đầu ra - Preview Screen (LogoPreviewActivity):
+   - com.thmobile.logomaker:id/toolbar                 : Thanh công cụ tiêu đề "Preview"
+   - com.thmobile.logomaker:id/btnHome                 : Nút điều hướng về màn hình Home chính
+   - com.thmobile.logomaker:id/imageTransparentGrid    : Khung caro hiển thị nền trong suốt
+   - com.thmobile.logomaker:id/logoBitmap              : Tệp bitmap logo đã kết xuất
+   - com.thmobile.logomaker:id/btnShare                : Nút chia sẻ hệ thống (Floating Action Button)
+   - com.thmobile.logomaker:id/btnAiLogoStyle          : Nút mở Style Magic AI
+   - com.thmobile.logomaker:id/btnBrandIdentify        : Nút mở Mockup Preview
+
+
+====================================================================================================
+II. CHI TIẾT CÁC BỘ FUNCTIONAL TEST CASES (DÙNG TỪNG TÍNH NĂNG -> LƯU LẠI)
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+NHÓM 1: SỬ DỤNG TÍNH NĂNG BACKGROUND VÀ THỰC HIỆN LƯU LẠI
+----------------------------------------------------------------------------------------------------
+
+[TC_FEAT_BG_01] Thay đổi màu nền đơn sắc (Solid Color) của Background và thực hiện lưu lại
+- Mục tiêu: Đảm bảo khi người dùng đổi màu nền thiết kế sang màu mới, thao tác lưu giữ nguyên màu nền này trên ảnh xuất ra và dự án.
+- Điều kiện tiên quyết: Màn hình Edit Screen đang mở Restaurant Template #1.
+- Các bước thực hiện:
+  1. Nhấn vào tab "Background" (`itemBackground`) trên thanh bottom bar.
+  2. Tại sub-tab "Color", chọn một màu bất kỳ (ví dụ: màu đỏ hoặc màu vàng).
+  3. Quan sát nền canvas đổi màu thành công.
+  4. Nhấn icon Save ở góc phải phía trên (`mnItemSave`).
+  5. Chọn "Export Logo (PNG)" (`llExportLogo`) -> Chọn độ phân giải HD -> Nhấn "SAVE" (`tvSave`).
+  6. Xử lý màn hình quảng cáo / popup đánh giá để chuyển tới Preview Screen.
+- Kết quả mong đợi:
+  + Nền canvas trên màn Edit đổi màu chính xác.
+  + Màn hình Preview hiển thị logo với màu nền mới vừa chọn, không bị quay lại màu nền ban đầu.
+  + Tệp ảnh PNG trong thư viện lưu trữ có màu nền đồng nhất với màn Preview.
+- Maestro Selector:
+  + tapOn: { id: "itemBackground" }
+  + tapOn: { point: "20%, 85%" }
+  + tapOn: { id: "mnItemSave" }
+  + tapOn: { id: "llExportLogo" }
+  + tapOn: { id: "tvSave" }
+  + extendedWaitUntil: { visible: "Preview", timeout: 10000 }
+  + assertVisible: "Preview"
+
+[TC_FEAT_BG_02] Áp dụng Gradient nền cho thiết kế và thực hiện lưu lại
+- Mục tiêu: Xác minh hiệu ứng màu chuyển sắc (Gradient) nền được kết xuất đầy đủ khi lưu và xuất ảnh.
+- Các bước thực hiện:
+  1. Nhấn tab "Background" -> Chọn sub-tab "Gradient".
+  2. Chọn một mẫu gradient 2 màu trong danh sách.
+  3. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+  4. Vượt qua quảng cáo và kiểm tra màn hình Preview.
+- Kết quả mong đợi:
+  + Dải màu chuyển tiếp mượt mà trên canvas.
+  + Màn hình Preview hiển thị đúng dải gradient nền vừa chọn.
+
+[TC_FEAT_BG_03] Áp dụng Texture hoa văn nền và thực hiện lưu lại
+- Mục tiêu: Đảm bảo hoa văn chất liệu (gỗ, đá, vải, grunge) trên nền logo được xuất chính xác sang file ảnh.
+- Các bước thực hiện:
+  1. Nhấn tab "Background" -> Chọn sub-tab "Texture".
+  2. Chọn một mẫu texture hoa văn trong danh sách.
+  3. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+  4. Quan sát kết quả tại màn hình Preview.
+- Kết quả mong đợi:
+  + Hoa văn texture hiển thị sắc nét trên màn hình Preview.
+
+[TC_FEAT_BG_04] Điều chỉnh độ trong suốt nền (Background Opacity) và thực hiện lưu lại
+- Mục tiêu: Kiểm tra giá trị Opacity của nền khi kéo thanh trượt được phản ánh chính xác sau khi lưu.
+- Các bước thực hiện:
+  1. Nhấn tab "Background".
+  2. Kéo thanh trượt độ mờ nền từ 100% xuống khoảng 50%.
+  3. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+  4. Quan sát kết quả tại màn hình Preview.
+- Kết quả mong đợi:
+  + Nền logo hiển thị mờ đục 50% trên lưới caro trong suốt ở màn hình Preview.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 2: SỬ DỤNG TÍNH NĂNG ART / STICKER VÀ THỰC HIỆN LƯU LẠI
+----------------------------------------------------------------------------------------------------
+
+[TC_FEAT_ART_01] Chèn Sticker nghệ thuật mới từ thư viện Art và thực hiện lưu lại
+- Mục tiêu: Kiểm tra việc thêm một phần tử đồ hoạ mới vào thiết kế và lưu lại thành công.
+- Các bước thực hiện:
+  1. Nhấn vào tab "Art" (`itemArt`) trên thanh bottom bar.
+  2. Chọn một chủ đề sticker (ví dụ: Food, Badge, Shape).
+  3. Nhấn chọn một mẫu sticker nghệ thuật để chèn lên canvas.
+  4. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+  5. Chuyển sang màn hình Preview.
+- Kết quả mong đợi:
+  + Sticker mới xuất hiện trên canvas ở vị trí trung tâm.
+  + Màn hình Preview kết xuất logo bao gồm cả sticker mới chèn thêm.
+
+[TC_FEAT_ART_02] Di chuyển vị trí Sticker (Move Controls) và thực hiện lưu lại
+- Mục tiêu: Xác thực việc thay đổi toạ độ sticker bằng bộ điều hướng Controls được cập nhật chính xác khi lưu.
+- Các bước thực hiện:
+  1. Chạm vào sticker trên canvas để kích hoạt panel Controls (`layout_art_control`).
+  2. Nhấn nút di chuyển xuống (`imgMoveDown`) 3 lần, nút di chuyển sang phải (`imgMoveRight`) 3 lần.
+  3. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+  4. Đóng quảng cáo để vào màn hình Preview.
+- Kết quả mong đợi:
+  + Sticker dịch chuyển theo đúng số bước đã bấm.
+  + Màn hình Preview phản ánh vị trí mới của sticker (so sánh với ảnh baseline trước khi dịch chuyển).
+- Maestro Selector:
+  + tapOn: { point: "50%, 40%" }
+  + tapOn: { id: "imgMoveDown" }
+  + tapOn: { id: "imgMoveRight" }
+  + tapOn: { id: "mnItemSave" }
+  + tapOn: { id: "llExportLogo" }
+  + tapOn: { id: "tvSave" }
+
+[TC_FEAT_ART_03] Thay đổi màu sắc của Sticker (Art Color) và thực hiện lưu lại
+- Mục tiêu: Đảm bảo màu mới áp dụng cho sticker vector được giữ nguyên vẹn sau khi xuất ảnh.
+- Các bước thực hiện:
+  1. Chạm vào sticker trên canvas.
+  2. Chọn sub-tab "Color" trong bảng công cụ Art.
+  3. Chọn một màu nổi bật (ví dụ: Màu đỏ cam).
+  4. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+- Kết quả mong đợi:
+  + Sticker vector chuyển sang màu đỏ cam trên canvas.
+  + Ảnh hiển thị trên Preview có sticker với đúng mã màu đỏ cam.
+
+[TC_FEAT_ART_04] Thêm đường viền nghệ thuật cho Sticker (Art Outline) và thực hiện lưu lại
+- Mục tiêu: Kiểm tra hiệu ứng Outline của sticker được kết xuất chính xác khi lưu.
+- Các bước thực hiện:
+  1. Chạm vào sticker -> Chọn sub-tab "Outline".
+  2. Kéo thanh trượt độ dày viền lên khoảng 15px và chọn màu viền trắng.
+  3. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+- Kết quả mong đợi:
+  + Sticker có đường viền trắng bao quanh rõ nét trên màn Preview.
+
+[TC_FEAT_ART_05] Xoay Sticker theo không gian 3 chiều (Art 3D Rotation) và thực hiện lưu lại
+- Mục tiêu: Xác thực phép biến đổi ma trận 3D (X, Y, Z Rotation) của sticker được render chuẩn mực sau khi lưu.
+- Các bước thực hiện:
+  1. Chạm vào sticker -> Chọn sub-tab "3D".
+  2. Kéo xoay trục Y khoảng 30 độ và trục X khoảng 15 độ.
+  3. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+- Kết quả mong đợi:
+  + Sticker nghiêng theo hiệu ứng phối cảnh 3D trên màn hình Preview.
+
+[TC_FEAT_ART_06] Nhân bản Sticker (Duplicate Layer) và thực hiện lưu lại
+- Mục tiêu: Đảm bảo tính năng Duplicate tạo thêm 1 bản sao sticker và cả 2 bản sao đều được lưu lại.
+- Các bước thực hiện:
+  1. Chạm vào sticker -> Chọn tab "Controls".
+  2. Nhấn nút "DUPLICATE" (`btnDuplicate`).
+  3. Kéo di chuyển bản sao sang một vị trí khác.
+  4. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+- Kết quả mong đợi:
+  + Trên canvas có 2 sticker giống nhau.
+  + Màn hình Preview hiển thị đầy đủ cả 2 sticker.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 3: SỬ DỤNG TÍNH NĂNG TEXT TOOL VÀ THỰC HIỆN LƯU LẠI
+----------------------------------------------------------------------------------------------------
+
+[TC_FEAT_TXT_01] Tạo Text Frame mới, nhập nội dung tuỳ biến và thực hiện lưu lại
+- Mục tiêu: Kiểm tra quy trình thêm chữ mới vào logo và kết xuất ra màn Preview.
+- Các bước thực hiện:
+  1. Nhấn vào tab "Text" (`itemText`) trên thanh bottom bar.
+  2. Nhập nội dung: "SPECIAL OFFER 2026" vào ô `editText`.
+  3. Nhấn nút Apply (`item_apply`).
+  4. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+  5. Xử lý màn hình quảng cáo để tới Preview.
+- Kết quả mong đợi:
+  + Dòng chữ "SPECIAL OFFER 2026" xuất hiện trên canvas.
+  + Màn hình Preview hiển thị đầy đủ dòng chữ vừa nhập.
+- Maestro Selector:
+  + tapOn: { id: "itemText" }
+  + inputText: "SPECIAL OFFER 2026"
+  + tapOn: { id: "item_apply" }
+  + tapOn: { id: "mnItemSave" }
+  + tapOn: { id: "llExportLogo" }
+  + tapOn: { id: "tvSave" }
+
+[TC_FEAT_TXT_02] Thay đổi phông chữ nghệ thuật (Fonts) cho Text và thực hiện lưu lại
+- Mục tiêu: Đảm bảo phông chữ áp dụng từ thư viện Fonts được kết xuất đúng kiểu dáng typography khi lưu.
+- Các bước thực hiện:
+  1. Chọn text frame trên canvas.
+  2. Nhấn vào sub-tab "Fonts" (`layout_text_fonts`).
+  3. Chọn một font chữ nghệ thuật (ví dụ: "American Captain" hoặc "Bebas Neue").
+  4. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+- Kết quả mong đợi:
+  + Chữ trên canvas đổi sang kiểu dáng phông mới.
+  + Màn hình Preview hiển thị chữ đúng font đã chọn, không bị fallback về font mặc định hệ thống.
+
+[TC_FEAT_TXT_03] Đổi màu chữ sang Gradient và thực hiện lưu lại
+- Mục tiêu: Xác thực màu gradient chữ kết xuất chuẩn xác khi lưu.
+- Các bước thực hiện:
+  1. Chọn text frame -> Nhấn sub-tab "Color".
+  2. Chọn một dải gradient chữ trong danh sách `rvGradientColorPicker`.
+  3. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+- Kết quả mong đợi:
+  + Chữ có hiệu ứng chuyển màu rực rỡ trên màn Preview.
+
+[TC_FEAT_TXT_04] Thêm hiệu ứng bóng đổ (Shadow Level & Color) cho Text và thực hiện lưu lại
+- Mục tiêu: Đảm bảo độ nhòe bóng và màu bóng chữ được lưu giữ trên bitmap kết xuất.
+- Các bước thực hiện:
+  1. Chọn text frame -> Nhấn sub-tab "Shadow".
+  2. Tăng giá trị thanh trượt `sbShadowLevel` lên 80 và chọn màu bóng đen.
+  3. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+- Kết quả mong đợi:
+  + Chữ có bóng đổ nổi khối 3D rõ nét trên màn Preview.
+
+[TC_FEAT_TXT_05] Áp dụng uốn cong chữ nghệ thuật (Curve Text) và thực hiện lưu lại
+- Mục tiêu: Xác minh thuật toán uốn cong chữ theo đường cung tròn được giữ nguyên khi render ảnh PNG.
+- Các bước thực hiện:
+  1. Chọn text frame -> Nhấn sub-tab "Curve".
+  2. Kéo thanh trượt `seekbarCurve` lên giá trị +50 (uốn cong vòm cung phía trên).
+  3. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+- Kết quả mong đợi:
+  + Dòng chữ uốn lượn hình cánh cung trên màn hình Preview.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 4: SỬ DỤNG TÍNH NĂNG EFFECT TOOL VÀ THỰC HIỆN LƯU LẠI
+----------------------------------------------------------------------------------------------------
+
+[TC_FEAT_EFF_01] Áp dụng lớp phủ hiệu ứng (Effect Overlay) lên thiết kế và thực hiện lưu lại
+- Mục tiêu: Đảm bảo lớp hoà trộn hiệu ứng (blend mode/light leak) phủ lên toàn bộ logo và được xuất ra đúng ảnh.
+- Các bước thực hiện:
+  1. Nhấn vào tab "Effect" (`itemEffect`) trên thanh bottom bar.
+  2. Chọn một hiệu ứng ánh sáng / texture phủ trong danh sách `recyclerView`.
+  3. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+  4. Vượt qua quảng cáo và quan sát màn hình Preview.
+- Kết quả mong đợi:
+  + Canvas hiển thị lớp phủ hiệu ứng trên các layer.
+  + Màn hình Preview hiển thị đầy đủ hiệu ứng ánh sáng vừa áp dụng.
+
+[TC_FEAT_EFF_02] Điều chỉnh độ mờ đục của Effect (Effect Opacity) và thực hiện lưu lại
+- Mục tiêu: Kiểm tra giá trị alpha của lớp effect được bảo toàn khi xuất ảnh.
+- Các bước thực hiện:
+  1. Nhấn tab "Effect" -> Chọn hiệu ứng.
+  2. Điều chỉnh thanh trượt độ mờ `tvTransparent` về mức 30%.
+  3. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+- Kết quả mong đợi:
+  + Hiệu ứng mờ dịu nhẹ ở mức 30% trên màn Preview.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 5: SỬ DỤNG TÍNH NĂNG PALETTE TOOL VÀ THỰC HIỆN LƯU LẠI
+----------------------------------------------------------------------------------------------------
+
+[TC_FEAT_PAL_01] Áp dụng Bảng phối màu mẫu (Palette Theme) cho toàn bộ Logo và thực hiện lưu lại
+- Mục tiêu: Đảm bảo tính năng đồng bộ màu sắc Palette đổi màu đồng loạt cho các thành phần và lưu thành công.
+- Các bước thực hiện:
+  1. Nhấn vào tab "Palette" (`itemPalette`) trên thanh bottom bar.
+  2. Chọn một bộ phối màu mẫu trong danh sách (ví dụ: bảng màu Pastel, Vintage, hoặc Neon).
+  3. Quan sát các phần tử trên canvas đồng loạt đổi màu theo bảng phối.
+  4. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+  5. Chuyển sang màn hình Preview.
+- Kết quả mong đợi:
+  + Toàn bộ màu sắc của logo trên màn hình Preview chuyển sang tông màu mới của Palette.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 6: SỬ DỤNG TÍNH NĂNG CHÈN ẢNH (IMAGE IMPORT) VÀ THỰC HIỆN LƯU LẠI
+----------------------------------------------------------------------------------------------------
+
+[TC_FEAT_IMG_01] Chèn ảnh từ bộ nhớ thiết bị vào Canvas và thực hiện lưu lại
+- Mục tiêu: Xác thực việc import tệp bitmap từ bên ngoài vào canvas và kết xuất hoà trộn trong file ảnh PNG xuất ra.
+- Các bước thực hiện:
+  1. Nhấn vào tab "Image" (`itemImage`) trên thanh bottom bar.
+  2. Cấp quyền truy cập ảnh nếu có yêu cầu.
+  3. Chọn một ảnh mẫu từ thư viện máy.
+  4. Căn chỉnh kích thước ảnh trên canvas.
+  5. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+- Kết quả mong đợi:
+  + Ảnh được chèn hiển thị đúng vị trí trên canvas.
+  + Màn hình Preview kết xuất logo có chứa hình ảnh vừa chèn.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 7: SỬ DỤNG TÍNH NĂNG QUẢN LÝ LAYER & CANVAS CONTROL VÀ THỰC HIỆN LƯU LẠI
+----------------------------------------------------------------------------------------------------
+
+[TC_FEAT_LYR_01] Thay đổi thứ tự lớp đối tượng (Layer Up / Layer Down) và thực hiện lưu lại
+- Mục tiêu: Kiểm tra chỉ số z-index của các layer được giữ vững khi lưu và kết xuất ảnh.
+- Các bước thực hiện:
+  1. Chọn một layer văn bản nằm dưới sticker Art.
+  2. Sử dụng nút `btnLayerUp` trong panel Controls để đưa layer văn bản lên đè lên trên sticker Art.
+  3. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+- Kết quả mong đợi:
+  + Trên canvas, chữ nằm đè lên trên sticker.
+  + Màn hình Preview thể hiện đúng thứ tự z-index: chữ nổi lên phía trước sticker.
+
+[TC_FEAT_LYR_02] Xoá một Layer đối tượng khỏi thiết kế và thực hiện lưu lại
+- Mục tiêu: Đảm bảo layer bị xoá không còn xuất hiện trong ảnh xuất ra và bản lưu dự án.
+- Các bước thực hiện:
+  1. Chọn một layer không cần thiết trên canvas (ví dụ: biểu tượng ngôi sao phụ).
+  2. Nhấn nút Delete (biểu tượng thùng rác trên khung chọn).
+  3. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+- Kết quả mong đợi:
+  + Đối tượng biến mất hoàn toàn trên canvas.
+  + Màn hình Preview không còn chứa đối tượng vừa xoá.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 8: SỬ DỤNG TÍNH NĂNG HOÀN TÁC (UNDO / REDO) VÀ THỰC HIỆN LƯU LẠI
+----------------------------------------------------------------------------------------------------
+
+[TC_FEAT_UND_01] Thực hiện chỉnh sửa -> Nhấn Undo để hoàn tác -> Thực hiện lưu lại
+- Mục tiêu: Xác minh trạng thái sau khi Undo là trạng thái chính xác được lưu vào tệp ảnh và dự án.
+- Các bước thực hiện:
+  1. Di chuyển một layer sang vị trí mới.
+  2. Nhấn nút Undo (`btnUndo`) trên toolbar.
+  3. Quan sát layer nhảy trở lại vị trí ban đầu.
+  4. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+- Kết quả mong đợi:
+  + Màn hình Preview hiển thị logo ở trạng thái trước khi di chuyển (trạng thái đã Undo).
+
+[TC_FEAT_UND_02] Thực hiện Undo -> Nhấn Redo để làm lại thao tác -> Thực hiện lưu lại
+- Mục tiêu: Xác minh thao tác Redo được bảo toàn chính xác sau khi lưu.
+- Các bước thực hiện:
+  1. Nhấn nút Redo (`btnRedo`) để lấy lại thao tác vừa Undo.
+  2. Nhấn icon Save (`mnItemSave`) -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+- Kết quả mong đợi:
+  + Màn hình Preview hiển thị trạng thái sau khi đã Redo.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 9: QUY TRÌNH THỰC HIỆN CÁC PHƯƠNG THỨC LƯU VÀ XUẤT ĐẦU RA (SAVE METHODS)
+----------------------------------------------------------------------------------------------------
+
+[TC_FEAT_SAV_01] Chỉnh sửa bất kỳ tính năng -> Chọn "Save Project (Edit Later)" -> Tiếp tục chỉnh sửa
+- Mục tiêu: Kiểm tra luồng lưu dự án liên tục mà không ngắt quãng phiên làm việc của người dùng.
+- Các bước thực hiện:
+  1. Thực hiện một chỉnh sửa bất kỳ (đổi màu, di chuyển layer).
+  2. Nhấn icon Save (`mnItemSave`) -> Chọn "Save Project (Edit Later)" (`llSaveProject`).
+  3. Quan sát thông báo Toast xác nhận lưu.
+  4. Thực hiện thêm một chỉnh sửa thứ hai.
+  5. Nhấn icon Save -> Chọn "Export Logo (PNG)" -> Nhấn "SAVE".
+- Kết quả mong đợi:
+  + Bản vẽ dự án được lưu thành công vào `files/designFile/`.
+  + File ảnh xuất ra ở màn Preview phản ánh đầy đủ cả 2 lần chỉnh sửa.
+
+[TC_FEAT_SAV_02] Chỉnh sửa thiết kế -> Xuất Logo PNG với độ phân giải HD (1024x1024)
+- Mục tiêu: Kiểm tra luồng xuất ảnh chuẩn mực cao HD và chuyển tới Preview.
+- Kết quả mong đợi: Tệp ảnh 1024x1024 px lưu vào `/sdcard/Pictures/LogoMaker/`, màn Preview render chuẩn.
+
+[TC_FEAT_SAV_03] Chỉnh sửa thiết kế -> Xuất Logo PNG với độ phân giải siêu nét HD+ (2048x2048)
+- Mục tiêu: Kiểm tra xuất ảnh 2K chất lượng cao và kiểm tra độ sắc nét trên màn Preview.
+
+[TC_FEAT_SAV_04] Chỉnh sửa thiết kế -> Xuất Logo PNG với kích thước tuỳ chỉnh Custom Size (800x800)
+- Mục tiêu: Kiểm tra xuất ảnh kích thước người dùng tự đặt và kiểm tra trên Preview.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 10: KIỂM TRA ĐẦU RA TẠI PREVIEW VÀ TOÀN VẸN HỆ THỐNG LƯU TRỮ (OUTPUT & STORAGE INTEGRITY)
+----------------------------------------------------------------------------------------------------
+
+[TC_FEAT_OUT_01] So sánh ảnh kép (Dual Screenshot Compare) giữa Canvas Edit và Canvas Preview
+- Mục tiêu: Đảm bảo độ tương đồng hình ảnh tuyệt đối giữa những gì người dùng thấy trên bàn vẽ (Edit Canvas: `layout_transparent`) và kết quả xuất ra trên màn hình đầu ra (Preview Canvas: `imageTransparentGrid`).
+- Tiêu chí đạt: Tỷ lệ tương đồng (Match Percentage) qua thuật toán so sánh ảnh đạt >= 95.0%.
+
+[TC_FEAT_OUT_02] Kiểm tra tệp ảnh trong thư mục /sdcard/Pictures/LogoMaker/ sau khi lưu
+- Mục tiêu: Xác thực file ảnh PNG được ghi thành công, kích thước tệp > 0 bytes, mở được bằng ứng dụng xem ảnh hệ thống.
+
+[TC_FEAT_OUT_03] Kiểm tra tệp dự án trong /data/data/com.thmobile.logomaker/files/designFile/
+- Mục tiêu: Xác thực thư mục dự án được tạo với các file dữ liệu layer JSON và thumbnail tương ứng.
+
+
+====================================================================================================
+III. MA TRẬN TRUY VẾT KIỂM THỬ (TRACEABILITY MATRIX)
+====================================================================================================
+
+| Test Case ID       | Tính năng sử dụng             | Hành động sau đó              | Mức độ ưu tiên | Trạng thái Auto (Maestro) |
+|:-------------------|:------------------------------|:------------------------------|:---------------|:--------------------------|
+| TC_FEAT_BG_01      | Background Solid Color        | Save & Export PNG HD          | High           | Automated                 |
+| TC_FEAT_BG_02      | Background Gradient           | Save & Export PNG HD          | High           | Automated                 |
+| TC_FEAT_BG_03      | Background Texture Pattern    | Save & Export PNG HD          | Medium         | Automated                 |
+| TC_FEAT_BG_04      | Background Opacity Slider     | Save & Export PNG HD          | Medium         | Automated                 |
+| TC_FEAT_ART_01     | Insert New Art Sticker        | Save & Export PNG HD          | High           | Automated                 |
+| TC_FEAT_ART_02     | Move Art Layer Coordinates    | Save & Export PNG HD          | Critical       | Automated (TC_10)         |
+| TC_FEAT_ART_03     | Change Art Color              | Save & Export PNG HD          | High           | Automated                 |
+| TC_FEAT_ART_04     | Apply Art Outline             | Save & Export PNG HD          | Medium         | Automated                 |
+| TC_FEAT_ART_05     | Apply Art 3D Rotation         | Save & Export PNG HD          | Medium         | Automated                 |
+| TC_FEAT_ART_06     | Duplicate Art Layer           | Save & Export PNG HD          | High           | Automated                 |
+| TC_FEAT_TXT_01     | Add New Text Frame            | Save & Export PNG HD          | Critical       | Automated                 |
+| TC_FEAT_TXT_02     | Change Typography Font        | Save & Export PNG HD          | High           | Automated                 |
+| TC_FEAT_TXT_03     | Apply Gradient Text Color     | Save & Export PNG HD          | High           | Automated                 |
+| TC_FEAT_TXT_04     | Apply Text Shadow             | Save & Export PNG HD          | Medium         | Automated                 |
+| TC_FEAT_TXT_05     | Apply Curve Text Arc          | Save & Export PNG HD          | High           | Automated                 |
+| TC_FEAT_EFF_01     | Apply Effect Overlay Texture  | Save & Export PNG HD          | High           | Automated                 |
+| TC_FEAT_EFF_02     | Adjust Effect Opacity         | Save & Export PNG HD          | Medium         | Automated                 |
+| TC_FEAT_PAL_01     | Apply Color Palette Theme     | Save & Export PNG HD          | High           | Automated                 |
+| TC_FEAT_IMG_01     | Insert Image from Storage     | Save & Export PNG HD          | High           | Automated                 |
+| TC_FEAT_LYR_01     | Reorder Layer (Up/Down)       | Save & Export PNG HD          | High           | Automated                 |
+| TC_FEAT_LYR_02     | Delete Unwanted Layer         | Save & Export PNG HD          | High           | Automated                 |
+| TC_FEAT_UND_01     | Undo Edit Action              | Save & Export PNG HD          | High           | Automated                 |
+| TC_FEAT_UND_02     | Redo Edit Action              | Save & Export PNG HD          | High           | Automated                 |
+| TC_FEAT_SAV_01     | Any Edit Action               | Save Project (Edit Later)     | Critical       | Automated                 |
+| TC_FEAT_SAV_02     | Any Edit Action               | Export PNG HD (1024x1024)     | Critical       | Automated (TC_10)         |
+| TC_FEAT_SAV_03     | Any Edit Action               | Export PNG HD+ (2048x2048)    | High           | Automated                 |
+| TC_FEAT_SAV_04     | Any Edit Action               | Export PNG Custom Size        | Medium         | Automated                 |
+| TC_FEAT_OUT_01     | Dual Screen Visual Compare    | Assert Match >= 95%           | Critical       | Automated (TC_10 Runner)  |
+| TC_FEAT_OUT_02     | PNG File Storage Check        | Verify in /sdcard/Pictures/   | High           | Automated Storage Check   |
+| TC_FEAT_OUT_03     | Project File Storage Check    | Verify in files/designFile/   | High           | Automated Storage Check   |
+
+====================================================================================================
+KẾT LUẬN & ĐÁNH GIÁ:
+- Bộ test cases trên bao phủ toàn diện 100% các tính năng chỉnh sửa trên màn Edit (Background, Art, Text,
+  Effect, Palette, Image, Layer, Undo/Redo) kết hợp chặt chẽ với hành vi Lưu lại (Save Project / Export).
+- Đáp ứng tiêu chí kiểm thử đầu ra: Mọi thao tác chỉnh sửa sau khi lưu lại đều được đối soát tính toàn vẹn
+  tại màn hình Preview Screen (thông qua Dual Screenshot Compare) và kiểm chứng tệp tin vật lý trong bộ nhớ.
+====================================================================================================

@@ -1,0 +1,34 @@
+appId: com.thmobile.logomaker
+---
+
+- runFlow: "../../config/Launch_App_Clear_State.yaml"
+
+- runFlow: "../../config/Language_Screen/Tap_On_Language_Success.yaml"
+
+- runFlow: "../../config/Close_Ads_Screen.yaml"
+
+# Verify Onboarding 1 screen
+- assertVisible: "LogoX - AI Logo Maker"
+- assertVisible: "Edit your design easily!"
+- assertVisible: "Next"
+- tapOn: "Next"
+
+# Verify Onboarding 2 screen
+- assertVisible: "1000+ Templates"
+- assertVisible: "Create stunning logos!"
+- assertVisible: "Next"
+- tapOn: "Next"
+
+# Verify Onboarding 3 screen
+- assertVisible:
+    id: "img"
+- assertVisible: "Create Logo Easily"
+- assertVisible: "With Auto Design Tool"
+- assertVisible: "Get Start"
+- assertNotVisible: "Next"
+
+- assertNotVisible: "LogoX - AI Logo Maker"
+- assertNotVisible: "Edit your design easily!"
+
+- assertNotVisible: "1000+ Templates"
+- assertNotVisible: "Create stunning logos!"

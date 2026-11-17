@@ -1,0 +1,878 @@
+====================================================================================================
+           BỘ TEST CASES KIỂM THỬ TÍNH NĂNG CÁC SUB-TAB TEXT TOOL - MÀN EDIT (LOGO MAKER)
+  (BAO GỒM 7 SUB-TABS: FONTS, COLOR, SHADOW, BACKGROUND, OUTLINE, CURVE, 3D VÀ BƯỚC TẠO TEXT FRAME)
+====================================================================================================
+Ứng dụng: Logo Maker (Logos4U)
+Application ID: com.thmobile.logomaker
+Platform: Android (Đã xác minh và kiểm thử trực tiếp trên thiết bị Android 14)
+Framework kiểm thử: Maestro Automation Framework
+Màn hình kiểm thử: Edit Screen (Template Detail / Trình chỉnh sửa thiết kế LogoDesignActivity)
+Phân hệ tính năng: Toàn bộ 7 Sub-Tabs của Text Tool:
+  1. Sub-Tab "Fonts"       : Lựa chọn và áp dụng phông chữ nghệ thuật đa dạng
+  2. Sub-Tab "Color"       : Màu đơn sắc (Solid), Chuyển sắc (Gradient), Họa tiết (Texture), Độ mờ (Opacity)
+  3. Sub-Tab "Shadow"      : Mức độ bóng đổ (Shadow Level/Blur) và Màu sắc bóng (Shadow Color)
+  4. Sub-Tab "Background"  : Độ mờ nền (Opacity), Họa tiết nền (Texture) và Màu sắc nền (Solid Color)
+  5. Sub-Tab "Outline"     : Độ dày đường viền (Outline Width) và Màu viền chữ (Outline Color)
+  6. Sub-Tab "Curve"       : Uốn cong chữ (Curve), Khoảng cách dòng (Line Spacing), Giãn cách ký tự (Char Spacing)
+  7. Sub-Tab "3D"          : Xoay không gian 3 chiều theo trục X (X-Rotation), trục Y (Y-Rotation), trục Z (Z-Rotation)
+Luồng điều hướng (Workflow):
+  Home Screen > Nút "Template" > Category "Restaurant" > Template đầu tiên > Màn Edit Screen >
+  Tạo Text Frame mới (Bottom Bar "Text" > Màn hình Input Text > Nhập nội dung > Nút Apply) >
+  Text Frame hiển thị trên Canvas > Tự động mở thanh Sub-Tabs Text Tool > Kiểm thử chi tiết 7 Sub-Tabs
+Ngày cập nhật: 2026-10-16
+Tài nguyên Hierarchy chính:
+  itemText, editText, item_apply, layout_text_editor_menu,
+  layout_text_fonts, tvText,
+  layout_text_colors, icon_transparent, sbTextTransparent, tvTransparent, imgColorPicker, imgPalette, rvSolidColorPicker, btnCustomGradient, rvGradientColorPicker, imgRemoveTexture, recyclerTexture,
+  layout_text_shadow, sbShadowLevel, tvShadowLevel,
+  layout_text_background, sbBGTransparent,
+  layout_sticker_outline, sbOutlineWidth, tvOutlineWidth,
+  layout_text_curve, seekbarCurve, textValueCurve, seekbarLineSpacing, textValueLineSpacing, seekbarCharSpacing, textValueCharSpacing,
+  layout_text_3d, seekbarXRotation, tvXRotation, seekbarYRotation, tvYRotation, seekbarZRotation, tvZRotation,
+  btnUndo, btnRedo, mnItemSave, bgDesignArea...
+====================================================================================================
+
+I. DANH SÁCH RESOURCE-ID & VIEW PHÂN TÍCH TỪ THIẾT BỊ THẬT (UI DUMP)
+----------------------------------------------------------------------------------------------------
+1. Thanh Toolbar & Điều hướng chung trên Edit Screen:
+   - android.widget.ImageButton (desc: "Navigate up")   : Nút quay lại màn hình Select Template
+   - TextView (text: "Logos4U")                         : Tiêu đề ứng dụng
+   - TextView (text: "Design_Thu_28_08_2025_10_24_28")   : Mã phiên thiết kế tự động
+   - com.thmobile.logomaker:id/mnItemSave (desc: "save"): Nút Lưu dự án hoặc Xuất logo PNG/JPG
+   - com.thmobile.logomaker:id/imageViewLayerTag        : Icon mở bảng điều khiển Layer (Layer Drawer)
+   - com.thmobile.logomaker:id/imageShowGrid            : Icon bật/tắt lưới tọa độ thiết kế (Grid)
+   - com.thmobile.logomaker:id/btnUndo (ivUndo)         : Nút Hoàn tác thao tác trước đó
+   - com.thmobile.logomaker:id/btnRedo (ivRedo)         : Nút Làm lại thao tác vừa hoàn tác
+   - com.thmobile.logomaker:id/btnClosePanel            : Nút thu gọn / đóng bảng menu công cụ Text
+
+2. Bước tiền đề: Tạo Text Frame mới từ Thanh Bottom Bar:
+   - com.thmobile.logomaker:id/itemText                 : Tab công cụ "Text" trên thanh bottom bar chính
+   - com.thmobile.logomaker:id/editText                 : Ô nhập văn bản (Hint: "Your Text Here???")
+   - com.thmobile.logomaker:id/numOfLetters             : Bộ đếm ký tự đã nhập (VD: "0/40")
+   - com.thmobile.logomaker:id/item_apply (desc: Apply) : Nút Checkmark (V) xác nhận tạo text frame đưa lên canvas
+
+3. Thanh điều hướng Sub-Tab Text Tool (HorizontalScrollView):
+   - com.thmobile.logomaker:id/layout_text_editor_menu  : Container thanh cuộn ngang chứa các sub-tab
+   - Sub-tab "Controls" (Text: "Controls")              : Sub-tab điều khiển di chuyển, layer, căn lề, duplicate, edit
+   - Sub-tab "Fonts" (Text: "Fonts")                    : Danh mục phông chữ nghệ thuật đa phong cách
+   - Sub-tab "Color" (Text: "Color")                    : Màu đơn sắc, chuyển sắc, hoa văn texture và độ trong suốt
+   - Sub-tab "Shadow" (Text: "Shadow")                  : Hiệu ứng bóng đổ và màu sắc bóng
+   - Sub-tab "Background" (Text: "Background")          : Nền văn bản (Độ mờ, texture, màu sắc)
+   - Sub-tab "Outline" (Text: "Outline")                : Viền chữ nghệ thuật và độ dày viền
+   - Sub-tab "Curve" (Text: "Curve")                    : Uốn cong chữ, khoảng cách dòng, giãn cách ký tự
+   - Sub-tab "3D" (Text: "3D")                          : Tùy biến góc xoay không gian 3 chiều (X, Y, Z)
+
+4. Cấu trúc chi tiết từng Sub-Tab:
+
+   A. Sub-Tab "Fonts" (Container: `layout_text_fonts`):
+      - com.thmobile.logomaker:id/layout_text_fonts     : Layout lưới chứa các mẫu font chữ
+      - com.thmobile.logomaker:id/tvText                : Từng ô font hiển thị tên font và phong cách hiển thị
+        (VD: "128 CAI978", "aachenb", "Aafia", "always forever", "AmaticSC-Regular", "American Captain",
+             "aqua", "Arenq", "Aspire Demi Bold", "Awesombrosa Black", "Barrio-Regular", "Bebas Neue"...)
+
+   B. Sub-Tab "Color" (Container: `layout_text_colors`):
+      - com.thmobile.logomaker:id/layout_text_colors    : Layout chứa toàn bộ công cụ màu chữ
+      - com.thmobile.logomaker:id/icon_transparent      : Icon độ mờ đục / trong suốt (Opacity)
+      - com.thmobile.logomaker:id/sbTextTransparent     : Thanh trượt (SeekBar) chỉnh độ trong suốt chữ (0 - 100)
+      - com.thmobile.logomaker:id/tvTransparent         : Nhãn hiển thị giá trị độ trong suốt hiện tại (Mặc định: 100)
+      - com.thmobile.logomaker:id/imgColorPicker        : Icon Eyedropper / Color Picker tự do dạng bảng màu chi tiết
+      - com.thmobile.logomaker:id/imgPalette            : Icon mở danh sách bộ màu mẫu (Color Palettes preset)
+      - com.thmobile.logomaker:id/rvSolidColorPicker    : Dải cuộn màu đơn sắc (Solid Color)
+      - com.thmobile.logomaker:id/color                 : Từng ô màu tròn trong dải chọn màu
+      - com.thmobile.logomaker:id/outline               : Viền đánh dấu màu đang được chọn
+      - com.thmobile.logomaker:id/btnCustomGradient     : Nút mở hộp thoại tùy biến màu Gradient (Custom Gradient)
+      - com.thmobile.logomaker:id/rvGradientColorPicker : Dải cuộn mẫu màu chuyển sắc Gradient có sẵn
+      - com.thmobile.logomaker:id/imgRemoveTexture      : Nút icon gạch chéo hủy bỏ texture đã áp dụng
+      - com.thmobile.logomaker:id/recyclerTexture       : Dải cuộn danh sách các mẫu texture phủ lên chữ
+      - com.thmobile.logomaker:id/imgLock               : Icon ổ khóa hiển thị trên các mẫu Texture VIP/Pro
+
+   C. Sub-Tab "Shadow" (Container: `layout_text_shadow`):
+      - com.thmobile.logomaker:id/layout_text_shadow    : Layout công cụ tạo bóng đổ
+      - com.thmobile.logomaker:id/sbShadowLevel         : Thanh trượt chỉnh mức độ bóng đổ / độ nhòe (0 - 100)
+      - com.thmobile.logomaker:id/tvShadowLevel         : Nhãn hiển thị mức độ bóng hiện tại (Mặc định: 0)
+      - com.thmobile.logomaker:id/imgColorPicker        : Eyedropper chọn màu bóng tự do
+      - com.thmobile.logomaker:id/imgPalette            : Chọn palette màu bóng
+      - com.thmobile.logomaker:id/rvSolidColorPicker    : Dải màu chọn màu cho bóng đổ
+
+   D. Sub-Tab "Background" (Container: `layout_text_background`):
+      - com.thmobile.logomaker:id/layout_text_background: Layout công cụ nền chữ
+      - com.thmobile.logomaker:id/sbBGTransparent       : Thanh trượt độ mờ nền chữ (0 - 100)
+      - com.thmobile.logomaker:id/tvTransparent         : Nhãn hiển thị độ mờ nền hiện tại (Mặc định: 100)
+      - com.thmobile.logomaker:id/imgRemoveTexture      : Nút hủy bỏ texture nền
+      - com.thmobile.logomaker:id/recyclerTexture       : Dải chọn mẫu texture cho nền chữ
+      - com.thmobile.logomaker:id/imgColorPicker        : Eyedropper chọn màu nền tự do
+      - com.thmobile.logomaker:id/imgPalette            : Chọn palette màu nền
+      - com.thmobile.logomaker:id/rvSolidColorPicker    : Dải màu chọn màu nền đơn sắc
+
+   E. Sub-Tab "Outline" (Container: `layout_sticker_outline`):
+      - com.thmobile.logomaker:id/layout_sticker_outline: Layout công cụ viền chữ
+      - com.thmobile.logomaker:id/sbOutlineWidth        : Thanh trượt chỉnh độ dày viền chữ (0 - 100)
+      - com.thmobile.logomaker:id/tvOutlineWidth        : Nhãn hiển thị độ dày viền hiện tại (Mặc định: 0)
+      - com.thmobile.logomaker:id/imgColorPicker        : Eyedropper chọn màu viền tự do
+      - com.thmobile.logomaker:id/imgPalette            : Chọn palette màu viền
+      - com.thmobile.logomaker:id/rvSolidColorPicker    : Dải màu chọn màu cho viền chữ
+
+   F. Sub-Tab "Curve" (Container: `layout_text_curve`):
+      - com.thmobile.logomaker:id/layout_text_curve     : Layout công cụ uốn cong và giãn cách
+      - com.thmobile.logomaker:id/ivCurve               : Icon biểu tượng uốn cong chữ
+      - com.thmobile.logomaker:id/seekbarCurve          : Thanh trượt uốn cong văn bản (Mặc định: 50 - thẳng)
+      - com.thmobile.logomaker:id/textValueCurve        : Nhãn hiển thị độ cong hiện tại (50)
+      - com.thmobile.logomaker:id/ivLineSpacing         : Icon biểu tượng khoảng cách dòng
+      - com.thmobile.logomaker:id/seekbarLineSpacing    : Thanh trượt khoảng cách dòng (Mặc định: 50)
+      - com.thmobile.logomaker:id/textValueLineSpacing  : Nhãn hiển thị giá trị khoảng cách dòng (50)
+      - com.thmobile.logomaker:id/ivCharSpacing         : Icon biểu tượng giãn cách ký tự
+      - com.thmobile.logomaker:id/seekbarCharSpacing    : Thanh trượt giãn cách ký tự (Mặc định: 25)
+      - com.thmobile.logomaker:id/textValueCharSpacing  : Nhãn hiển thị giá trị giãn cách ký tự (25)
+
+   G. Sub-Tab "3D" (Container: `layout_text_3d`):
+      - com.thmobile.logomaker:id/layout_text_3d        : Layout công cụ hiệu ứng xoay 3 chiều
+      - com.thmobile.logomaker:id/tvXRotation           : Nhãn hiển thị góc xoay trục X (Mặc định: 0°)
+      - com.thmobile.logomaker:id/seekbarXRotation      : Thanh trượt xoay chữ quanh trục hoành X (nghiêng trên/dưới)
+      - com.thmobile.logomaker:id/tvYRotation           : Nhãn hiển thị góc xoay trục Y (Mặc định: 0°)
+      - com.thmobile.logomaker:id/seekbarYRotation      : Thanh trượt xoay chữ quanh trục tung Y (nghiêng trái/phải)
+      - com.thmobile.logomaker:id/tvZRotation           : Nhãn hiển thị góc xoay trục Z (Mặc định: 0°)
+      - com.thmobile.logomaker:id/seekbarZRotation      : Thanh trượt xoay chữ quanh trục Z (xoay phẳng)
+
+5. Canvas & Vùng thiết kế:
+   - com.thmobile.logomaker:id/bgDesignArea             : Vùng nền thiết kế
+   - com.thmobile.logomaker:id/layout_designer          : Khung bố cục Canvas
+   - com.thmobile.logomaker:id/stickerView              : View quản lý các text layer / sticker
+   - Handle điều khiển trực tiếp trên Canvas: Xóa (Top-Left), Lật Flip (Top-Right), Xoay Rotate (Bottom-Left), Kéo dãn Scale (Bottom-Right)
+
+
+====================================================================================================
+II. CHI TIẾT CÁC FUNCTIONAL TEST CASES THEO TỪNG NHÓM CHỨC NĂNG
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+NHÓM 0: WORKFLOW TIỀN ĐỀ - TẠO TEXT FRAME MỚI TRÊN EDIT SCREEN (PRE-CONDITION FLOW)
+----------------------------------------------------------------------------------------------------
+
+[TC_TEXT_CREATE_01] Khởi tạo Text Frame mới thông qua công cụ Text Tool trên Edit Screen
+- Mục tiêu: Xác nhận luồng nghiệp vụ tạo mới một text frame từ thanh công cụ bottom bar, chuyển sang màn hình Input Text, nhập nội dung tùy biến và áp dụng thành công lên Canvas.
+- Điều kiện tiên quyết: Mở app -> Chọn Template Restaurant đầu tiên -> Đang ở màn hình Edit Screen.
+- Các bước thực hiện:
+  1. Kiểm tra trên màn hình Edit Screen, thanh điều hướng dưới cùng hiển thị nút "Text" (id: "itemText").
+  2. Nhấn vào nút "Text" (id: "itemText").
+  3. Màn hình "Input Text" xuất hiện:
+     + Tiêu đề hiển thị "Input Text".
+     + Ô nhập liệu hiển thị "editText" kèm bộ đếm ký tự "numOfLetters" (0/40).
+     + Nút áp dụng "item_apply" hiển thị ở góc trên bên phải.
+  4. Nhập chuỗi văn bản: "SPECIAL RESTAURANT".
+  5. Nhấn nút Apply (id: "item_apply").
+  6. Xử lý popup quảng cáo nếu xuất hiện.
+  7. Quan sát màn hình Edit Screen sau khi quay lại.
+- Kết quả mong đợi:
+  + Văn bản "SPECIAL RESTAURANT" xuất hiện ngay tại trung tâm Canvas kèm bounding box active.
+  + Bảng Text Tool Editor tự động mở ra ở nửa dưới màn hình với thanh sub-tab (HorizontalScrollView).
+  + Người dùng có thể tiếp cận trực tiếp 7 sub-tabs: Fonts, Color, Shadow, Background, Outline, Curve, 3D.
+- Maestro Selectors:
+  - tapOn: { id: "itemText" }
+  - assertVisible: { id: "editText" }
+  - inputText: "SPECIAL RESTAURANT"
+  - tapOn: { id: "item_apply" }
+  - assertVisible: { id: "layout_text_editor_menu" }
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 1: FUNCTIONAL TEST CASES - SUB-TAB "FONTS" (PHÔNG CHỮ)
+----------------------------------------------------------------------------------------------------
+
+[TC_TEXT_FONT_01] Kích hoạt và hiển thị đầy đủ danh sách Phông chữ trong Sub-Tab Fonts
+- Mục tiêu: Kiểm tra việc chuyển sang sub-tab "Fonts" và danh sách các phông chữ được tải lên đầy đủ, có hiển thị preview trực quan.
+- Điều kiện tiên quyết: Đã tạo xong Text Frame "SPECIAL RESTAURANT" trên Edit Screen.
+- Các bước thực hiện:
+  1. Tại thanh cuộn sub-tab (layout_text_editor_menu), nhấn vào tab "Fonts" (text: "Fonts").
+  2. Kiểm tra container `layout_text_fonts` hiển thị.
+  3. Kiểm tra danh sách các mẫu font chữ (id: "tvText").
+- Kết quả mong đợi:
+  + Sub-tab "Fonts" chuyển sang trạng thái active (được highlight).
+  + Container `layout_text_fonts` hiển thị dạng lưới gồm nhiều mẫu font (vd: "128 CAI978", "aachenb", "Aafia", "AmaticSC-Regular", "Bebas Neue"...).
+  + Mỗi item hiển thị đúng kiểu dáng phông chữ tương ứng.
+- Maestro Selectors:
+  - tapOn:
+      text: "Fonts"
+  - assertVisible: { id: "layout_text_fonts" }
+  - assertVisible:
+      id: "tvText"
+      text: "Bebas Neue"
+
+[TC_TEXT_FONT_02] Áp dụng phông chữ mới cho Text Frame và xác nhận thay đổi hiển thị
+- Mục tiêu: Kiểm tra khi nhấn vào một font bất kỳ trong danh sách, Text Frame trên Canvas lập tức áp dụng typeface mới mà không bị lệch tọa độ hay mất nội dung.
+- Điều kiện tiên quyết: Sub-tab "Fonts" đang mở, text frame đang được chọn.
+- Các bước thực hiện:
+  1. Nhấn chọn font "Bebas Neue" trong danh sách `tvText`.
+  2. Quan sát Text Frame trên Canvas.
+  3. Nhấn chọn font khác ví dụ "AmaticSC-Regular".
+  4. Quan sát Text Frame trên Canvas.
+- Kết quả mong đợi:
+  + Chữ "SPECIAL RESTAURANT" trên Canvas đổi ngay sang kiểu chữ của "Bebas Neue", sau đó đổi tiếp sang "AmaticSC-Regular".
+  + Khung bounding box tự động co giãn kích thước phù hợp với độ dài và chiều cao của font mới.
+  + Không xảy ra crash hay giật lag giao diện.
+- Maestro Selectors:
+  - tapOn:
+      id: "tvText"
+      text: "Bebas Neue"
+  - tapOn:
+      id: "tvText"
+      text: "AmaticSC-Regular"
+
+[TC_TEXT_FONT_03] Cuộn danh sách phông chữ để tải và chọn các phông chữ phía dưới
+- Mục tiêu: Xác nhận danh sách phông chữ hỗ trợ cuộn mượt mà và có thể chọn các font ở vị trí sâu trong danh sách.
+- Điều kiện tiên quyết: Sub-tab "Fonts" đang mở.
+- Các bước thực hiện:
+  1. Thực hiện thao tác vuốt cuộn xuống dưới trong vùng `layout_text_fonts`.
+  2. Kiểm tra các font mới xuất hiện trong viewport.
+  3. Nhấn chọn một font mới sau khi cuộn.
+- Kết quả mong đợi:
+  + Danh sách cuộn trơn tru, không bị khựng.
+  + Các font phía dưới hiển thị đầy đủ tên và preview.
+  + Áp dụng font mới thành công lên text frame.
+- Maestro Selectors:
+  - swipe:
+      direction: DOWN
+      element: { id: "layout_text_fonts" }
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 2: FUNCTIONAL TEST CASES - SUB-TAB "COLOR" (MÀU SẮC, GRADIENT, TEXTURE, OPACITY)
+----------------------------------------------------------------------------------------------------
+
+[TC_TEXT_COLOR_01] Kích hoạt và hiển thị đầy đủ các phân vùng công cụ trong Sub-Tab Color
+- Mục tiêu: Kiểm tra sub-tab "Color" hiển thị đầy đủ 4 phân vùng chức năng: Opacity, Solid Color, Gradient Color và Texture.
+- Điều kiện tiên quyết: Text frame đang được chọn trên Canvas.
+- Các bước thực hiện:
+  1. Nhấn vào tab "Color" (text: "Color") trên thanh sub-tab.
+  2. Kiểm tra container `layout_text_colors`.
+  3. Xác minh sự hiện diện của:
+     + Thanh trượt Opacity: `icon_transparent`, `sbTextTransparent`, `tvTransparent`.
+     + Phân vùng Solid Color: `imgColorPicker`, `imgPalette`, `rvSolidColorPicker`.
+     + Phân vùng Gradient: `btnCustomGradient`, `rvGradientColorPicker`.
+     + Phân vùng Texture: `imgRemoveTexture`, `recyclerTexture`.
+- Kết quả mong đợi:
+  + Toàn bộ 4 phân vùng chức năng hiển thị trực quan, ngăn nắp trong container `layout_text_colors`.
+  + Giá trị Opacity mặc định hiển thị "100".
+- Maestro Selectors:
+  - tapOn:
+      text: "Color"
+  - assertVisible: { id: "layout_text_colors" }
+  - assertVisible: { id: "sbTextTransparent" }
+  - assertVisible: { id: "tvTransparent" }
+  - assertVisible: { id: "rvSolidColorPicker" }
+  - assertVisible: { id: "rvGradientColorPicker" }
+  - assertVisible: { id: "recyclerTexture" }
+
+[TC_TEXT_COLOR_02] Điều chỉnh độ trong suốt của chữ (Opacity/Transparency) qua SeekBar
+- Mục tiêu: Kiểm tra thanh trượt `sbTextTransparent` làm thay đổi độ mờ đục của chữ trên Canvas.
+- Điều kiện tiên quyết: Sub-tab "Color" đang mở.
+- Các bước thực hiện:
+  1. Kéo thanh trượt `sbTextTransparent` từ 100 về khoảng giữa (tọa độ ~ 50%).
+  2. Kiểm tra nhãn hiển thị `tvTransparent`.
+  3. Kéo thanh trượt về mức tối thiểu (gần 0) rồi kéo lại mức 80.
+- Kết quả mong đợi:
+  + Nhãn `tvTransparent` cập nhật giá trị số tương ứng với vị trí con trượt.
+  + Độ trong suốt của chữ "SPECIAL RESTAURANT" trên Canvas mờ dần theo mức giảm và rõ dần khi tăng.
+- Maestro Selectors:
+  - swipe:
+      element: { id: "sbTextTransparent" }
+      direction: LEFT
+
+[TC_TEXT_COLOR_03] Áp dụng màu đơn sắc (Solid Color) từ dải màu mẫu
+- Mục tiêu: Xác nhận chọn các ô màu đơn sắc trong `rvSolidColorPicker` thay đổi màu chữ ngay lập tức.
+- Điều kiện tiên quyết: Sub-tab "Color" đang mở.
+- Các bước thực hiện:
+  1. Nhấn vào ô màu thứ 2 trong `rvSolidColorPicker`.
+  2. Kiểm tra viền chọn `outline` bao quanh ô màu vừa nhấn.
+  3. Nhấn tiếp vào ô màu thứ 4 hoặc thứ 5 trong dải màu.
+- Kết quả mong đợi:
+  + Chữ trên Canvas đổi sang màu đã chọn.
+  + Ô màu được chọn có khung viền `outline` hiển thị rõ ràng để người dùng nhận diện.
+- Maestro Selectors:
+  - tapOn:
+      id: "color"
+      index: 1
+  - tapOn:
+      id: "color"
+      index: 3
+
+[TC_TEXT_COLOR_04] Áp dụng màu chuyển sắc (Gradient Color) cho Text Frame
+- Mục tiêu: Kiểm tra việc áp dụng mẫu màu gradient từ `rvGradientColorPicker` lên chữ.
+- Điều kiện tiên quyết: Sub-tab "Color" đang mở.
+- Các bước thực hiện:
+  1. Nhấn vào một ô gradient trong danh sách `rvGradientColorPicker`.
+  2. Quan sát hiệu ứng màu trên chữ Canvas.
+  3. Nhấn vào nút tùy biến Gradient (id: "btnCustomGradient").
+  4. Đóng hoặc áp dụng dialog Custom Gradient.
+- Kết quả mong đợi:
+  + Chữ chuyển từ màu đơn sắc sang dải màu gradient mượt mà.
+  + Nút `btnCustomGradient` mở đúng dialog cấu hình các điểm dừng màu (color stops) và góc chuyển sắc.
+- Maestro Selectors:
+  - tapOn:
+      element: { id: "rvGradientColorPicker" }
+      child: { id: "color" }
+      index: 0
+  - tapOn: { id: "btnCustomGradient" }
+
+[TC_TEXT_COLOR_05] Phủ họa tiết Texture lên Text Frame và gỡ bỏ Texture
+- Mục tiêu: Kiểm tra tính năng Text Texture phủ hoa văn bề mặt lên chữ và nút hủy texture.
+- Điều kiện tiên quyết: Sub-tab "Color" đang mở.
+- Các bước thực hiện:
+  1. Nhấn vào một mẫu texture miễn phí (không có icon `imgLock`) trong `recyclerTexture`.
+  2. Quan sát bề mặt chữ trên Canvas.
+  3. Nhấn vào nút hủy bỏ Texture (id: "imgRemoveTexture").
+- Kết quả mong đợi:
+  + Sau bước 1: Chữ hiển thị hoa văn chất liệu (gỗ, đá, kim loại, họa tiết hoa văn...) bên trong nét chữ.
+  + Sau bước 3: Texture bị gỡ bỏ, chữ quay về màu solid/gradient trước đó.
+- Maestro Selectors:
+  - tapOn:
+      element: { id: "recyclerTexture" }
+      child: { id: "imageView" }
+      index: 0
+  - tapOn: { id: "imgRemoveTexture" }
+
+[TC_TEXT_COLOR_06] Cuộn ngang dải màu đơn sắc (Solid Color) và dải màu Gradient trên Sub-Tab Color
+- Mục tiêu: Kiểm tra dải màu Solid và Gradient hỗ trợ cuộn ngang mượt mà, hiển thị thêm các tone màu phong phú và áp dụng thành công màu ở vị trí sau khi cuộn.
+- Điều kiện tiên quyết: Sub-tab "Color" đang mở.
+- Các bước thực hiện:
+  1. Thực hiện vuốt cuộn ngang từ phải sang trái trên dải màu Solid Color (`rvSolidColorPicker`).
+  2. Chọn một ô màu mới xuất hiện sau khi cuộn.
+  3. Thực hiện vuốt cuộn ngang từ phải sang trái trên dải màu Gradient (`rvGradientColorPicker`).
+  4. Chọn một mẫu gradient mới xuất hiện sau khi cuộn.
+- Kết quả mong đợi:
+  + Dải màu cuộn mượt mà, tải đầy đủ các ô màu tiếp theo.
+  + Chữ trên Canvas đổi sang màu Solid và Gradient mới chọn tương ứng.
+- Maestro Selectors:
+  - swipe:
+      start: 85%, 68%
+      end: 25%, 68%
+  - tapOn:
+      id: "color"
+      childOf:
+        id: "rvSolidColorPicker"
+      index: 3
+  - swipe:
+      start: 85%, 72%
+      end: 25%, 72%
+  - tapOn:
+      id: "color"
+      childOf:
+        id: "rvGradientColorPicker"
+      index: 2
+
+[TC_TEXT_COLOR_07] Cuộn ngang dải mẫu Texture để khám phá và áp dụng các mẫu texture khác
+- Mục tiêu: Kiểm tra dải hoa văn texture hỗ trợ cuộn ngang để xem và áp dụng thêm nhiều chất liệu nghệ thuật khác nhau.
+- Điều kiện tiên quyết: Sub-tab "Color" đang mở.
+- Các bước thực hiện:
+  1. Thực hiện vuốt cuộn ngang từ phải sang trái trên dải Texture (`recyclerTexture`).
+  2. Chọn một mẫu texture xuất hiện sau khi cuộn.
+  3. Quan sát bề mặt chữ trên Canvas.
+- Kết quả mong đợi:
+  + Danh sách texture cuộn trơn tru, hiển thị các mẫu texture phong phú phía sau.
+  + Áp dụng chất liệu mới lên chữ thành công.
+- Maestro Selectors:
+  - swipe:
+      start: 85%, 77%
+      end: 25%, 77%
+  - tapOn:
+      id: "imageView"
+      childOf:
+        id: "recyclerTexture"
+      index: 1
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 3: FUNCTIONAL TEST CASES - SUB-TAB "SHADOW" (BÓNG ĐỔ VĂN BẢN)
+----------------------------------------------------------------------------------------------------
+
+[TC_TEXT_SHADOW_01] Kích hoạt Sub-Tab Shadow và kiểm tra giao diện điều khiển bóng
+- Mục tiêu: Xác nhận sub-tab "Shadow" hiển thị đầy đủ thanh trượt mức độ bóng và bảng chọn màu bóng.
+- Điều kiện tiên quyết: Text frame đang được chọn trên Canvas.
+- Các bước thực hiện:
+  1. Nhấn vào tab "Shadow" (text: "Shadow") trên thanh sub-tab.
+  2. Kiểm tra container `layout_text_shadow`.
+  3. Kiểm tra thanh trượt `sbShadowLevel` và nhãn hiển thị `tvShadowLevel` (mặc định: "0").
+  4. Kiểm tra dải chọn màu bóng `rvSolidColorPicker`.
+- Kết quả mong đợi:
+  + Giao diện sub-tab Shadow mở ra hoàn chỉnh.
+  + Mức độ bóng khởi tạo là 0 (chưa có bóng đổ).
+- Maestro Selectors:
+  - tapOn:
+      text: "Shadow"
+  - assertVisible: { id: "layout_text_shadow" }
+  - assertVisible: { id: "sbShadowLevel" }
+  - assertVisible: { id: "tvShadowLevel" }
+  - assertVisible: { id: "rvSolidColorPicker" }
+
+[TC_TEXT_SHADOW_02] Tăng mức độ bóng đổ (Shadow Level) và đổi màu bóng
+- Mục tiêu: Kiểm tra thanh trượt `sbShadowLevel` tạo bóng đổ rõ nét và đổi màu bóng theo ý muốn.
+- Điều kiện tiên quyết: Sub-tab "Shadow" đang mở.
+- Các bước thực hiện:
+  1. Kéo thanh trượt `sbShadowLevel` sang phải để tăng mức bóng lên (khoảng 30 - 60).
+  2. Kiểm tra nhãn `tvShadowLevel` thay đổi giá trị lớn hơn 0.
+  3. Chọn một ô màu trong `rvSolidColorPicker` (ví dụ màu Đen hoặc Đỏ).
+  4. Quan sát bóng chữ trên Canvas.
+- Kết quả mong đợi:
+  + Quầng bóng mờ xuất hiện phía sau các nét chữ "SPECIAL RESTAURANT".
+  + Màu của bóng trùng khớp với màu đã chọn trong dải màu.
+- Maestro Selectors:
+  - swipe:
+      element: { id: "sbShadowLevel" }
+      direction: RIGHT
+  - tapOn:
+      element: { id: "rvSolidColorPicker" }
+      child: { id: "color" }
+      index: 2
+
+[TC_TEXT_SHADOW_03] Đưa thanh trượt Shadow Level về 0 để tắt bóng đổ
+- Mục tiêu: Xác nhận khi kéo slider về mức 0, hiệu ứng bóng đổ hoàn toàn biến mất.
+- Điều kiện tiên quyết: Chữ đang có bóng đổ.
+- Các bước thực hiện:
+  1. Kéo thanh trượt `sbShadowLevel` hết cỡ sang trái về vị trí 0.
+  2. Kiểm tra giá trị `tvShadowLevel` hiển thị "0".
+  3. Quan sát Canvas.
+- Kết quả mong đợi:
+  + Hiệu ứng bóng đổ phía sau chữ biến mất hoàn toàn, chữ hiển thị rõ nét viền nguyên bản.
+- Maestro Selectors:
+  - swipe:
+      element: { id: "sbShadowLevel" }
+      direction: LEFT
+  - assertVisible:
+      id: "tvShadowLevel"
+      text: "0"
+
+[TC_TEXT_SHADOW_04] Cuộn ngang dải màu bóng đổ (Shadow Color) để chọn các màu bóng ở các vị trí phía sau
+- Mục tiêu: Kiểm tra dải màu Shadow hỗ trợ cuộn ngang mượt mà, cho phép người dùng lựa chọn thêm nhiều tone màu bóng khác nhau.
+- Điều kiện tiên quyết: Sub-tab "Shadow" đang mở, đã tăng mức bóng lớn hơn 0.
+- Các bước thực hiện:
+  1. Kéo tăng thanh trượt `sbShadowLevel` để kích hoạt bóng đổ.
+  2. Thực hiện vuốt cuộn ngang từ phải sang trái trên dải màu bóng đổ (`rvSolidColorPicker`).
+  3. Chọn một ô màu mới xuất hiện sau khi cuộn.
+- Kết quả mong đợi:
+  + Dải màu cuộn trơn tru, hiển thị các ô màu ở các trang tiếp theo.
+  + Quầng bóng của chữ đổi sang màu mới chọn.
+- Maestro Selectors:
+  - swipe:
+      start: 85%, 77%
+      end: 25%, 77%
+  - tapOn:
+      id: "color"
+      childOf:
+        id: "rvSolidColorPicker"
+      index: 3
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 4: FUNCTIONAL TEST CASES - SUB-TAB "BACKGROUND" (NỀN VĂN BẢN)
+----------------------------------------------------------------------------------------------------
+
+[TC_TEXT_BG_01] Kích hoạt Sub-Tab Background và kiểm tra các công cụ nền
+- Mục tiêu: Kiểm tra sub-tab "Background" hiển thị thanh độ mờ nền, texture nền và màu nền.
+- Điều kiện tiên quyết: Text frame đang được chọn trên Canvas.
+- Các bước thực hiện:
+  1. Nhấn vào tab "Background" (text: "Background") trên thanh sub-tab.
+  2. Kiểm tra container `layout_text_background`.
+  3. Xác minh các thành phần:
+     + Slider độ mờ nền: `sbBGTransparent`, nhãn `tvTransparent` (100).
+     + Họa tiết nền: `imgRemoveTexture`, `recyclerTexture`.
+     + Màu nền: `imgColorPicker`, `imgPalette`, `rvSolidColorPicker`.
+- Kết quả mong đợi:
+  + Sub-tab "Background" mở thành công với đầy đủ các công cụ cấu hình nền.
+- Maestro Selectors:
+  - tapOn:
+      text: "Background"
+  - assertVisible: { id: "layout_text_background" }
+  - assertVisible: { id: "sbBGTransparent" }
+  - assertVisible: { id: "recyclerTexture" }
+  - assertVisible: { id: "rvSolidColorPicker" }
+
+[TC_TEXT_BG_02] Thêm màu nền cho Text Frame và điều chỉnh độ mờ nền (Background Opacity)
+- Mục tiêu: Kiểm tra áp dụng màu nền hình chữ nhật bao quanh chữ và điều chỉnh độ trong suốt của nền.
+- Điều kiện tiên quyết: Sub-tab "Background" đang mở.
+- Các bước thực hiện:
+  1. Nhấn chọn một màu nổi bật (ví dụ: Vàng hoặc Xanh) trong `rvSolidColorPicker`.
+  2. Quan sát khung chữ trên Canvas.
+  3. Kéo thanh trượt `sbBGTransparent` sang trái để giảm độ mờ về ~ 50%.
+  4. Quan sát sự thay đổi trên Canvas.
+- Kết quả mong đợi:
+  + Sau bước 1: Một khối màu nền xuất hiện bao quanh văn bản "SPECIAL RESTAURANT".
+  + Sau bước 3: Khối nền trở nên bán trong suốt (nhìn xuyên qua được các chi tiết nền phía sau), trong khi màu chữ vẫn giữ nguyên độ rõ nét.
+- Maestro Selectors:
+  - tapOn:
+      element: { id: "rvSolidColorPicker" }
+      child: { id: "color" }
+      index: 1
+  - swipe:
+      element: { id: "sbBGTransparent" }
+      direction: LEFT
+
+[TC_TEXT_BG_03] Áp dụng Texture cho nền Text Frame và hủy Texture nền
+- Mục tiêu: Kiểm tra việc áp dụng hoa văn cho nền khối văn bản và thao tác hủy texture.
+- Điều kiện tiên quyết: Sub-tab "Background" đang mở.
+- Các bước thực hiện:
+  1. Nhấn chọn một mẫu texture trong `recyclerTexture`.
+  2. Quan sát khung nền văn bản trên Canvas.
+  3. Nhấn vào nút hủy bỏ Texture (id: "imgRemoveTexture").
+- Kết quả mong đợi:
+  + Hoa văn chất liệu hiển thị lấp đầy khối nền của text frame.
+  + Khi nhấn `imgRemoveTexture`, texture nền biến mất và quay về nền màu trơn.
+- Maestro Selectors:
+  - tapOn:
+      element: { id: "recyclerTexture" }
+      child: { id: "imageView" }
+      index: 0
+  - tapOn: { id: "imgRemoveTexture" }
+
+[TC_TEXT_BG_04] Cuộn ngang dải màu nền và dải mẫu Texture nền trên Sub-Tab Background
+- Mục tiêu: Kiểm tra dải màu nền Solid Color và dải Texture nền hỗ trợ cuộn ngang mượt mà, cho phép áp dụng các tùy chọn phong phú.
+- Điều kiện tiên quyết: Sub-tab "Background" đang mở.
+- Các bước thực hiện:
+  1. Thực hiện vuốt cuộn ngang từ phải sang trái trên dải Texture nền (`recyclerTexture`).
+  2. Chọn một mẫu texture nền mới xuất hiện sau khi cuộn.
+  3. Thực hiện vuốt cuộn ngang từ phải sang trái trên dải màu nền (`rvSolidColorPicker`).
+  4. Chọn một ô màu nền mới xuất hiện sau khi cuộn.
+- Kết quả mong đợi:
+  + Cả dải texture và dải màu nền đều cuộn trơn tru, hiển thị đầy đủ các item phía sau.
+  + Nền text frame áp dụng chính xác texture và màu sắc mới được chọn.
+- Maestro Selectors:
+  - swipe:
+      start: 85%, 73%
+      end: 25%, 73%
+  - tapOn:
+      id: "imageView"
+      childOf:
+        id: "recyclerTexture"
+      index: 1
+  - swipe:
+      start: 85%, 78%
+      end: 25%, 78%
+  - tapOn:
+      id: "color"
+      childOf:
+        id: "rvSolidColorPicker"
+      index: 3
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 5: FUNCTIONAL TEST CASES - SUB-TAB "OUTLINE" (VIỀN CHỮ NGHỆ THUẬT)
+----------------------------------------------------------------------------------------------------
+
+[TC_TEXT_OUTLINE_01] Kích hoạt Sub-Tab Outline và kiểm tra cấu trúc giao diện
+- Mục tiêu: Xác nhận sub-tab "Outline" hiển thị thanh trượt độ dày viền và dải chọn màu viền.
+- Điều kiện tiên quyết: Text frame đang được chọn trên Canvas.
+- Các bước thực hiện:
+  1. Cuộn thanh sub-tab sang trái nếu cần và nhấn vào tab "Outline" (text: "Outline").
+  2. Kiểm tra container `layout_sticker_outline`.
+  3. Kiểm tra thanh trượt `sbOutlineWidth` và nhãn hiển thị `tvOutlineWidth` (mặc định: "0").
+  4. Kiểm tra dải chọn màu viền `rvSolidColorPicker`.
+- Kết quả mong đợi:
+  + Giao diện sub-tab Outline mở ra đúng chuẩn.
+  + Độ dày viền ban đầu là 0 (chưa có viền ngoài).
+- Maestro Selectors:
+  - tapOn:
+      text: "Outline"
+  - assertVisible: { id: "layout_sticker_outline" }
+  - assertVisible: { id: "sbOutlineWidth" }
+  - assertVisible: { id: "tvOutlineWidth" }
+  - assertVisible: { id: "rvSolidColorPicker" }
+
+[TC_TEXT_OUTLINE_02] Tăng độ dày viền (Outline Width) và thay đổi màu sắc đường viền
+- Mục tiêu: Kiểm tra chữ hiển thị đường viền rõ nét bao quanh từng nét chữ và đổi màu viền tương phản.
+- Điều kiện tiên quyết: Sub-tab "Outline" đang mở.
+- Các bước thực hiện:
+  1. Kéo thanh trượt `sbOutlineWidth` sang phải để tăng giá trị (khoảng 15 - 35).
+  2. Kiểm tra nhãn `tvOutlineWidth` hiển thị số dương.
+  3. Chọn một màu viền tương phản (ví dụ màu Trắng hoặc Đỏ) trong `rvSolidColorPicker`.
+  4. Quan sát viền chữ trên Canvas.
+- Kết quả mong đợi:
+  + Từng chữ cái trong "SPECIAL RESTAURANT" có một đường viền sắc nét bao quanh.
+  + Màu sắc đường viền cập nhật chính xác theo màu đã chọn.
+  + Tăng độ dày làm viền dày lên tương ứng theo thời gian thực.
+- Maestro Selectors:
+  - swipe:
+      element: { id: "sbOutlineWidth" }
+      direction: RIGHT
+  - tapOn:
+      element: { id: "rvSolidColorPicker" }
+      child: { id: "color" }
+      index: 0
+
+[TC_TEXT_OUTLINE_03] Đưa độ dày Outline Width về 0 để tắt viền chữ
+- Mục tiêu: Xác nhận khi kéo slider về 0, đường viền chữ biến mất hoàn toàn.
+- Điều kiện tiên quyết: Chữ đang có viền outline.
+- Các bước thực hiện:
+  1. Kéo thanh trượt `sbOutlineWidth` hết cỡ sang trái về 0.
+  2. Kiểm tra giá trị `tvOutlineWidth` bằng "0".
+- Kết quả mong đợi:
+  + Đường viền bao quanh chữ biến mất hoàn toàn, chữ trở lại nét ban đầu.
+- Maestro Selectors:
+  - swipe:
+      element: { id: "sbOutlineWidth" }
+      direction: LEFT
+  - assertVisible:
+      id: "tvOutlineWidth"
+      text: "0"
+
+[TC_TEXT_OUTLINE_04] Cuộn ngang dải màu viền chữ (Outline Color) để chọn các màu viền đa dạng
+- Mục tiêu: Kiểm tra dải màu viền chữ hỗ trợ cuộn ngang mượt mà, cho phép người dùng lựa chọn nhiều gam màu viền tương phản khác nhau.
+- Điều kiện tiên quyết: Sub-tab "Outline" đang mở, đã tăng độ dày viền lớn hơn 0.
+- Các bước thực hiện:
+  1. Kéo tăng thanh trượt `sbOutlineWidth` để hiển thị đường viền chữ.
+  2. Thực hiện vuốt cuộn ngang từ phải sang trái trên dải màu viền (`rvSolidColorPicker`).
+  3. Chọn một ô màu viền mới xuất hiện sau khi cuộn.
+- Kết quả mong đợi:
+  + Dải màu cuộn mượt mà, hiển thị các màu sắc ở các trang tiếp theo.
+  + Đường viền bao quanh các nét chữ đổi sang màu sắc mới đã chọn.
+- Maestro Selectors:
+  - swipe:
+      start: 85%, 77%
+      end: 25%, 77%
+  - tapOn:
+      id: "color"
+      childOf:
+        id: "rvSolidColorPicker"
+      index: 3
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 6: FUNCTIONAL TEST CASES - SUB-TAB "CURVE" (UỐN CONG & GIÃN CÁCH)
+----------------------------------------------------------------------------------------------------
+
+[TC_TEXT_CURVE_01] Kích hoạt Sub-Tab Curve và kiểm tra 3 bộ thanh trượt
+- Mục tiêu: Xác nhận sub-tab "Curve" hiển thị đủ 3 bộ điều khiển: Text Curve, Line Spacing và Char Spacing.
+- Điều kiện tiên quyết: Text frame đang được chọn trên Canvas.
+- Các bước thực hiện:
+  1. Cuộn thanh sub-tab sang trái và nhấn vào tab "Curve" (text: "Curve").
+  2. Kiểm tra container `layout_text_curve`.
+  3. Kiểm tra 3 bộ điều khiển:
+     + Bộ uốn cong: `ivCurve`, `seekbarCurve`, `textValueCurve` (mặc định: "50").
+     + Bộ khoảng cách dòng: `ivLineSpacing`, `seekbarLineSpacing`, `textValueLineSpacing` (mặc định: "50").
+     + Bộ giãn cách ký tự: `ivCharSpacing`, `seekbarCharSpacing`, `textValueCharSpacing` (mặc định: "25").
+- Kết quả mong đợi:
+  + Cả 3 thanh trượt và giá trị số mặc định hiển thị đầy đủ, chính xác.
+- Maestro Selectors:
+  - tapOn:
+      text: "Curve"
+  - assertVisible: { id: "layout_text_curve" }
+  - assertVisible: { id: "seekbarCurve" }
+  - assertVisible: { id: "textValueCurve" }
+  - assertVisible: { id: "seekbarLineSpacing" }
+  - assertVisible: { id: "seekbarCharSpacing" }
+
+[TC_TEXT_CURVE_02] Uốn cong văn bản dạng vòm cung lồi và vòm cung lõm
+- Mục tiêu: Kiểm tra thanh trượt `seekbarCurve` làm văn bản uốn cong theo hai chiều âm/dương.
+- Điều kiện tiên quyết: Sub-tab "Curve" đang mở.
+- Các bước thực hiện:
+  1. Kéo thanh trượt `seekbarCurve` sang phải (> 50, ví dụ kéo lên 80).
+  2. Quan sát hình dạng dòng chữ "SPECIAL RESTAURANT" trên Canvas.
+  3. Kéo thanh trượt sang trái (< 50, ví dụ kéo xuống 20).
+  4. Quan sát hình dạng dòng chữ trên Canvas.
+  5. Kéo thanh trượt trở về chính giữa (50).
+- Kết quả mong đợi:
+  + Khi giá trị > 50: Dòng chữ uốn cong hình vòm cầu hướng lên trên.
+  + Khi giá trị < 50: Dòng chữ uốn cong hình lòng chảo hướng xuống dưới.
+  + Khi giá trị = 50: Dòng chữ duỗi thẳng hàng bình thường.
+- Maestro Selectors:
+  - swipe:
+      element: { id: "seekbarCurve" }
+      direction: RIGHT
+  - swipe:
+      element: { id: "seekbarCurve" }
+      direction: LEFT
+
+[TC_TEXT_CURVE_03] Điều chỉnh khoảng cách giữa các ký tự (Char Spacing)
+- Mục tiêu: Kiểm tra thanh trượt `seekbarCharSpacing` làm giãn hoặc thu hẹp khoảng cách giữa các chữ cái.
+- Điều kiện tiên quyết: Sub-tab "Curve" đang mở.
+- Các bước thực hiện:
+  1. Kéo thanh trượt `seekbarCharSpacing` sang phải để tăng giá trị (từ 25 lên khoảng 60 - 80).
+  2. Quan sát khoảng cách giữa các ký tự "S P E C I A L   R E S T A U R A N T".
+  3. Kéo thanh trượt sang trái về mức thấp nhất (0).
+- Kết quả mong đợi:
+  + Khi tăng giá trị: Khoảng cách giữa các chữ cái giãn rộng đều nhau, khung chữ mở rộng theo chiều ngang.
+  + Khi giảm về 0: Các chữ cái đứng sát cạnh nhau.
+- Maestro Selectors:
+  - swipe:
+      element: { id: "seekbarCharSpacing" }
+      direction: RIGHT
+  - swipe:
+      element: { id: "seekbarCharSpacing" }
+      direction: LEFT
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 7: FUNCTIONAL TEST CASES - SUB-TAB "3D" (XOAY KHÔNG GIAN 3 CHIỀU X, Y, Z)
+----------------------------------------------------------------------------------------------------
+
+[TC_TEXT_3D_01] Kích hoạt Sub-Tab 3D và kiểm tra 3 trục xoay không gian
+- Mục tiêu: Xác nhận sub-tab "3D" hiển thị đủ 3 trục xoay không gian: X-Rotation, Y-Rotation và Z-Rotation.
+- Điều kiện tiên quyết: Text frame đang được chọn trên Canvas.
+- Các bước thực hiện:
+  1. Cuộn thanh sub-tab sang trái hết cỡ và nhấn vào tab "3D" (text: "3D").
+  2. Kiểm tra container `layout_text_3d`.
+  3. Kiểm tra 3 bộ trục xoay:
+     + Trục X: `tvXRotation` (mặc định: "0°"), `seekbarXRotation`.
+     + Trục Y: `tvYRotation` (mặc định: "0°"), `seekbarYRotation`.
+     + Trục Z: `tvZRotation` (mặc định: "0°"), `seekbarZRotation`.
+- Kết quả mong đợi:
+  + Sub-tab "3D" mở ra hiển thị trực quan 3 trục xoay với góc ban đầu 0°.
+- Maestro Selectors:
+  - tapOn:
+      text: "3D"
+  - assertVisible: { id: "layout_text_3d" }
+  - assertVisible: { id: "seekbarXRotation" }
+  - assertVisible: { id: "tvXRotation" }
+  - assertVisible: { id: "seekbarYRotation" }
+  - assertVisible: { id: "tvYRotation" }
+  - assertVisible: { id: "seekbarZRotation" }
+  - assertVisible: { id: "tvZRotation" }
+
+[TC_TEXT_3D_02] Xoay văn bản 3D quanh trục hoành X (X-Rotation Perspective)
+- Mục tiêu: Kiểm tra thanh trượt `seekbarXRotation` tạo hiệu ứng phối cảnh nghiêng văn bản về trước hoặc sau.
+- Điều kiện tiên quyết: Sub-tab "3D" đang mở.
+- Các bước thực hiện:
+  1. Kéo thanh trượt `seekbarXRotation` sang phải (góc dương).
+  2. Quan sát hiệu ứng 3D trên Canvas.
+  3. Kéo thanh trượt sang trái (góc âm).
+  4. Quan sát hiệu ứng 3D trên Canvas.
+- Kết quả mong đợi:
+  + Dòng chữ nghiêng theo trục ngang, tạo cảm giác chữ nằm phẳng trên mặt sàn hoặc nghiêng về phía người xem theo hiệu ứng 3D perspective thực thụ.
+  + Nhãn `tvXRotation` cập nhật độ xoay tương ứng.
+- Maestro Selectors:
+  - swipe:
+      element: { id: "seekbarXRotation" }
+      direction: RIGHT
+  - swipe:
+      element: { id: "seekbarXRotation" }
+      direction: LEFT
+
+[TC_TEXT_3D_03] Xoay văn bản 3D quanh trục tung Y (Y-Rotation Perspective)
+- Mục tiêu: Kiểm tra thanh trượt `seekbarYRotation` tạo hiệu ứng phối cảnh chữ xoay sang trái hoặc phải.
+- Điều kiện tiên quyết: Sub-tab "3D" đang mở.
+- Các bước thực hiện:
+  1. Kéo thanh trượt `seekbarYRotation` sang phải.
+  2. Quan sát chữ trên Canvas.
+  3. Kéo thanh trượt sang trái.
+  4. Quan sát chữ trên Canvas.
+- Kết quả mong đợi:
+  + Dòng chữ xoay quanh trục đứng Y (cạnh trái hoặc cạnh phải của chữ thu nhỏ/phóng to theo chiều sâu không gian).
+  + Nhãn `tvYRotation` cập nhật độ xoay chính xác.
+- Maestro Selectors:
+  - swipe:
+      element: { id: "seekbarYRotation" }
+      direction: RIGHT
+  - swipe:
+      element: { id: "seekbarYRotation" }
+      direction: LEFT
+
+[TC_TEXT_3D_04] Xoay văn bản 3D quanh trục sâu Z (Z-Rotation) và phối hợp cả 3 trục
+- Mục tiêu: Kiểm tra xoay chữ quanh trục Z và kết hợp cả 3 trục X, Y, Z tạo tư thế 3D độc đáo.
+- Điều kiện tiên quyết: Sub-tab "3D" đang mở.
+- Các bước thực hiện:
+  1. Kéo thanh trượt `seekbarZRotation` sang phải để chữ nghiêng góc chéo.
+  2. Đồng thời điều chỉnh nhẹ `seekbarXRotation` và `seekbarYRotation`.
+  3. Quan sát logo chữ 3D tổng thể trên Canvas.
+- Kết quả mong đợi:
+  + Chữ thể hiện hoàn hảo tư thế đa chiều 3D sống động.
+  + Hiệu năng render mượt mà, bounding box bám sát theo hình dáng 3D của text frame.
+- Maestro Selectors:
+  - swipe:
+      element: { id: "seekbarZRotation" }
+      direction: RIGHT
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 8: INTEGRATION & PERSISTENCE TEST CASES (TÍCH HỢP UNDO/REDO, THAO TÁC CANVAS, SAVE/EXPORT)
+----------------------------------------------------------------------------------------------------
+
+[TC_TEXT_INTEG_01] Hoàn tác (Undo) và Làm lại (Redo) các thay đổi từ các Sub-Tabs
+- Mục tiêu: Xác nhận các thao tác đổi Font, đổi Color, thêm Shadow, Outline, Curve, 3D đều được lưu vào ngăn xếp Undo/Redo và hoàn tác chính xác.
+- Điều kiện tiên quyết: Đã thực hiện ít nhất 2 thay đổi (vd đổi Font và đổi Color).
+- Các bước thực hiện:
+  1. Nhấn nút Undo (id: "btnUndo" hoặc "ivUndo").
+  2. Quan sát Text Frame trên Canvas.
+  3. Nhấn tiếp nút Undo lần thứ hai.
+  4. Nhấn nút Redo (id: "btnRedo" hoặc "ivRedo").
+  5. Quan sát Text Frame trên Canvas.
+- Kết quả mong đợi:
+  + Nhấn Undo lần 1: Thuộc tính vừa đổi gần nhất (Màu sắc) được phục hồi về trạng thái trước đó.
+  + Nhấn Undo lần 2: Thuộc tính trước đó (Font chữ) được phục hồi về font ban đầu.
+  + Nhấn Redo: Thuộc tính được áp dụng lại hoàn hảo.
+- Maestro Selectors:
+  - tapOn: { id: "btnUndo" }
+  - tapOn: { id: "btnUndo" }
+  - tapOn: { id: "btnRedo" }
+
+[TC_TEXT_INTEG_02] Tương tác Bounding Box trên Canvas sau khi đã áp dụng các hiệu ứng Sub-Tabs
+- Mục tiêu: Kiểm tra các handle tương tác trực tiếp (Scale, Rotate, Flip, Move) trên Canvas hoạt động chuẩn xác trên text frame đã áp dụng Font/Outline/Curve/3D.
+- Điều kiện tiên quyết: Text frame đã được áp dụng các thuộc tính nghệ thuật từ các sub-tabs.
+- Các bước thực hiện:
+  1. Chạm giữ vào thân text frame và kéo di chuyển sang vị trí mới trên Canvas.
+  2. Kéo handle phóng to/thu nhỏ (Bottom-Right handle).
+  3. Nhấn handle lật gương (Top-Right handle).
+- Kết quả mong đợi:
+  + Text frame di chuyển mượt mà, phóng to thu nhỏ giữ nguyên tỉ lệ và các hiệu ứng Font/Color/Outline/Shadow.
+  + Không bị vỡ nét hay mất các thuộc tính đã thiết lập.
+- Maestro Selectors:
+  - tapOn:
+      point: "50%, 23%"
+  - swipe:
+      start: 50%, 23%
+      end: 50%, 33%
+
+[TC_TEXT_INTEG_03] Xuất Logo (Export PNG/JPG) giữ nguyên toàn bộ hiệu ứng của Text Frame
+- Mục tiêu: Xác nhận khi lưu hoặc xuất logo, toàn bộ các hiệu ứng Font, Color, Shadow, Background, Outline, Curve, 3D của Text Frame mới được render chính xác trên file ảnh đầu ra.
+- Điều kiện tiên quyết: Text frame đã hoàn thiện thiết kế với đầy đủ hiệu ứng.
+- Các bước thực hiện:
+  1. Nhấn nút Save trên thanh toolbar (id: "mnItemSave").
+  2. Chọn mục xuất ảnh "Export Logo (PNG)" (id: "llExportLogo").
+  3. Chọn độ phân giải "HD" (id: "layout_hd").
+  4. Nhấn nút lưu "Save" (id: "tvSave").
+  5. Đóng quảng cáo thưởng/interstitial nếu xuất hiện.
+  6. Kiểm tra màn hình Preview hiển thị logo hoàn chỉnh.
+- Kết quả mong đợi:
+  + File logo PNG xuất ra hiển thị sắc nét chữ "SPECIAL RESTAURANT" với đầy đủ phông chữ, màu sắc, bóng đổ, viền chữ, độ cong và góc xoay 3D đã cấu hình.
+  + Không bị mất bất kỳ layer hay thuộc tính nào.
+- Maestro Selectors:
+  - tapOn: { id: "mnItemSave" }
+  - tapOn: { id: "llExportLogo" }
+  - tapOn: { id: "tvSave" }
+
+
+====================================================================================================
+III. TRACEABILITY MATRIX (MA TRẬN TRUY VẾT KIỂM THỬ)
+====================================================================================================
+| Mã Test Case       | Phân hệ / Sub-Tab      | Loại Test    | Mức độ ưu tiên | Trạng thái tự động hóa |
+|:-------------------|:-----------------------|:-------------|:----------------|:-----------------------|
+| TC_TEXT_CREATE_01  | Pre-condition / Create | Functional   | P0 (Blocker)    | Ready (Maestro)        |
+| TC_TEXT_FONT_01    | Fonts Sub-Tab          | UI & View    | P1 (High)       | Ready (Maestro)        |
+| TC_TEXT_FONT_02    | Fonts Sub-Tab          | Functional   | P0 (Critical)   | Ready (Maestro)        |
+| TC_TEXT_FONT_03    | Fonts Sub-Tab          | Scroll/UX    | P2 (Medium)     | Ready (Maestro)        |
+| TC_TEXT_COLOR_01   | Color Sub-Tab          | UI & View    | P1 (High)       | Ready (Maestro)        |
+| TC_TEXT_COLOR_02   | Color Sub-Tab (Opacity)| Functional   | P1 (High)       | Ready (Maestro)        |
+| TC_TEXT_COLOR_03   | Color Sub-Tab (Solid)  | Functional   | P0 (Critical)   | Ready (Maestro)        |
+| TC_TEXT_COLOR_04   | Color Sub-Tab (Gradient| Functional   | P1 (High)       | Ready (Maestro)        |
+| TC_TEXT_COLOR_05   | Color Sub-Tab (Texture)| Functional   | P2 (Medium)     | Ready (Maestro)        |
+| TC_TEXT_COLOR_06   | Color Sub-Tab (Scroll) | Scroll/UX    | P1 (High)       | Ready (Maestro)        |
+| TC_TEXT_COLOR_07   | Color Sub-Tab (Texture)| Scroll/UX    | P2 (Medium)     | Ready (Maestro)        |
+| TC_TEXT_SHADOW_01  | Shadow Sub-Tab         | UI & View    | P1 (High)       | Ready (Maestro)        |
+| TC_TEXT_SHADOW_02  | Shadow Sub-Tab         | Functional   | P1 (High)       | Ready (Maestro)        |
+| TC_TEXT_SHADOW_03  | Shadow Sub-Tab (Reset) | Functional   | P2 (Medium)     | Ready (Maestro)        |
+| TC_TEXT_SHADOW_04  | Shadow Sub-Tab (Scroll)| Scroll/UX    | P2 (Medium)     | Ready (Maestro)        |
+| TC_TEXT_BG_01      | Background Sub-Tab     | UI & View    | P1 (High)       | Ready (Maestro)        |
+| TC_TEXT_BG_02      | Background Sub-Tab     | Functional   | P1 (High)       | Ready (Maestro)        |
+| TC_TEXT_BG_03      | Background Sub-Tab     | Functional   | P2 (Medium)     | Ready (Maestro)        |
+| TC_TEXT_BG_04      | Background Sub-Tab(Scrl| Scroll/UX    | P2 (Medium)     | Ready (Maestro)        |
+| TC_TEXT_OUTLINE_01 | Outline Sub-Tab        | UI & View    | P1 (High)       | Ready (Maestro)        |
+| TC_TEXT_OUTLINE_02 | Outline Sub-Tab        | Functional   | P0 (Critical)   | Ready (Maestro)        |
+| TC_TEXT_OUTLINE_03 | Outline Sub-Tab (Reset)| Functional   | P2 (Medium)     | Ready (Maestro)        |
+| TC_TEXT_OUTLINE_04 | Outline Sub-Tab (Scroll| Scroll/UX    | P2 (Medium)     | Ready (Maestro)        |
+| TC_TEXT_CURVE_01   | Curve Sub-Tab          | UI & View    | P1 (High)       | Ready (Maestro)        |
+| TC_TEXT_CURVE_02   | Curve Sub-Tab (Curve)  | Functional   | P0 (Critical)   | Ready (Maestro)        |
+| TC_TEXT_CURVE_03   | Curve Sub-Tab (Spacing)| Functional   | P1 (High)       | Ready (Maestro)        |
+| TC_TEXT_3D_01      | 3D Sub-Tab             | UI & View    | P1 (High)       | Ready (Maestro)        |
+| TC_TEXT_3D_02      | 3D Sub-Tab (X-Rotate)  | Functional   | P0 (Critical)   | Ready (Maestro)        |
+| TC_TEXT_3D_03      | 3D Sub-Tab (Y-Rotate)  | Functional   | P0 (Critical)   | Ready (Maestro)        |
+| TC_TEXT_3D_04      | 3D Sub-Tab (Z & Multi) | Functional   | P1 (High)       | Ready (Maestro)        |
+| TC_TEXT_INTEG_01   | Integration (Undo/Redo)| Functional   | P1 (High)       | Ready (Maestro)        |
+| TC_TEXT_INTEG_02   | Canvas Direct Handles  | Functional   | P1 (High)       | Ready (Maestro)        |
+| TC_TEXT_INTEG_03   | Export & Render Output | End-to-End   | P0 (Blocker)    | Ready (Maestro)        |
+====================================================================================================

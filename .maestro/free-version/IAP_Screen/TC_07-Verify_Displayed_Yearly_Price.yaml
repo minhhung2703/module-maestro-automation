@@ -1,0 +1,21 @@
+appId: com.thmobile.logomaker
+---
+
+- runFlow: "../../config/Launch_App.yaml"
+
+# Verify displayed IAP screen
+- assertVisible: "Get Premium"
+- assertVisible: "Unlock all Features"
+- assertVisible:
+    id: "rvAllFeatures"
+
+# Verify Yearly Plan price and unit inside rbYearly
+- assertVisible:
+    text: "$39.99"
+    childOf:
+      id: "tvYearlyPrice"
+
+- assertVisible:
+    text: "per year"
+    childOf:
+      id: "tvPerYear"

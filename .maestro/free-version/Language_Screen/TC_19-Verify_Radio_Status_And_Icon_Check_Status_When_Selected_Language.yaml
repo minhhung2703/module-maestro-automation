@@ -1,0 +1,22 @@
+appId: com.thmobile.logomaker
+---
+- runFlow: "../../config/Launch_App_Clear_State.yaml"
+
+- assertVisible: "Language"
+
+- tapOn: "English"
+
+- assertVisible:
+    id: "checkbox"
+    childOf: 
+        id: "rlItem"
+        containsChild: "English"
+    selected: true
+
+- assertVisible:
+    id: "btnOK"
+    enabled: true
+
+- tapOn:
+    id: "btnOK"
+    enabled: true

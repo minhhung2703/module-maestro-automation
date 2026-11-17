@@ -1,0 +1,292 @@
+====================================================================================================
+                        BỘ TEST CASES KIỂM THỬ MÀN HÌNH HOME (LOGO MAKER)
+====================================================================================================
+Ứng dụng: Logo Maker (Logos4U)
+Application ID: com.thmobile.logomaker
+Platform: Android
+Framework tự động: Maestro Automation Framework
+Màn hình: Home Screen (Màn hình chính)
+Ngày tạo: 2026-10-11
+Tài nguyên Hierarchy: com.thmobile.logomaker:id/nestedScroll, drawerLayout, toolbar
+====================================================================================================
+
+I. DANH SÁCH RESOURCE-ID & VIEW CHÍNH TRÊN MÀN HÌNH HOME
+----------------------------------------------------------------------------------------------------
+1. Toolbar & Header:
+   - com.thmobile.logomaker:id/drawerLayout          : Container chính hỗ trợ Menu Drawer
+   - com.thmobile.logomaker:id/toolbar               : Toolbar trên cùng
+   - Text "Logos4U"                                  : Tiêu đề ứng dụng
+   - com.thmobile.logomaker:id/itemGetPro            : Icon Vương miện VIP (Mở IAP)
+   - com.thmobile.logomaker:id/clGiftBox             : Hộp quà ưu đãi / khuyến mãi
+
+2. Feature Cards (Các thẻ tính năng chính):
+   - Card 1: Template
+     + ID Container: com.thmobile.logomaker:id/btnTemplate
+     + Icon: com.thmobile.logomaker:id/imgCreateLogoIcon
+     + Title: com.thmobile.logomaker:id/tvCreateLogo (Text: "Template")
+     + Subtitle: com.thmobile.logomaker:id/tvCustomDesign (Text: "Edit and Save Logo Template")
+     + Start/Arrow: com.thmobile.logomaker:id/tvCreateLogoStart
+
+   - Card 2: AI Studio
+     + ID Container: com.thmobile.logomaker:id/btnStyleMagicAI
+     + Icon: com.thmobile.logomaker:id/imgMagicAiIcon
+     + Title: com.thmobile.logomaker:id/tvMagicAiTitle (Text: "AI Studio")
+     + Subtitle: com.thmobile.logomaker:id/tvMagicAiDes (Text: "Create unique logos and explore fresh styles with AI")
+     + Arrow: com.thmobile.logomaker:id/imgMagicAiArrow
+
+   - Card 3: Create Logo
+     + ID Container: com.thmobile.logomaker:id/btnCreateLogo
+     + Icon: com.thmobile.logomaker:id/imgTemplateIcon
+     + Title: com.thmobile.logomaker:id/tvLogoTemplate (Text: "Create Logo")
+     + Arrow: com.thmobile.logomaker:id/imgTemplateArrow
+
+   - Card 4: Auto Design
+     + ID Container: com.thmobile.logomaker:id/btnLogoWizard
+     + Icon: com.thmobile.logomaker:id/imgAutoDesignIcon
+     + Title: Text "Auto Design"
+     + Arrow: com.thmobile.logomaker:id/imgAutoDesignArrow
+
+   - Card 5: My Logo
+     + ID Container: com.thmobile.logomaker:id/btnMyDesignImageFile
+     + Icon: com.thmobile.logomaker:id/imgMyLogoIcon
+     + Title: Text "My Logo"
+     + Arrow: com.thmobile.logomaker:id/imgMyLogoArrow
+
+   - Card 6: My Design
+     + ID Container: com.thmobile.logomaker:id/btnMyDesignFile
+     + Icon: com.thmobile.logomaker:id/imgMyDesignIcon
+     + Title: com.thmobile.logomaker:id/tvMyDesign (Text: "My Design")
+     + Arrow: com.thmobile.logomaker:id/imgMyDesignArrow
+
+3. Bottom IAP Banner:
+   - Container: com.thmobile.logomaker:id/frameLayoutPurchase (hoác flGetPro)
+   - Background: com.thmobile.logomaker:id/imgBannerIap
+   - Icon Pro: com.thmobile.logomaker:id/imgGetPro
+   - Title: com.thmobile.logomaker:id/tvProDes2 (Text: "Tap to claim %d-Day Free Trial")
+   - Subtitle: com.thmobile.logomaker:id/tvProDes1 (Text: "Unlock AI Tools, 3000+ Templates & More")
+
+4. Debug Button (nếu có bản dev/test):
+   - com.thmobile.logomaker:id/btnResetPurchase (Text: "Reset Purchase")
+
+
+====================================================================================================
+II. CHI TIẾT CÁC TEST CASES THEO TỪNG NHÓM
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+NHÓM 1: UI & VISUAL DISPLAY TEST CASES (Kiểm thử Giao diện & Hiển thị)
+----------------------------------------------------------------------------------------------------
+
+[TC_HOME_UI_01] Kiểm tra hiển thị tổng thể giao diện Home Screen
+- Mục tiêu: Đảm bảo toàn bộ các thành phần trên Home Screen hiển thị đầy đủ, không vỡ layout.
+- Điều kiện tiên quyết: Ứng dụng đã khởi động và đang ở màn hình Home.
+- Các bước thực hiện:
+  1. Mở màn hình Home.
+  2. Kiểm tra hiển thị Toolbar gồm Hamburger Menu, tiêu đề "Logos4U", nút VIP và Hộp quà.
+  3. Kiểm tra hiển thị đầy đủ 6 thẻ tính năng: Template, AI Studio, Create Logo, Auto Design, My Logo, My Design.
+  4. Kiểm tra hiển thị Banner IAP ở phía dưới cùng.
+- Kết quả mong đợi:
+  + Tất cả các icon, text tiêu đề, mô tả hiển thị sắc nét, đúng font chữ, đúng màu sắc.
+  + Không có element nào bị chồng chéo hay che khuất.
+- Maestro Selectors:
+  + assertVisible: "Logos4U"
+  + assertVisible: { id: "btnTemplate" }
+  + assertVisible: { id: "btnStyleMagicAI" }
+  + assertVisible: { id: "btnCreateLogo" }
+  + assertVisible: { id: "btnLogoWizard" }
+  + assertVisible: { id: "btnMyDesignImageFile" }
+  + assertVisible: { id: "btnMyDesignFile" }
+
+[TC_HOME_UI_02] Visual Regression Testing - So sánh với ảnh Baseline Home Screen
+- Mục tiêu: So sánh ảnh chụp runtime của màn hình Home với ảnh mẫu chuẩn trong assets/.
+- Điều kiện tiên quyết: Đã có ảnh baseline assets/Home_Screen.png.
+- Các bước thực hiện:
+  1. Đưa ứng dụng về màn hình Home.
+  2. Chụp ảnh màn hình: takeScreenshot: "screenshots/Home_Screen".
+  3. Chạy compare.py so sánh với assets/Home_Screen.png.
+- Kết quả mong đợi:
+  + Tỷ lệ tương đồng (Match Percentage) >= 95%.
+  + Layout và màu sắc gradient đồng nhất với bản thiết kế chuẩn.
+
+[TC_HOME_UI_03] Kiểm tra hiển thị nội dung chi tiết của từng thẻ tính năng
+- Mục tiêu: Xác nhận text tiêu đề và mô tả của từng thẻ hiển thị chính xác theo spec.
+- Các bước thực hiện:
+  1. Kiểm tra Card Template: Text "Template" và "Edit and Save Logo Template".
+  2. Kiểm tra Card AI Studio: Text "AI Studio" và "Create unique logos and explore fresh styles with AI".
+  3. Kiểm tra Card Create Logo: Text "Create Logo".
+  4. Kiểm tra Card Auto Design: Text "Auto Design".
+  5. Kiểm tra Card My Logo: Text "My Logo".
+  6. Kiểm tra Card My Design: Text "My Design".
+- Kết quả mong đợi: Toàn bộ text hiển thị đầy đủ, không bị cắt cụt (truncate) hoặc xuống dòng lỗi.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 2: FUNCTIONAL NAVIGATION TEST CASES (Kiểm thử Điều hướng Chức năng)
+----------------------------------------------------------------------------------------------------
+
+[TC_HOME_NAV_01] Điều hướng đến màn hình Template từ thẻ "Template"
+- Mục tiêu: Xác nhận nhấn vào thẻ Template sẽ mở màn hình danh sách Template.
+- Các bước thực hiện:
+  1. Tại Home Screen, nhấn vào card id "btnTemplate".
+  2. Xử lý popup quảng cáo (nếu có).
+  3. Kiểm tra màn hình mới hiển thị.
+- Kết quả mong đợi:
+  + Ứng dụng chuyển sang màn hình "Select Template".
+  + Hiển thị các danh mục template (Business, Restaurant, Coffee, etc.).
+- Maestro Action:
+  - tapOn: { id: "btnTemplate" }
+  - assertVisible: "Select Template"
+
+[TC_HOME_NAV_02] Điều hướng đến màn hình AI Studio từ thẻ "AI Studio"
+- Mục tiêu: Xác nhận nhấn vào thẻ AI Studio sẽ mở màn hình tạo logo bằng AI.
+- Các bước thực hiện:
+  1. Tại Home Screen, nhấn vào card id "btnStyleMagicAI".
+  2. Xử lý popup quảng cáo (nếu có).
+- Kết quả mong đợi:
+  + Màn hình "AI Studio" hoặc "Style Magic AI" hiển thị.
+  + Có các tùy chọn chọn style và nút tạo logo AI.
+- Maestro Action:
+  - tapOn: { id: "btnStyleMagicAI" }
+
+[TC_HOME_NAV_03] Điều hướng đến màn hình tạo logo mới từ thẻ "Create Logo"
+- Mục tiêu: Xác nhận nhấn vào "Create Logo" mở màn hình Canvas trống để thiết kế.
+- Các bước thực hiện:
+  1. Tại Home Screen, nhấn vào card id "btnCreateLogo".
+  2. Xử lý popup quảng cáo (nếu có).
+- Kết quả mong đợi:
+  + Màn hình Edit Screen hiển thị với canvas trống hoặc dialog chọn tỷ lệ khung hình logo.
+  + Thanh công cụ thiết kế (Background, Art, Text...) sẵn sàng hoạt động.
+- Maestro Action:
+  - tapOn: { id: "btnCreateLogo" }
+
+[TC_HOME_NAV_04] Điều hướng đến màn hình tạo tự động từ thẻ "Auto Design"
+- Mục tiêu: Xác nhận nhấn vào "Auto Design" mở luồng wizard tạo logo tự động theo bước.
+- Các bước thực hiện:
+  1. Tại Home Screen, nhấn vào card id "btnLogoWizard".
+- Kết quả mong đợi:
+  + Màn hình nhập tên thương hiệu / slogan hoặc chọn ngành nghề hiển thị.
+- Maestro Action:
+  - tapOn: { id: "btnLogoWizard" }
+
+[TC_HOME_NAV_05] Điều hướng đến màn hình "My Logo" từ thẻ "My Logo"
+- Mục tiêu: Xác nhận nhấn vào "My Logo" mở danh sách các logo đã xuất/lưu.
+- Các bước thực hiện:
+  1. Tại Home Screen, nhấn vào card id "btnMyDesignImageFile".
+- Kết quả mong đợi:
+  + Màn hình hiển thị danh sách các logo đã xuất (PNG, JPG) của người dùng.
+- Maestro Action:
+  - tapOn: { id: "btnMyDesignImageFile" }
+
+[TC_HOME_NAV_06] Điều hướng đến màn hình "My Design" từ thẻ "My Design"
+- Mục tiêu: Xác nhận nhấn vào "My Design" mở danh sách các dự án nháp (Draft Projects).
+- Các bước thực hiện:
+  1. Tại Home Screen, nhấn vào card id "btnMyDesignFile".
+- Kết quả mong đợi:
+  + Màn hình hiển thị danh mục các bản thảo thiết kế đang dở dang để chỉnh sửa tiếp.
+- Maestro Action:
+  - tapOn: { id: "btnMyDesignFile" }
+
+[TC_HOME_NAV_07] Điều hướng mở Navigation Drawer từ Toolbar
+- Mục tiêu: Kiểm tra mở menu tùy chọn bên trái (Settings, Privacy, Share...).
+- Các bước thực hiện:
+  1. Tại Home Screen, nhấn vào nút Menu (icon 3 gạch bên trái toolbar).
+- Kết quả mong đợi:
+  + Navigation Drawer trượt ra từ cạnh trái.
+  + Hiển thị các mục: Settings, Feedback, Rate App, Share App, Privacy Policy.
+- Maestro Action:
+  - tapOn: { point: "8%, 7%" } (hoặc navigation button trên toolbar)
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 3: MONETIZATION & SUBSCRIPTION TEST CASES (Kiểm thử Mua hàng & IAP)
+----------------------------------------------------------------------------------------------------
+
+[TC_HOME_IAP_01] Mở màn hình IAP từ Icon Vương miện VIP trên Toolbar
+- Mục tiêu: Nhấn icon Pro trên toolbar phải mở màn hình mua gói dịch vụ.
+- Các bước thực hiện:
+  1. Tại Home Screen, nhấn vào icon id "itemGetPro".
+- Kết quả mong đợi:
+  + Màn hình IAP "Get Full Access" hiển thị.
+  + Hiển thị danh sách các tính năng VIP, nút "START FREE TRIAL" hoặc "CONTINUE", nút hủy "Cancel".
+- Maestro Action:
+  - tapOn: { id: "itemGetPro" }
+  - assertVisible: "Get Full Access"
+
+[TC_HOME_IAP_02] Mở màn hình IAP từ Bottom Banner
+- Mục tiêu: Nhấn vào banner "Tap to claim Free Trial" phía dưới phải mở màn hình IAP.
+- Các bước thực hiện:
+  1. Tại Home Screen, nhấn vào vùng id "frameLayoutPurchase" (hoặc text "Tap to claim").
+- Kết quả mong đợi:
+  + Màn hình IAP xuất hiện ngay lập tức.
+- Maestro Action:
+  - tapOn: { id: "frameLayoutPurchase" }
+  - assertVisible: "Get Full Access"
+
+[TC_HOME_IAP_03] Đóng IAP và quay lại Home Screen an toàn
+- Mục tiêu: Người dùng có thể thoát khỏi IAP quay lại Home mà không bị kẹt.
+- Các bước thực hiện:
+  1. Mở màn hình IAP từ Home.
+  2. Nhấn nút đóng id "btn_cancel" (hoặc nút Back trên thiết bị).
+  3. Nếu xuất hiện dialog "Skip the free trial?" -> chọn "No thanks".
+- Kết quả mong đợi:
+  + Ứng dụng đóng màn hình IAP và quay về màn hình Home nguyên vẹn.
+- Maestro Action:
+  - tapOn: { id: "btn_cancel" }
+  - runFlow:
+      when: { visible: "Skip the free trial?" }
+      commands: [{ tapOn: "No thanks" }]
+  - assertVisible: "Logos4U"
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 4: SCROLL & RESPONSIVENESS TEST CASES (Kiểm thử Cuộn & Tương thích)
+----------------------------------------------------------------------------------------------------
+
+[TC_HOME_SCR_01] Kiểm tra thao tác cuộn mượt mà trên Home Screen
+- Mục tiêu: Đảm bảo NestedScrollView cuộn lên xuống bình thường, không giật lag.
+- Các bước thực hiện:
+  1. Tại Home Screen, thực hiện thao tác vuốt từ dưới lên (Swipe UP) để cuộn xuống.
+  2. Thực hiện thao tác vuốt từ trên xuống (Swipe DOWN) để cuộn lên đỉnh.
+- Kết quả mong đợi:
+  + Màn hình cuộn mượt mà.
+  + Không có element nào bị vỡ vị trí khi cuộn.
+- Maestro Action:
+  - swipe: { start: "50%, 80%", end: "50%, 30%" }
+  - swipe: { start: "50%, 30%", end: "50%, 80%" }
+
+[TC_HOME_SCR_02] Kiểm tra hiển thị cố định của Toolbar khi cuộn
+- Mục tiêu: Toolbar "Logos4U" và icon VIP phải giữ nguyên vị trí hoặc thu gọn đúng chuẩn khi cuộn.
+- Kết quả mong đợi: Thanh Toolbar luôn hiển thị trên cùng để người dùng truy cập.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 5: SYSTEM & LIFECYCLE TEST CASES (Kiểm thử Vòng đời Ứng dụng & Ngoại lệ)
+----------------------------------------------------------------------------------------------------
+
+[TC_HOME_SYS_01] Nhấn nút Back trên thiết bị tại Home Screen
+- Mục tiêu: Kiểm tra hành vi khi người dùng nhấn nút Back tại màn hình chính.
+- Các bước thực hiện:
+  1. Tại màn hình Home, nhấn nút Back trên thiết bị (keyevent 4 hoặc back action).
+- Kết quả mong đợi:
+  + Hiển thị popup xác nhận thoát "Do you want to exit?" hoặc đưa ứng dụng về Background.
+  + Ứng dụng không bị crash đột ngột (ANR/Crash).
+
+[TC_HOME_SYS_02] Relaunch / Giữ nguyên trạng thái khi chuyển App sang Background
+- Mục tiêu: Đưa ứng dụng vào Background rồi mở lại, kiểm tra trạng thái Home.
+- Các bước thực hiện:
+  1. Tại màn hình Home, nhấn Home thiết bị (keyevent 3) để chuyển sang Background.
+  2. Mở lại ứng dụng Logo Maker từ danh sách Recent Apps.
+- Kết quả mong đợi:
+  + Ứng dụng khôi phục ngay lập tức về màn hình Home.
+  + Không phải tải lại từ Splash hay hiển thị popup lặp lại.
+
+[TC_HOME_SYS_03] Xử lý khi có Quảng cáo Interstitial / Open Ads
+- Mục tiêu: Đảm bảo quảng cáo xuất hiện không làm treo giao diện Home Screen.
+- Các bước thực hiện:
+  1. Kích hoạt flow có quảng cáo.
+  2. Nhấn nút đóng quảng cáo ("Close", "X", hoặc "Close button").
+- Kết quả mong đợi: Sau khi đóng quảng cáo, màn hình Home tương tác được bình thường.
+
+====================================================================================================
+KẾT THÚC TÀI LIỆU TEST CASES HOME SCREEN
+====================================================================================================

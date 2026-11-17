@@ -1,0 +1,18 @@
+appId: com.thmobile.logomaker
+---
+
+- runFlow: "../../config/Launch_App_Clear_State.yaml"
+
+- scrollUntilVisible:
+    element:
+        id: "rlItem"
+        containsChild: "中文"
+    direction: DOWN
+    speed: 80
+
+- scrollUntilVisible:
+    element:
+        id: "rlItem"
+        containsChild: "English"
+    direction: UP
+    speed: 80

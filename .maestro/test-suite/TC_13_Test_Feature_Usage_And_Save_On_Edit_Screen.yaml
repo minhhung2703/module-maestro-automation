@@ -1,0 +1,1047 @@
+appId: com.thmobile.logomaker
+---
+# ====================================================================
+# TC_13_Test_Feature_Usage_And_Save_On_Edit_Screen
+# Mục tiêu: Khởi động app > Vào Template Restaurant #1 > Màn Edit
+#           > Sử dụng LẦN LƯỢT TẤT CẢ 6 CÔNG CỤ CHÍNH trên màn Edit:
+#             1. Background Tool (Đổi màu nền Solid) -> Lưu PNG HD -> Preview 1
+#             2. Art Tool (Dịch chuyển layer trên Canvas) -> Lưu PNG HD -> Preview 2
+#             3. Text Tool (Tạo Text Frame mới "BEST FOOD") -> Lưu PNG HD -> Preview 3
+#             4. Effect Tool (Áp dụng hiệu ứng phủ Texture) -> Lưu PNG HD -> Preview 4
+#             5. Palette Tool (Đổi bộ phối màu Palette Theme) -> Lưu PNG HD -> Preview 5
+#             6. Image Tool (Chèn ảnh từ Gallery thiết bị) -> Lưu PNG HD -> Preview 6
+#             7. Save Project (Lưu dự án để sửa sau - Edit Later)
+#           > Kết thúc: Thoát an toàn về màn hình chính Home Screen
+# ====================================================================
+
+# Step 1: Khởi động ứng dụng và đẩy ảnh mẫu vào thiết bị
+- runFlow: "../config/Launch_App.yaml"
+
+# Step 2: Đóng IAP nếu xuất hiện
+- runFlow:
+    when:
+      visible:
+        text: "Get Full Access"
+    file: "../config/Close_IAP_Screen.yaml"
+
+- runFlow:
+    when:
+      visible: "Skip the free trial?"
+    file: "../config/Close_Skip_The_Free_Trial_Popup.yaml"
+
+# Step 3: Điều hướng tới Template Detail (Restaurant #1)
+- runFlow: "../config/Navigate_To_Restaurant_Edit.yaml"
+
+# Step 4: Kiểm tra màn Edit đã sẵn sàng
+- assertVisible:
+    id: "mnItemSave"
+
+- assertVisible:
+    id: "layout_designer"
+
+- takeScreenshot: "screenshots/TC_13_Edit_Screen_Initial"
+
+# ====================================================================
+# PHẦN 1: TÍNH NĂNG BACKGROUND TOOL (ĐỔI MÀU NỀN) & THỰC HIỆN LƯU LẠI
+# ====================================================================
+
+# Step 5: Mở công cụ Background và chọn màu nền mới
+- tapOn:
+    id: "itemBackground"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- tapOn:
+    text: "Color"
+    childOf:
+      id: "layout_background_editor_menu"
+
+- assertVisible: "Select Color"
+
+# Chọn màu thứ 2 trong bảng màu Solid Color
+- tapOn:
+    id: "img"
+    index: 1
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "mnItemSave"
+
+- takeScreenshot: "screenshots/TC_13_Edit_After_Background"
+
+# Step 6: Thực hiện Lưu và Xuất ảnh PNG HD lần 1 (Sau khi đổi Background)
+- tapOn:
+    id: "mnItemSave"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "llExportLogo"
+
+- tapOn:
+    id: "llExportLogo"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible: "Logo Size"
+
+- tapOn:
+    id: "layout_hd"
+
+- tapOn:
+    id: "tvSave"
+
+# Step 7: Xử lý Ads và Popup sau lưu lần 1
+- runFlow:
+    when:
+      visible: "Test Ad"
+    commands:
+      - waitForAnimationToEnd:
+          timeout: 5000
+      - runFlow:
+          when:
+            visible: "Reward granted"
+          commands:
+            - tapOn:
+                point: 93%,7%
+      - runFlow:
+          when:
+            visible: "Close"
+          commands:
+            - tapOn: "Close"
+      - tapOn:
+          point: 93%,4%
+      - runFlow:
+          when:
+            notVisible: "Preview"
+          commands:
+            - back
+
+- runFlow:
+    when:
+      visible: "Did you like this app?"
+    commands:
+      - back
+
+# Step 8: Xác minh màn Preview lần 1 (Hiển thị màu nền mới)
+- extendedWaitUntil:
+    visible: "Preview"
+    timeout: 10000
+
+- assertVisible: "Preview"
+- assertVisible:
+    id: "btnHome"
+- assertVisible:
+    id: "imageTransparentGrid"
+
+- takeScreenshot: "screenshots/TC_13_Preview_After_Background"
+
+# ====================================================================
+# PHẦN 2: TÍNH NĂNG ART TOOL (DI CHUYỂN LAYER) & THỰC HIỆN LƯU LẠI
+# ====================================================================
+
+# Step 9: Quay lại màn Edit từ Preview 1
+- tapOn:
+    point: 8%,8%
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Đóng Ads nếu có khi Back
+- runFlow:
+    when:
+      notVisible:
+        id: "mnItemSave"
+    commands:
+      - waitForAnimationToEnd:
+          timeout: 5000
+      - runFlow:
+          when:
+            visible: "Close"
+          commands:
+            - tapOn: "Close"
+      - tapOn:
+          point: 93%,4%
+      - runFlow:
+          when:
+            notVisible:
+              id: "mnItemSave"
+          commands:
+            - back
+
+# Step 10: Xác nhận trở lại màn Edit và thực hiện di chuyển layer Art
+- extendedWaitUntil:
+    visible:
+      id: "mnItemSave"
+    timeout: 10000
+
+# Chọn layer trên Canvas
+- tapOn:
+    point: "50%, 40%"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Dịch chuyển layer xuống dưới 2 lần
+- runFlow:
+    when:
+      visible:
+        id: "imgMoveDown"
+    commands:
+      - tapOn:
+          id: "imgMoveDown"
+      - tapOn:
+          id: "imgMoveDown"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- takeScreenshot: "screenshots/TC_13_Edit_After_Art_Move"
+
+# Step 11: Thực hiện Lưu và Xuất ảnh PNG HD lần 2 (Sau khi di chuyển Art)
+- tapOn:
+    id: "mnItemSave"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "llExportLogo"
+
+- tapOn:
+    id: "llExportLogo"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible: "Logo Size"
+
+- tapOn:
+    id: "layout_hd"
+
+- tapOn:
+    id: "tvSave"
+
+# Step 12: Xử lý Ads và Popup sau lưu lần 2
+- runFlow:
+    when:
+      visible: "Test Ad"
+    commands:
+      - waitForAnimationToEnd:
+          timeout: 5000
+      - runFlow:
+          when:
+            visible: "Reward granted"
+          commands:
+            - tapOn:
+                point: 93%,7%
+      - runFlow:
+          when:
+            visible: "Close"
+          commands:
+            - tapOn: "Close"
+      - tapOn:
+          point: 93%,4%
+      - runFlow:
+          when:
+            notVisible: "Preview"
+          commands:
+            - back
+
+- runFlow:
+    when:
+      visible: "Did you like this app?"
+    commands:
+      - back
+
+# Step 13: Xác minh màn Preview lần 2 (Hiển thị vị trí layer mới)
+- extendedWaitUntil:
+    visible: "Preview"
+    timeout: 10000
+
+- assertVisible: "Preview"
+- assertVisible:
+    id: "btnHome"
+- assertVisible:
+    id: "imageTransparentGrid"
+
+- takeScreenshot: "screenshots/TC_13_Preview_After_Art_Move"
+
+# ====================================================================
+# PHẦN 3: TÍNH NĂNG TEXT TOOL (TẠO CHỮ MỚI) & THỰC HIỆN LƯU LẠI
+# ====================================================================
+
+# Step 14: Quay lại màn Edit từ Preview 2
+- tapOn:
+    point: 8%,8%
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Đóng Ads nếu có khi Back
+- runFlow:
+    when:
+      notVisible:
+        id: "mnItemSave"
+    commands:
+      - waitForAnimationToEnd:
+          timeout: 5000
+      - runFlow:
+          when:
+            visible: "Close"
+          commands:
+            - tapOn: "Close"
+      - tapOn:
+          point: 93%,4%
+      - runFlow:
+          when:
+            notVisible:
+              id: "mnItemSave"
+          commands:
+            - back
+
+# Step 15: Xác nhận trở lại màn Edit và thêm Text Frame mới
+- extendedWaitUntil:
+    visible:
+      id: "mnItemSave"
+    timeout: 10000
+
+# Nhấn vào tab Text ở Bottom Bar
+- tapOn:
+    id: "itemText"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible: "Input Text"
+
+- tapOn:
+    id: "editText"
+
+# Nhập nội dung chữ mới và bấm Apply
+- inputText: "BEST FOOD"
+
+- hideKeyboard
+
+- tapOn:
+    id: "item_apply"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- runFlow:
+    when:
+      visible: "Close button"
+    commands:
+      - tapOn: "Close button"
+
+- assertVisible:
+    id: "mnItemSave"
+
+- takeScreenshot: "screenshots/TC_13_Edit_After_Text_Add"
+
+# Step 16: Thực hiện Lưu và Xuất ảnh PNG HD lần 3 (Sau khi thêm Text)
+- tapOn:
+    id: "mnItemSave"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "llExportLogo"
+
+- tapOn:
+    id: "llExportLogo"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible: "Logo Size"
+
+- tapOn:
+    id: "layout_hd"
+
+- tapOn:
+    id: "tvSave"
+
+# Step 17: Xử lý Ads và Popup sau lưu lần 3
+- runFlow:
+    when:
+      visible: "Test Ad"
+    commands:
+      - waitForAnimationToEnd:
+          timeout: 5000
+      - runFlow:
+          when:
+            visible: "Reward granted"
+          commands:
+            - tapOn:
+                point: 93%,7%
+      - runFlow:
+          when:
+            visible: "Close"
+          commands:
+            - tapOn: "Close"
+      - tapOn:
+          point: 93%,4%
+      - runFlow:
+          when:
+            notVisible: "Preview"
+          commands:
+            - back
+
+- runFlow:
+    when:
+      visible: "Did you like this app?"
+    commands:
+      - back
+
+# Step 18: Xác minh màn Preview lần 3 (Hiển thị chữ mới)
+- extendedWaitUntil:
+    visible: "Preview"
+    timeout: 10000
+
+- assertVisible: "Preview"
+- assertVisible:
+    id: "btnHome"
+- assertVisible:
+    id: "imageTransparentGrid"
+
+- takeScreenshot: "screenshots/TC_13_Preview_After_Text_Add"
+
+# ====================================================================
+# PHẦN 4: TÍNH NĂNG EFFECT TOOL (ÁP DỤNG HIỆU ỨNG PHỦ) & THỰC HIỆN LƯU LẠI
+# ====================================================================
+
+# Step 19: Quay lại màn Edit từ Preview 3
+- tapOn:
+    point: 8%,8%
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Đóng Ads nếu có khi Back
+- runFlow:
+    when:
+      notVisible:
+        id: "mnItemSave"
+    commands:
+      - waitForAnimationToEnd:
+          timeout: 5000
+      - runFlow:
+          when:
+            visible: "Close"
+          commands:
+            - tapOn: "Close"
+      - tapOn:
+          point: 93%,4%
+      - runFlow:
+          when:
+            notVisible:
+              id: "mnItemSave"
+          commands:
+            - back
+
+# Step 20: Mở công cụ Effect và áp dụng hiệu ứng phủ Texture
+- extendedWaitUntil:
+    visible:
+      id: "mnItemSave"
+    timeout: 10000
+
+- tapOn:
+    id: "itemEffect"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "frame_tools_expand"
+
+# Chọn mẫu hiệu ứng thứ 2 trong danh sách
+- tapOn:
+    point: "28%, 78%"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Đóng bảng điều khiển Effect
+- runFlow:
+    when:
+      visible:
+        id: "btnClosePanel"
+    commands:
+      - tapOn:
+          id: "btnClosePanel"
+
+- runFlow:
+    when:
+      visible:
+        id: "frame_tools_expand"
+    commands:
+      - tapOn:
+          point: "95%, 67%"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- assertVisible:
+    id: "mnItemSave"
+
+- takeScreenshot: "screenshots/TC_13_Edit_After_Effect"
+
+# Step 21: Thực hiện Lưu và Xuất ảnh PNG HD lần 4 (Sau khi áp dụng Effect)
+- tapOn:
+    id: "mnItemSave"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "llExportLogo"
+
+- tapOn:
+    id: "llExportLogo"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible: "Logo Size"
+
+- tapOn:
+    id: "layout_hd"
+
+- tapOn:
+    id: "tvSave"
+
+# Step 22: Xử lý Ads và Popup sau lưu lần 4
+- runFlow:
+    when:
+      visible: "Test Ad"
+    commands:
+      - waitForAnimationToEnd:
+          timeout: 5000
+      - runFlow:
+          when:
+            visible: "Reward granted"
+          commands:
+            - tapOn:
+                point: 93%,7%
+      - runFlow:
+          when:
+            visible: "Close"
+          commands:
+            - tapOn: "Close"
+      - tapOn:
+          point: 93%,4%
+      - runFlow:
+          when:
+            notVisible: "Preview"
+          commands:
+            - back
+
+- runFlow:
+    when:
+      visible: "Did you like this app?"
+    commands:
+      - back
+
+# Step 23: Xác minh màn Preview lần 4 (Hiển thị hiệu ứng Effect mới)
+- extendedWaitUntil:
+    visible: "Preview"
+    timeout: 10000
+
+- assertVisible: "Preview"
+- assertVisible:
+    id: "btnHome"
+- assertVisible:
+    id: "imageTransparentGrid"
+
+- takeScreenshot: "screenshots/TC_13_Preview_After_Effect"
+
+# ====================================================================
+# PHẦN 5: TÍNH NĂNG PALETTE TOOL (ĐỔI THEME MÀU SẮC) & THỰC HIỆN LƯU LẠI
+# ====================================================================
+
+# Step 24: Quay lại màn Edit từ Preview 4
+- tapOn:
+    point: 8%,8%
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Đóng Ads nếu có khi Back
+- runFlow:
+    when:
+      notVisible:
+        id: "mnItemSave"
+    commands:
+      - waitForAnimationToEnd:
+          timeout: 5000
+      - runFlow:
+          when:
+            visible: "Close"
+          commands:
+            - tapOn: "Close"
+      - tapOn:
+          point: 93%,4%
+      - runFlow:
+          when:
+            notVisible:
+              id: "mnItemSave"
+          commands:
+            - back
+
+# Step 25: Mở công cụ Palette và chọn bộ phối màu mẫu mới
+- extendedWaitUntil:
+    visible:
+      id: "mnItemSave"
+    timeout: 10000
+
+- tapOn:
+    id: "itemPalette"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "rv_palette"
+
+# Chọn bộ phối màu thứ 2 trong danh sách
+- tapOn:
+    point: "25%, 76%"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Đóng bảng điều khiển Palette
+- runFlow:
+    when:
+      visible:
+        id: "btnClosePanel"
+    commands:
+      - tapOn:
+          id: "btnClosePanel"
+
+- runFlow:
+    when:
+      visible:
+        id: "rv_palette"
+    commands:
+      - tapOn:
+          point: "95%, 70%"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- assertVisible:
+    id: "mnItemSave"
+
+- takeScreenshot: "screenshots/TC_13_Edit_After_Palette"
+
+# Step 26: Thực hiện Lưu và Xuất ảnh PNG HD lần 5 (Sau khi đổi Palette)
+- tapOn:
+    id: "mnItemSave"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "llExportLogo"
+
+- tapOn:
+    id: "llExportLogo"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible: "Logo Size"
+
+- tapOn:
+    id: "layout_hd"
+
+- tapOn:
+    id: "tvSave"
+
+# Step 27: Xử lý Ads và Popup sau lưu lần 5
+- runFlow:
+    when:
+      visible: "Test Ad"
+    commands:
+      - waitForAnimationToEnd:
+          timeout: 5000
+      - runFlow:
+          when:
+            visible: "Reward granted"
+          commands:
+            - tapOn:
+                point: 93%,7%
+      - runFlow:
+          when:
+            visible: "Close"
+          commands:
+            - tapOn: "Close"
+      - tapOn:
+          point: 93%,4%
+      - runFlow:
+          when:
+            notVisible: "Preview"
+          commands:
+            - back
+
+- runFlow:
+    when:
+      visible: "Did you like this app?"
+    commands:
+      - back
+
+# Step 28: Xác minh màn Preview lần 5 (Hiển thị màu Palette mới)
+- extendedWaitUntil:
+    visible: "Preview"
+    timeout: 10000
+
+- assertVisible: "Preview"
+- assertVisible:
+    id: "btnHome"
+- assertVisible:
+    id: "imageTransparentGrid"
+
+- takeScreenshot: "screenshots/TC_13_Preview_After_Palette"
+
+# ====================================================================
+# PHẦN 6: TÍNH NĂNG IMAGE TOOL (CHÈN ẢNH TỪ BỘ NHỚ) & THỰC HIỆN LƯU LẠI
+# ====================================================================
+
+# Step 29: Quay lại màn Edit từ Preview 5
+- tapOn:
+    point: 8%,8%
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Đóng Ads nếu có khi Back
+- runFlow:
+    when:
+      notVisible:
+        id: "mnItemSave"
+    commands:
+      - waitForAnimationToEnd:
+          timeout: 5000
+      - runFlow:
+          when:
+            visible: "Close"
+          commands:
+            - tapOn: "Close"
+      - tapOn:
+          point: 93%,4%
+      - runFlow:
+          when:
+            notVisible:
+              id: "mnItemSave"
+          commands:
+            - back
+
+# Step 30: Mở công cụ Image và chọn ảnh từ Gallery
+- extendedWaitUntil:
+    visible:
+      id: "mnItemSave"
+    timeout: 10000
+
+- tapOn:
+    id: "itemImage"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible: "Choose Image Source"
+
+- tapOn:
+    id: "imgGallery"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Chọn ảnh đầu tiên trong PhotoPicker
+- tapOn:
+    text: "Photo taken.*"
+    index: 0
+
+- waitForAnimationToEnd:
+    timeout: 1500
+
+# Nhấn nút Done nếu có thanh xác nhận dưới đáy
+- runFlow:
+    when:
+      visible: "Done"
+    commands:
+      - tapOn: "Done"
+
+- runFlow:
+    when:
+      visible:
+        text: "Done"
+    commands:
+      - tapOn: "Done"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Tại màn hình Crop Image, nhấn nút Apply
+- runFlow:
+    when:
+      visible:
+        id: "imgApply"
+    commands:
+      - tapOn:
+          id: "imgApply"
+
+# Dự phòng nếu id imgApply chưa nhận diện được
+- runFlow:
+    when:
+      visible: "Crop Image"
+    commands:
+      - tapOn:
+          id: "imgApply"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "mnItemSave"
+
+- takeScreenshot: "screenshots/TC_13_Edit_After_Image_Add"
+
+# Step 31: Thực hiện Lưu và Xuất ảnh PNG HD lần 6 (Sau khi chèn Image)
+- tapOn:
+    id: "mnItemSave"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "llExportLogo"
+
+- tapOn:
+    id: "llExportLogo"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible: "Logo Size"
+
+- tapOn:
+    id: "layout_hd"
+
+- tapOn:
+    id: "tvSave"
+
+# Step 32: Xử lý Ads và Popup sau lưu lần 6
+- runFlow:
+    when:
+      visible: "Test Ad"
+    commands:
+      - waitForAnimationToEnd:
+          timeout: 5000
+      - runFlow:
+          when:
+            visible: "Reward granted"
+          commands:
+            - tapOn:
+                point: 93%,7%
+      - runFlow:
+          when:
+            visible: "Close"
+          commands:
+            - tapOn: "Close"
+      - tapOn:
+          point: 93%,4%
+      - runFlow:
+          when:
+            notVisible: "Preview"
+          commands:
+            - back
+
+- runFlow:
+    when:
+      visible: "Did you like this app?"
+    commands:
+      - back
+
+# Step 33: Xác minh màn Preview lần 6 (Hiển thị ảnh mới chèn)
+- extendedWaitUntil:
+    visible: "Preview"
+    timeout: 10000
+
+- assertVisible: "Preview"
+- assertVisible:
+    id: "btnHome"
+- assertVisible:
+    id: "imageTransparentGrid"
+
+- takeScreenshot: "screenshots/TC_13_Preview_After_Image_Add"
+
+# ====================================================================
+# PHẦN 7: TÍNH NĂNG SAVE PROJECT (EDIT LATER) & KẾT THÚC VỀ HOME
+# ====================================================================
+
+# Step 34: Quay lại màn Edit từ Preview 6
+- tapOn:
+    point: 8%,8%
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- runFlow:
+    when:
+      notVisible:
+        id: "mnItemSave"
+    commands:
+      - waitForAnimationToEnd:
+          timeout: 5000
+      - runFlow:
+          when:
+            visible: "Close"
+          commands:
+            - tapOn: "Close"
+      - tapOn:
+          point: 93%,4%
+      - runFlow:
+          when:
+            notVisible:
+              id: "mnItemSave"
+          commands:
+            - back
+
+# Step 35: Lưu dự án bằng tính năng Save Project (Edit Later)
+- extendedWaitUntil:
+    visible:
+      id: "mnItemSave"
+    timeout: 10000
+
+- tapOn:
+    id: "mnItemSave"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "llSaveProject"
+
+- tapOn:
+    id: "llSaveProject"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- assertVisible:
+    id: "mnItemSave"
+
+# Step 36: Thoát khỏi màn Edit để trở về Home Screen
+- back
+
+# Xử lý dialog xác nhận thoát "Do you want to exit Logo Maker?" -> Bấm "Yes"
+- runFlow:
+    when:
+      visible: "Do you want to exit Logo Maker?"
+    commands:
+      - tapOn:
+          id: "btnYes"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Đóng Interstitial Ad nếu xuất hiện
+- runFlow:
+    when:
+      visible: "Close"
+    commands:
+      - tapOn: "Close"
+
+# Đóng màn hình IAP nếu xuất hiện
+- runFlow:
+    when:
+      visible:
+        text: "Get Full Access"
+    file: "../config/Close_IAP_Screen.yaml"
+
+# # Nếu đang ở màn hình danh mục (Food & Drink / tvCategory), nhấn Navigate up để trở về Select Template
+# - runFlow:
+#     when:
+#       visible:
+#         id: "tvCategory"
+#     commands:
+#       - tapOn: "Navigate up"
+#       - waitForAnimationToEnd:
+#           timeout: 2000
+
+# # Đóng tiếp Ad nếu có
+# - runFlow:
+#     when:
+#       visible: "Close"
+#     commands:
+#       - tapOn: "Close"
+
+# Trở về Home Screen từ các màn hình danh mục (Food & Drink -> Select Template -> Home)
+- runFlow:
+    when:
+      notVisible:
+        id: "btnTemplate"
+    commands:
+      - runFlow:
+          when:
+            visible: "Navigate up"
+          commands:
+            - tapOn: "Navigate up"
+            - waitForAnimationToEnd:
+                timeout: 2000
+
+- runFlow:
+    when:
+      notVisible:
+        id: "btnTemplate"
+    commands:
+      - runFlow:
+          when:
+            visible: "Navigate up"
+          commands:
+            - tapOn: "Navigate up"
+            - waitForAnimationToEnd:
+                timeout: 2000
+
+# Dự phòng nếu vẫn chưa thấy Home Screen
+- runFlow:
+    when:
+      notVisible:
+        id: "btnTemplate"
+    commands:
+      - back
+      - waitForAnimationToEnd:
+          timeout: 2000
+
+# Đóng tiếp Ad nếu có sau khi bấm Navigate up
+- runFlow:
+    when:
+      visible: "Close"
+    commands:
+      - tapOn: "Close"
+
+# Đóng tiếp IAP nếu có
+- runFlow:
+    when:
+      visible:
+        text: "Get Full Access"
+    file: "../config/Close_IAP_Screen.yaml"
+
+- extendedWaitUntil:
+    visible:
+      id: "btnTemplate"
+    timeout: 10000
+
+- assertVisible:
+    id: "btnTemplate"
+
+- takeScreenshot: "screenshots/TC_13_Final_Home_Screen"

@@ -1,0 +1,17 @@
+appId: com.thmobile.logomaker
+---
+
+- runFlow: "../../config/Launch_App_Clear_State.yaml"
+
+- runFlow: "../../config/Language_Screen/Tap_On_Language_Success.yaml"
+
+- runFlow: "../../config/Close_Ads_Screen.yaml"
+
+- tapOn: "Next"
+- tapOn: "Next"
+- tapOn: "Get Start"
+
+# Verify displayed IAP screen
+- assertVisible: "Get Premium"
+- assertVisible:
+    id: "rvAllFeatures"

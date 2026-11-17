@@ -1,0 +1,4 @@
+appId: com.thmobile.logomaker
+---
+- tapOn:
+    id: "btn_close"

@@ -1,0 +1,24 @@
+appId: com.thmobile.logomaker
+---
+
+- runFlow: "../../config/Launch_App_Clear_State.yaml"
+
+- tapOn: "한국어"
+
+- tapOn:
+    id: "btnOK"
+
+- runFlow: "../../config/Close_Ads_Screen.yaml"
+
+- assertVisible: "LogoX - AI Logo Maker"
+- assertVisible: "디자인을 쉽게 편집하세요!"
+- assertVisible: "다음 것"
+
+- assertVisible:
+    id: "dot"
+- assertVisible:
+    id: "dot"
+    index: 1
+- assertVisible:
+    id: "dot"
+    index: 2

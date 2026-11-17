@@ -1,0 +1,21 @@
+appId: com.thmobile.logomaker
+---
+
+- runFlow:
+    when:
+        visible:
+            text: "Skip the free trial?"
+    commands: 
+        - assertVisible:
+            id: "content"
+        - assertVisible: "Skip the free trial?"
+        - assertVisible: "You're leaving before claiming your Free Trial. 3 day Free Trial, then ₫260,000 per week"
+        - assertVisible: "Full access to all premium features"
+        - assertVisible: "Cancel anytime"
+        - assertVisible: 
+            text: "No thanks"
+            enabled: true
+        - assertVisible: 
+            text: "Start Free Trial"
+            enabled: true
+        - tapOn: "No thanks"

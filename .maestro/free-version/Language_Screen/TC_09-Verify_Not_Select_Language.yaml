@@ -1,0 +1,12 @@
+appId: com.thmobile.logomaker
+---
+
+- runFlow: "../../config/Launch_App_Clear_State.yaml"
+
+- tapOn:
+    id: "btnOK"
+    enabled: false
+
+- assertVisible:
+    id: "btnOK"
+    enabled: false

@@ -1,0 +1,64 @@
+appId: com.thmobile.logomaker
+---
+- runFlow: "../config/Launch_App.yaml"
+
+- runFlow:
+    when:
+      visible:
+        text: "Get Full Access"
+    file: "../config/Close_IAP_Screen.yaml"
+
+- tapOn:
+    id: "btnStyleMagicAI"
+    containsDescendants:
+        - text: "AI Studio"
+        - text: "Create unique logos and explore fresh styles with AI"
+
+- assertVisible: "AI Studio"
+- assertVisible: "Create with"
+- assertVisible: "AI"
+- assertVisible: "Choose a tool to get started"
+
+- assertVisible:
+    id: "btnAiGenerateLogo"
+    containsDescendants:
+        - text: "AI Generate Logo"
+        - text: "Turn your ideas into unique logos with AI"
+
+- assertVisible:
+    id: "btnAiStudioStyleMagic"
+    containsDescendants: 
+        - text: "Style Magic AI"
+        - text: "Give your logo a fresh new style"
+
+- tapOn:
+    id: "btnAiStudioStyleMagic"
+    containsDescendants: 
+        - text: "Style Magic AI"
+        - text: "Give your logo a fresh new style"
+
+- assertVisible: "Style Magic AI"
+
+- tapOn: "Christmas Bright"
+
+- runFlow:
+    when:
+      visible: "Choose Image Source"
+    commands:
+      - back
+
+- assertVisible: "Style Magic AI"
+- assertVisible: "Select Style"
+- assertVisible: "Give your logo a fresh new look with AI!"
+- assertVisible: "Generate"
+
+# Scroll left in the style list area to find "Verdant"
+- repeat:
+    times: 3
+    commands:
+      - swipe:
+          start: "85%, 70%"
+          end: "20%, 70%"
+          duration: 40
+
+- assertVisible: "Verdant"

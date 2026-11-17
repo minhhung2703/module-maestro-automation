@@ -1,0 +1,263 @@
+appId: com.thmobile.logomaker
+---
+# 1. Chạy flow kiểm tra hiển thị mô tả đầu tiên
+- runFlow: "../config/Launch_App_Clear_State.yaml"
+
+- runFlow:
+    when:
+        visible:
+            id: "image-only"
+    commands:
+        - assertVisible:
+            id: "lp_img_logo"
+        - assertVisible: "Logos4U"
+
+# Verify Navigate to IAP Screen
+- assertVisible: "Get Full Access"
+- assertVisible: "Unlock 5000+ Premium Designs"
+- assertVisible: "Access All Powerful AI Features"
+- assertVisible: "Access All Design Elements"
+- assertVisible: "Export Logos with Highest Quality"
+- assertVisible: "No Ads"
+- assertVisible: "BEST OFFER"
+
+- runFlow:
+    when:
+        visible:
+          text: "START FREE TRIAL"
+    commands:
+        - assertVisible: "START FREE TRIAL"
+
+- runFlow:
+    when:
+        visible:
+          text: "CONTINUE"
+    commands:
+        - assertVisible: "CONTINUE"
+
+- runFlow:
+    when:
+        visible:
+          text: "No paymment now"
+    commands:
+        - assertVisible: "No paymment now"
+
+- runFlow:
+    when:
+        visible:
+          text: "Cancel Anytime"
+    commands:
+        - assertVisible: "Cancel Anytime"
+
+- takeScreenshot: "screenshots/IAP_compare"
+
+# 2. Kill app + Khởi chạy lại ứng dụng (Relaunch - giữ nguyên state)
+- runFlow: "../config/Launch_App.yaml"
+
+# 3. Kiểm tra splash screen (chỉ khi hiển thị)
+- runFlow:
+    when:
+        visible:
+            id: "lp_img_logo"
+    commands:
+        - assertVisible: "Logos4U"
+
+- runFlow:
+    when:
+        visible:
+            id: "image-only"
+    commands:
+        - assertVisible:
+            id: "lp_img_logo"
+        - assertVisible: "Logos4U"
+
+- takeScreenshot: "screenshots/Splash_Screen_2"
+
+# Verify Navigate to IAP Screen
+- assertVisible: "Get Full Access"
+- assertVisible: "Unlock 5000+ Premium Designs"
+- assertVisible: "Access All Powerful AI Features"
+- assertVisible: "Access All Design Elements"
+- assertVisible: "Export Logos with Highest Quality"
+- assertVisible: "No Ads"
+- assertVisible: "BEST OFFER"
+
+- runFlow:
+    when:
+        visible:
+          text: "START FREE TRIAL"
+    commands:
+        - assertVisible: "START FREE TRIAL"
+
+- runFlow:
+    when:
+        visible:
+          text: "CONTINUE"
+    commands:
+        - assertVisible: "CONTINUE"
+
+- runFlow:
+    when:
+        visible:
+          text: "No paymment now"
+    commands:
+        - assertVisible: "No paymment now"
+
+- runFlow:
+    when:
+        visible:
+          text: "Cancel Anytime"
+    commands:
+        - assertVisible: "Cancel Anytime"
+
+- back
+
+# Verify IAP Screen Is Still Visible
+- assertVisible: "Get Full Access"
+- assertVisible: "Unlock 5000+ Premium Designs"
+- assertVisible: "Access All Powerful AI Features"
+- assertVisible: "Access All Design Elements"
+- assertVisible: "Export Logos with Highest Quality"
+- assertVisible: "No Ads"
+- assertVisible: "BEST OFFER"
+
+- tapOn:
+    id: "btn_cancel"
+
+- runFlow:
+    when:
+        visible:
+            text: "Skip the free trial?"
+    commands: 
+        - assertVisible:
+            id: "content"
+        - assertVisible: "Skip the free trial?"
+        - assertVisible: "You're leaving before claiming your Free Trial. 3 day Free Trial, then ₫260,000 per week"
+        - assertVisible: "Full access to all premium features"
+        - assertVisible: "Cancel anytime"
+        - assertVisible: 
+            text: "No thanks"
+            enabled: true
+        - assertVisible: 
+            text: "Start Free Trial"
+            enabled: true
+        - tapOn: "No thanks"
+
+# 4. Verify navigated to Language Screen
+- assertVisible: "Language"
+
+- assertVisible:
+    id: "btnOK"
+    enabled: false
+
+- assertWithAI:
+    assertion: "The screen shows a list of languages. Each row in the list contains a small flag image on the left and a language name text on the right. Verify this layout is correct for the visible rows. Do not evaluate whether the flag correctly represents the language culturally."
+
+# Verify_Is_Not_Radio_Select_Without_Language
+- assertVisible:
+    id: "btnOK"
+    enabled: false
+
+- assertWithAI:
+    assertion: "On this screen, there is a list of language options. Each language option has a radio button on the right side. Verify that all radio buttons are in the unselected state (none of them are filled or checked). Do not evaluate anything else on the screen."
+
+# - assertWithAI:
+#     assertion: "Look at the list of language options on this screen. Each option has a radio button on the right side. Are all radio buttons currently unselected (not filled, not checked)? If yes, the assertion passes."
+
+- runFlow: "../config/Language_Screen/Tap_On_Dismiss_Button.yaml"
+
+# # Verify_Scroll_Language_List_On_Language_Screen
+- scrollUntilVisible:
+    element:
+        id: "rlItem"
+        containsChild: "中文"
+    direction: DOWN
+    timeout: 35000
+    speed: 80
+
+- scrollUntilVisible:
+    element:
+        id: "rlItem"
+        containsChild: "English"
+    direction: UP
+    timeout: 35000
+    speed: 80
+
+# Select_Language_Success
+- tapOn: "English"
+
+- assertVisible:
+    id: "checkbox"
+    childOf:
+      id: "rlItem"
+      containsChild: "English"
+    selected: true
+
+- tapOn:
+    id: "btnOK"
+    enabled: true
+
+#  Navigated to the Onboarding 1 Screen
+- assertVisible: "Logos4U"
+- assertVisible: "Edit your design easily!"
+- assertVisible: "Next"
+
+- assertVisible:
+    id: "dot"
+
+- assertVisible:
+    id: "dot"
+    index: 1
+- assertVisible:
+    id: "dot"
+    index: 2
+
+- takeScreenshot: "screenshots/Onboarding_Screen_1"
+
+- tapOn: "Next"
+
+- assertVisible: "1000+ Templates"
+- assertVisible: "Create stunning logos!"
+
+- assertNotVisible: "Logos4U"
+- assertNotVisible: "Edit your design easily!"
+
+- takeScreenshot: "screenshots/Onboarding_Screen_2"
+
+- tapOn: "Next"
+
+# Verify Onboarding 3 screen
+- assertVisible: "Create Logo Easily"
+- assertVisible: "With Auto Design Tool"
+- assertVisible: "Get Start"
+- assertNotVisible: "Next"
+
+- assertNotVisible: "Logos4U"
+- assertNotVisible: "Edit your design easily!"
+
+- assertNotVisible: "1000+ Templates"
+- assertNotVisible: "Create stunning logos!"
+
+- takeScreenshot: "screenshots/Onboarding_Screen_3"
+
+- tapOn: "Get Start"
+
+- runFlow: "../config/Close_Ads_Screen.yaml"
+
+- takeScreenshot: "screenshots/Home_Screen"
+
+- tapOn:
+    id: "itemGetPro"
+
+- takeScreenshot: "screenshots/IAP_compare_2"
+
+- killApp
+
+- launchApp:
+    clearState: false
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- takeScreenshot: "screenshots/IAP_compare_3"
+

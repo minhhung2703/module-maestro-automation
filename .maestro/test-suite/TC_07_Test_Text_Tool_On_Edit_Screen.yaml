@@ -1,0 +1,249 @@
+appId: com.thmobile.logomaker
+---
+
+# ==============================================================================
+# TC_07_Test_Text_Tool_On_Edit_Screen
+# Mục tiêu: Kiểm thử toàn diện công cụ Text Tool và màn hình soạn thảo văn bản (Input Text Screen) trên Edit Screen:
+#           - Khởi động ứng dụng > Đóng popup IAP > Điều hướng vào Template Restaurant > Mở màn hình Edit Screen
+#           - Mở màn hình Input Text lần 1 & Xác minh giao diện mặc định (tiêu đề, nút Apply, ô nhập text, bộ đếm ký tự 0/40)
+#           - Kiểm thử Validation chuỗi rỗng: Nhấn Apply khi ô nhập rỗng -> Hệ thống chặn lưu và hiển thị thông báo "Please Input Text"
+#           - Kiểm thử bộ đếm ký tự thời gian thực (Real-time Character Counter): Nhập thử nghiệm "PIZZA" -> Bộ đếm cập nhật "5/40"
+#           - Kiểm thử tính năng Hủy (Navigate up): Đảm bảo hủy bỏ thay đổi thành công và quay lại Edit Screen mà không tạo layer
+#           - Tạo Text Layer hợp lệ lên Canvas: Mở lại Input Text, nhập nội dung "HOT DOG" ("7/40") và nhấn Apply
+#           - Xác nhận Text Layer hiển thị trên Canvas và bảng điều khiển Text Controls tự động xuất hiện (EDIT, DUPLICATE, Align)
+#           - Kiểm thử tính năng Chỉnh sửa nhanh (Quick Edit):
+#             + Nhấn nút "EDIT" để mở lại màn hình Input Text với nội dung hiện tại ("HOT DOG", "7/40")
+#             + Xóa chuỗi cũ và nhập nội dung mới "VIP" ("3/40"), sau đó nhấn Apply cập nhật lên Canvas
+#           - Kiểm thử tích hợp: Thao tác Hoàn tác (Undo) và Làm lại (Redo) trên Edit Screen
+#           - Chụp ảnh màn hình tại các giai đoạn kiểm thử để lưu trữ kết quả và xác thực giao diện
+# Tài liệu tham chiếu: docs/test-cases/Edit_Screen_Edit_Text_Tool_TestCases.txt
+# ==============================================================================
+
+# Step 1: Khởi động ứng dụng
+- runFlow: "../config/Launch_App.yaml"
+
+# Step 2: Đóng popup IAP nếu xuất hiện
+- runFlow:
+    when:
+      visible:
+        text: "Get Full Access"
+    file: "../config/Close_IAP_Screen.yaml"
+
+# Step 3: Tại Home, chọn tính năng Template
+- runFlow: "../config/Navigate_To_Restaurant_Edit.yaml"
+
+# Step 5: Đóng quảng cáo Collapsible nếu xuất hiện
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+# Step 6: Xác nhận giao diện Edit Screen hiển thị đầy đủ
+- assertVisible: "Logos4U"
+- assertVisible: "Navigate up"
+- assertVisible:
+    id: "mnItemSave"
+- assertVisible:
+    id: "itemBackground"
+- assertVisible:
+    id: "itemArt"
+- assertVisible:
+    id: "itemText"
+
+# Step 7: Nhấn vào tab "Text" ở thanh công cụ chính để mở màn hình Input Text
+- tapOn:
+    id: "itemText"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Step 8: Xác minh các thành phần cốt lõi của màn hình Input Text (trạng thái mặc định)
+- assertVisible: "Input Text"
+- assertVisible: "Navigate up"
+- assertVisible:
+    id: "item_apply"
+- assertVisible:
+    id: "cardLetters"
+- assertVisible:
+    id: "numOfLetters"
+    text: "0/40"
+- assertVisible:
+    id: "editText"
+
+- hideKeyboard
+
+- takeScreenshot: "screenshots/Input_Text_Screen_Default"
+
+# Step 9: Kiểm thử validation chuỗi rỗng - Nhấn nút Apply khi ô nhập rỗng
+- tapOn:
+    id: "item_apply"
+
+# Xác nhận toast thông báo hiển thị ngay khi nhấn Apply
+- assertVisible:
+    text: ".*[pP]lease.*"
+
+- waitForAnimationToEnd:
+    timeout: 2500
+
+# Xác nhận toast thông báo đã tự ẩn sau vài giây
+- assertNotVisible:
+    text: ".*[pP]lease.*"
+
+# Xác nhận màn hình Input Text vẫn mở (hệ thống chặn lưu text rỗng)
+- assertVisible: "Input Text"
+- assertVisible:
+    id: "numOfLetters"
+    text: "0/40"
+
+- takeScreenshot: "screenshots/Input_Text_Empty_Validation"
+
+# Step 10: Nhập văn bản thử nghiệm và xác minh bộ đếm ký tự cập nhật real-time
+- tapOn:
+    id: "editText"
+
+- inputText: "PIZZA"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "numOfLetters"
+    text: "5/40"
+
+- hideKeyboard
+
+- takeScreenshot: "screenshots/Input_Text_Typing_Result"
+
+# Step 11: Kiểm thử tính năng Hủy (Navigate up) - Đảm bảo không lưu thay đổi
+- tapOn: "Navigate up"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Đóng quảng cáo Collapsible nếu xuất hiện
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+# Xác nhận quay lại màn hình Edit Screen thành công
+- assertVisible: "Logos4U"
+- assertVisible:
+    id: "itemText"
+
+# Step 12: Mở lại Input Text và tạo Text Layer mới hợp lệ lên Canvas
+- tapOn:
+    id: "itemText"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- tapOn:
+    id: "editText"
+
+- inputText: "HOT DOG"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "numOfLetters"
+    text: "7/40"
+
+- hideKeyboard
+
+# Nhấn nút Apply để xác nhận thêm text lên Canvas
+- tapOn:
+    id: "item_apply"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Đóng quảng cáo Collapsible nếu xuất hiện
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+# Step 13: Xác nhận Text Layer mới được hiển thị và bảng điều khiển Text Controls xuất hiện
+- assertVisible:
+    id: "layout_text_editor_menu"
+- assertVisible:
+    id: "layout_text_controls"
+- assertVisible:
+    id: "btnEdit"
+    text: "EDIT"
+- assertVisible:
+    id: "btnDuplicate"
+    text: "DUPLICATE"
+- assertVisible:
+    id: "layout_text_align"
+
+- takeScreenshot: "screenshots/Text_Tool_Applied_Result"
+
+# Step 14: Nhấn nút "EDIT" màu cam để mở lại Input Text chỉnh sửa nội dung layer đang chọn
+- tapOn:
+    id: "btnEdit"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- assertVisible: "Input Text"
+- assertVisible:
+    id: "numOfLetters"
+    text: "7/40"
+- assertVisible:
+    id: "editText"
+    text: "HOT DOG"
+
+- hideKeyboard
+
+- takeScreenshot: "screenshots/Input_Text_Edit_Existing"
+
+# Step 15: Chỉnh sửa nội dung text (đặt con trỏ ở cuối chuỗi, xóa text cũ và nhập chuỗi mới)
+- tapOn:
+    point: "80%, 41%"
+
+- eraseText: 20
+
+- inputText: "VIP"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "numOfLetters"
+    text: "3/40"
+
+- hideKeyboard
+
+- tapOn:
+    id: "item_apply"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Đóng quảng cáo Collapsible nếu xuất hiện
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+# Step 16: Kiểm thử Hoàn tác (Undo) và Làm lại (Redo) trên Edit Screen
+- tapOn:
+    id: "ivUndo"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "ivRedo"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- takeScreenshot: "screenshots/Text_Tool_Final_Result"

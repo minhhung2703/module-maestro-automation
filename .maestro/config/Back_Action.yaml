@@ -1,0 +1,14 @@
+appId: com.thmobile.logomaker
+---
+
+- tapOn:
+    point: 8%, 7%
+
+- waitForAnimationToEnd:
+    timeout: 3000
+    
+- runFlow:
+    when: 
+        visible:
+            text: "Test Ad"
+    file: "./Close_Ads_Screen.yaml"

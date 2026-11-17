@@ -1,0 +1,23 @@
+appId: com.thmobile.logomaker
+---
+
+- runFlow: "../../config/Launch_App_Clear_State.yaml"
+
+- tapOn: "한국어"
+
+- tapOn:
+    id: "btnOK"
+
+- runFlow: "../../config/Close_Ads_Screen.yaml"
+
+# 1. Kiểm tra element ảnh preview tồn tại
+- assertVisible:
+    id: "img"
+
+# 2. Chụp screenshot để lưu bằng chứng
+- takeScreenshot: 
+    path: "screenshots/onboarding_step1_preview"
+
+# 3. Kiểm tra ảnh preview hiển thị đúng design Figma bằng AI
+- assertWithAI:
+    assertion: "On this Onboarding screen, verify that: (1) A large image preview is displayed in the upper-center area showing a logo design example on a dark background with editing tools visible (like color palette, text, background options). (2) Below the image, the text 'LogoX - AI Logo Maker' is visible as the app title. (3) A description text is shown below the title. (4) Dot indicators are visible on the screen."

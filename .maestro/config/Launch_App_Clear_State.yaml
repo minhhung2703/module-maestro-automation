@@ -1,0 +1,8 @@
+appId: com.thmobile.logomaker
+---
+- launchApp:
+    clearState: true
+
+- waitForAnimationToEnd
+
+# - runFlow: "../config/Close_Ads_Screen.yaml"

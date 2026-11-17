@@ -1,0 +1,31 @@
+appId: com.thmobile.logomaker
+---
+- runFlow: "../../config/Launch_App_Clear_State.yaml"
+- runFlow: "../../config/Language_Screen/Tap_On_Language_Success.yaml"
+- runFlow: "../../config/Close_Ads_Screen.yaml"
+
+# Swipe to Onboarding 2
+- swipe:
+    start: 90%, 50%
+    end: 10%, 50%
+    duration: 500
+
+# Swipe to Onboarding 3
+- swipe:
+    start: 90%, 50%
+    end: 10%, 50%
+    duration: 500
+
+#   STEP 1: Kiểm tra element tồn tại
+- assertVisible:
+    id: "img"
+
+#   STEP 2: Chụp screenshot toàn màn hình
+#   Script compare.py sẽ tự crop vùng element "img"
+#   rồi so sánh pixel-level với ảnh mẫu
+- takeScreenshot: "onboarding3_compare"
+
+#   STEP 3: Đã tích hợp OpenAI vào run_tests.ps1 file
+#   Sau khi chạy chụp hình ảnh thành công run_tests.ps1 file sẽ gọi OpenAI ở compare.py 
+#   So sánh hình ảnh chụp và hình ảnh đã lưu trong folder assest
+#   Trả về kết quả phần trăm và hiển thị kết quả Passed/Failed trên terminal

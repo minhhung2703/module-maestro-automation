@@ -1,0 +1,15 @@
+appId: com.thmobile.logomaker
+---
+
+- runFlow: "../../config/Launch_App_Clear_State.yaml"
+
+- assertVisible: "Ad"
+
+- assertVisible:
+    id: "content"
+    enabled: true
+
+- tapOn:
+    id: "content"
+    enabled: true
+    

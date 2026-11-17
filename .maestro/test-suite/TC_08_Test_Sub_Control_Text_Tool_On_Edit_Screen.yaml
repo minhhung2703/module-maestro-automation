@@ -1,0 +1,315 @@
+appId: com.thmobile.logomaker
+---
+
+# ==============================================================================
+# TC_08_Test_Sub_Control_Text_Tool_On_Edit_Screen
+# Mục tiêu: Kiểm thử toàn diện Sub-Tab Controls và tương tác trực quan với Text Frame trên Edit Screen:
+#           - Khởi động ứng dụng > Đóng IAP/Skip trial > Vào Template Restaurant > Mở màn Edit Screen
+#           - Tạo Text Frame mới: Mở màn hình Input Text, nhập nội dung "PIZZA HOT" và Apply lên Canvas
+#           - Xác nhận hệ thống tự động kích hoạt Sub-Tab Controls sau khi thêm văn bản
+#           - Kiểm thử chi tiết các tính năng của Sub-Tab Controls:
+#             1. D-pad Movement: Di chuyển vị trí layer Text theo 4 hướng (Lên, Trái, Phải, Xuống)
+#             2. Alignment: Căn lề văn bản (Căn Trái, Căn Phải, Căn Giữa mặc định)
+#             3. Layer Depth: Thay đổi thứ tự tầng hiển thị (Hạ layer xuống 1 bậc & Đẩy layer lên 1 bậc)
+#             4. Duplicate: Nhân bản layer văn bản mới trên Canvas
+#             5. Quick Edit: Chỉnh sửa nhanh nội dung qua nút EDIT ("PIZZA HOT & CRUNCHY") và Apply lại
+#           - Kiểm thử tích hợp: Thao tác Hoàn tác (Undo) và Làm lại (Redo) trên Edit Screen
+#           - Tương tác trực tiếp với khung viền Text Frame trên Canvas:
+#             1. Kéo và thả (Drag & Drop) Text Frame sang vị trí mới
+#             2. Lật đối xứng văn bản bằng icon Flip (góc trên bên phải) và lật ngược lại chiều thuận
+#             3. Thu nhỏ / Phóng to kích thước bằng icon Zoom (góc dưới bên phải)
+#             4. Xoay văn bản tự do bằng icon Rotate (góc dưới bên trái)
+# Tài liệu tham chiếu: docs/test-cases/Edit_Screen_Sub_Tab_Controls_Text_Tool_TestCases.txt
+# ==============================================================================
+
+# Step 1: Khởi động ứng dụng
+- runFlow: "../config/Launch_App.yaml"
+
+# Step 2: Đóng popup IAP nếu xuất hiện
+- runFlow:
+    when:
+      visible:
+        text: "Get Full Access"
+    file: "../config/Close_IAP_Screen.yaml"
+
+# Step 3: Tại Home, chọn tính năng Template và điều hướng tới màn Edit
+- runFlow: "../config/Navigate_To_Restaurant_Edit.yaml"
+
+# Step 5: Đóng quảng cáo Collapsible nếu xuất hiện
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+# Step 6: Xác nhận giao diện Edit Screen hiển thị đầy đủ
+- assertVisible: "Logos4U"
+- assertVisible: "Navigate up"
+- assertVisible:
+    id: "mnItemSave"
+- assertVisible:
+    id: "itemBackground"
+- assertVisible:
+    id: "itemArt"
+- assertVisible:
+    id: "itemText"
+
+# Step 7: Sử dụng công cụ Text Tool để tạo layer văn bản mới
+- tapOn:
+    id: "itemText"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Step 8: Xác nhận giao diện màn hình Input Text hiển thị đầy đủ
+- assertVisible: "Input Text"
+- assertVisible:
+    id: "item_apply"
+- assertVisible:
+    id: "numOfLetters"
+- assertVisible:
+    id: "editText"
+
+# Step 9: Nhập nội dung văn bản mới và xác nhận Apply
+- tapOn:
+    id: "editText"
+
+- inputText: "DELICIOUS"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- hideKeyboard
+
+- tapOn:
+    id: "item_apply"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Đóng quảng cáo Collapsible nếu xuất hiện
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+# Step 10: Xác nhận sau khi dùng Text Tool, hệ thống tự động kích hoạt Sub-Tab Controls
+- assertVisible:
+    id: "layout_text_controls"
+- assertVisible:
+    id: "imgMoveUp"
+- assertVisible:
+    id: "imgMoveDown"
+- assertVisible:
+    id: "imgMoveLeft"
+- assertVisible:
+    id: "imgMoveRight"
+- assertVisible:
+    id: "btnLayerUp"
+- assertVisible:
+    id: "btnLayerDown"
+- assertVisible:
+    id: "btnAlignLeft"
+- assertVisible:
+    id: "btnAlignCenter"
+- assertVisible:
+    id: "btnAlignRight"
+- assertVisible:
+    id: "btnDuplicate"
+- assertVisible:
+    id: "btnEdit"
+
+- takeScreenshot: "screenshots/Control_SubTab_Opened_After_Text"
+
+# Step 11: Kiểm thử Di chuyển vị trí layer Text bằng các phím D-pad
+# Di chuyển lên trên
+- tapOn:
+    id: "imgMoveUp"
+- tapOn:
+    id: "imgMoveUp"
+- tapOn:
+    id: "imgMoveUp"
+
+# Di chuyển sang trái
+- tapOn:
+    id: "imgMoveLeft"
+- tapOn:
+    id: "imgMoveLeft"
+
+# Di chuyển sang phải
+- tapOn:
+    id: "imgMoveRight"
+
+# Di chuyển xuống dưới
+- tapOn:
+    id: "imgMoveDown"
+
+- takeScreenshot: "screenshots/Control_Move_Result"
+
+# Step 12: Kiểm thử tính năng Căn lề Văn bản (Alignment)
+# Căn lề Trái
+- tapOn:
+    id: "btnAlignLeft"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Căn lề Phải
+- tapOn:
+    id: "btnAlignRight"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Đưa về Căn lề Giữa mặc định
+- tapOn:
+    id: "btnAlignCenter"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- takeScreenshot: "screenshots/Control_Align_Result"
+
+# Step 13: Kiểm thử Thay đổi thứ tự tầng hiển thị (Layer Depth Reordering)
+# Hạ layer text xuống 1 bậc
+- tapOn:
+    id: "btnLayerDown"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Đẩy layer text lên 1 bậc
+- tapOn:
+    id: "btnLayerUp"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Step 14: Kiểm thử Nhân bản layer bằng nút DUPLICATE
+- tapOn:
+    id: "btnDuplicate"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- takeScreenshot: "screenshots/Control_Duplicate_Result"
+
+# Step 15: Kiểm thử Chỉnh sửa nhanh qua nút EDIT và Apply nội dung mới
+- tapOn:
+    id: "btnEdit"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- assertVisible: "Input Text"
+- assertVisible:
+    id: "editText"
+
+- tapOn:
+    point: "80%, 41%"
+
+- eraseText: 15
+
+- inputText: "SUPER VIP"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- hideKeyboard
+
+- tapOn:
+    id: "item_apply"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Đóng quảng cáo Collapsible nếu xuất hiện
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+- assertVisible:
+    id: "layout_text_controls"
+
+# Step 16: Kiểm thử Hoàn tác (Undo) và Làm lại (Redo) trên Edit Screen
+- tapOn:
+    id: "ivUndo"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "ivRedo"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- takeScreenshot: "screenshots/Control_Final_Result"
+
+# Step 17: Di chuyển frame text trên Canvas sang một vị trí khác (Drag & Drop)
+- tapOn:
+    point: "50%, 38%"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- swipe:
+    start: "50%, 38%"
+    end: "50%, 55%"
+    duration: 800
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- takeScreenshot: "screenshots/Control_Text_Frame_Moved"
+
+# Step 18: Kiểm thử Lật đối xứng văn bản bằng icon Flip ở góc trên bên phải frame text
+- tapOn:
+    point: "73%, 51%"
+
+- waitForAnimationToEnd:
+    timeout: 1500
+
+- takeScreenshot: "screenshots/Control_Text_Flipped"
+
+# Nhấn lại icon Flip để trả về chiều chữ thuận ban đầu
+- tapOn:
+    point: "73%, 51%"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Step 19: Kiểm thử Thu nhỏ / Phóng to bằng icon Zoom (Scale) ở góc dưới bên phải frame text
+- swipe:
+    start: "73%, 56%"
+    end: "65%, 54%"
+    duration: 800
+
+- waitForAnimationToEnd:
+    timeout: 1500
+
+- takeScreenshot: "screenshots/Control_Text_Zoomed"
+
+# Kéo lại về vị trí kích thước chuẩn ban đầu
+- swipe:
+    start: "65%, 54%"
+    end: "73%, 56%"
+    duration: 800
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Step 20: Kiểm thử Xoay văn bản tự do bằng icon Rotate ở góc dưới bên trái frame text
+- swipe:
+    start: "32%, 56%"
+    end: "27%, 51%"
+    duration: 800
+
+- waitForAnimationToEnd:
+    timeout: 1500
+
+- takeScreenshot: "screenshots/Control_Text_Rotated"
+

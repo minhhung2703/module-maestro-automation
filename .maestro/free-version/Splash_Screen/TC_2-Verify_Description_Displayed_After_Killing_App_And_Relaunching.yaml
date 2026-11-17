@@ -1,0 +1,18 @@
+appId: com.thmobile.logomaker
+---
+# 1. Chạy flow kiểm tra hiển thị mô tả đầu tiên
+- runFlow: "../../config/Launch_App_Clear_State.yaml"
+
+# 2. Kill app (Đóng ứng dụng hoàn toàn)
+- stopApp
+
+# 3. Khởi chạy lại ứng dụng (Relaunch - giữ nguyên state)
+- runFlow: "../../config/Launch_App.yaml"
+
+# 4. Kiểm tra lại xem mô tả splash screen có tiếp tục hiển thị không
+- assertVisible:
+    id: "lp_img_logo"
+
+- assertVisible: "LogoX - AI Logo Maker"
+- assertVisible: "This process may contain ads"
+# - assertVisible: "Quá trình này có thể chứa quảng cáo"

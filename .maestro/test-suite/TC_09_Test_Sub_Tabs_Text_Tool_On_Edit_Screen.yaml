@@ -1,0 +1,601 @@
+appId: com.thmobile.logomaker
+---
+
+# ==============================================================================
+# TC_09_Test_Sub_Tabs_Text_Tool_On_Edit_Screen
+# Mục tiêu: Kiểm thử toàn diện quy trình tạo Text Frame mới và thao tác trên 7 Sub-Tabs của Text Tool:
+#           - Khởi động ứng dụng > Đóng IAP/Skip trial > Vào Template Restaurant > Mở màn Edit Screen
+#           - Tạo Text Frame mới từ Bottom Bar: Mở màn hình Input Text, nhập nội dung "SPECIAL" và Apply lên Canvas
+#           - Lần lượt kích hoạt & kiểm thử chi tiết 7 Sub-Tabs của Text Tool:
+#             1. Sub-Tab Fonts: Lựa chọn và áp dụng phông chữ nghệ thuật mới ("Bebas Neue")
+#             2. Sub-Tab Color: Đổi màu đơn sắc (Solid Color), màu chuyển sắc (Gradient Color), áp dụng & gỡ bỏ hoa văn (Texture)
+#             3. Sub-Tab Shadow: Tăng mức độ bóng đổ (thanh trượt Shadow Level) & chọn màu sắc bóng đổ (Shadow Color)
+#             4. Sub-Tab Background: Áp dụng/gỡ bỏ Texture nền, chọn màu nền đơn sắc & chỉnh độ mờ đục nền (BG Opacity)
+#             5. Sub-Tab Outline: Tăng độ dày đường viền chữ (thanh trượt Outline Width) & chọn màu viền chữ (Outline Color)
+#             6. Sub-Tab Curve: Uốn cong chữ vòm trên (thanh trượt Curve) & tăng giãn cách ký tự (thanh trượt Char Spacing)
+#             7. Sub-Tab 3D: Xoay không gian 3 chiều phối cảnh trục X (X-Rotation) và trục Y (Y-Rotation)
+#           - Kiểm thử tích hợp: Thao tác Hoàn tác (Undo) và Làm lại (Redo) trên Canvas
+#           - Di chuyển Text Frame "SPECIAL" trên Canvas sang vị trí mới và chụp ảnh màn hình kết quả hoàn chỉnh
+# Tài liệu tham chiếu: docs/test-cases/Edit_Screen_Sub_Tabs_Text_Tool_TestCases.txt
+# ==============================================================================
+
+# Step 1: Khởi động ứng dụng
+- runFlow: "../config/Launch_App.yaml"
+
+# Step 2: Đóng popup IAP nếu xuất hiện
+- runFlow:
+    when:
+      visible:
+        text: "Get Full Access"
+    file: "../config/Close_IAP_Screen.yaml"
+
+# Đóng popup Skip the free trial nếu xuất hiện
+- runFlow:
+    when:
+      visible: "No thanks"
+    commands:
+      - tapOn: "No thanks"
+
+- runFlow:
+    when:
+      visible:
+        text: "Skip the free trial?"
+    commands:
+      - tapOn:
+          id: "btnDialogNotNow"
+
+# Step 3: Tại màn hình Home, chọn tính năng Template
+- extendedWaitUntil:
+    visible:
+      id: "btnTemplate"
+    timeout: 10000
+
+- runFlow: "../config/Navigate_To_Restaurant_Edit.yaml"
+
+# Step 5: Đóng quảng cáo Collapsible nếu xuất hiện
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+# Step 6: Xác nhận giao diện Edit Screen hiển thị đầy đủ
+- assertVisible: "Logos4U"
+- assertVisible: "Navigate up"
+- assertVisible:
+    id: "mnItemSave"
+- assertVisible:
+    id: "itemText"
+
+# Step 7: Nhấn nút Text trên thanh Bottom Bar để bắt đầu tạo Text Frame mới
+- tapOn:
+    id: "itemText"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Step 8: Xác nhận giao diện màn hình Input Text hiển thị đầy đủ
+- assertVisible: "Input Text"
+- assertVisible:
+    id: "item_apply"
+- assertVisible:
+    id: "numOfLetters"
+- assertVisible:
+    id: "editText"
+
+# Step 9: Nhập nội dung văn bản mới và nhấn Apply
+- tapOn:
+    id: "editText"
+
+- inputText: "SPECIAL"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- hideKeyboard
+
+- tapOn:
+    id: "item_apply"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Đóng quảng cáo Collapsible nếu xuất hiện sau khi Apply
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+# Step 10: Xác nhận Text Frame xuất hiện trên Canvas và mở thanh menu Text Tool
+- assertVisible:
+    id: "layout_text_editor_menu"
+
+# ==============================================================================
+# SUB-TAB 1: FONTS (PHÔNG CHỮ)
+# ==============================================================================
+# Step 11: Kích hoạt Sub-Tab Fonts và áp dụng phông chữ mới
+- tapOn:
+    text: "Fonts"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "layout_text_fonts"
+
+# Chọn phông chữ "Bebas Neue" trong danh sách
+- tapOn:
+    text: "Bebas Neue"
+
+- tapOn:
+    text: "aachenb"
+
+- tapOn:
+    text: "Bebas Neue"
+
+- waitForAnimationToEnd:
+    timeout: 1500
+
+- takeScreenshot: "screenshots/Text_SubTab_Fonts_Applied"
+
+# ==============================================================================
+# SUB-TAB 2: COLOR (MÀU SẮC, OPACITY, GRADIENT)
+# ==============================================================================
+# Step 12: Kích hoạt Sub-Tab Color và thay đổi màu sắc văn bản
+- tapOn:
+    text: "Color"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "layout_text_colors"
+- assertVisible:
+    id: "sbTextTransparent"
+- assertVisible:
+    id: "rvSolidColorPicker"
+
+# Chọn màu đơn sắc (Solid Color) từ dải màu
+- tapOn:
+    id: "color"
+    index: 2
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Cuộn ngang đến cuối dải màu đơn sắc (Solid Color)
+- repeat:
+    times: 3
+    commands:
+      - swipe:
+          from:
+            id: "rvSolidColorPicker"
+          direction: LEFT
+          duration: 300
+      - waitForAnimationToEnd:
+          timeout: 500
+
+- tapOn:
+    id: "color"
+    childOf:
+      id: "rvSolidColorPicker"
+    index: 3
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Chọn màu chuyển sắc (Gradient Color) từ dải màu Gradient
+- tapOn:
+    id: "color"
+    childOf:
+      id: "rvGradientColorPicker"
+    index: 0
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Cuộn ngang đến cuối dải màu Gradient
+- repeat:
+    times: 3
+    commands:
+      - swipe:
+          from:
+            id: "rvGradientColorPicker"
+          direction: LEFT
+          duration: 300
+      - waitForAnimationToEnd:
+          timeout: 500
+
+- tapOn:
+    id: "color"
+    childOf:
+      id: "rvGradientColorPicker"
+    index: 2
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Thử áp dụng mẫu texture đầu tiên (mẫu miễn phí)
+- tapOn:
+    id: "imageView"
+    childOf:
+      id: "recyclerTexture"
+    index: 0
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Cuộn ngang đến cuối dải Texture
+- repeat:
+    times: 3
+    commands:
+      - swipe:
+          from:
+            id: "recyclerTexture"
+          direction: LEFT
+          duration: 300
+      - waitForAnimationToEnd:
+          timeout: 500
+
+# Cuộn ngược lại dải Texture sang phải
+- repeat:
+    times: 3
+    commands:
+      - swipe:
+          from:
+            id: "recyclerTexture"
+          direction: RIGHT
+          duration: 300
+      - waitForAnimationToEnd:
+          timeout: 500
+
+# Gỡ bỏ texture để giữ lại màu sắc thiết kế
+- tapOn:
+    id: "imgRemoveTexture"
+
+- waitForAnimationToEnd:
+    timeout: 1500
+
+- takeScreenshot: "screenshots/Text_SubTab_Color_Applied"
+
+# ==============================================================================
+# SUB-TAB 3: SHADOW (BÓNG ĐỔ VĂN BẢN)
+# ==============================================================================
+# Step 13: Kích hoạt Sub-Tab Shadow và cấu hình bóng đổ
+- tapOn:
+    text: "Shadow"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "layout_text_shadow"
+- assertVisible:
+    id: "sbShadowLevel"
+
+# Kéo tăng mức độ bóng đổ qua thanh trượt Shadow Level
+- swipe:
+    from:
+      id: "sbShadowLevel"
+    direction: RIGHT
+    duration: 500
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Chọn màu cho bóng đổ (ví dụ màu thứ 3 trong dải màu)
+- tapOn:
+    id: "color"
+    childOf:
+      id: "rvSolidColorPicker"
+    index: 2
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Cuộn ngang dải màu bóng đổ (Shadow Color) và chọn màu mới
+- swipe:
+    from:
+      id: "rvSolidColorPicker"
+    direction: LEFT
+    duration: 500
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "color"
+    childOf:
+      id: "rvSolidColorPicker"
+    index: 3
+
+- waitForAnimationToEnd:
+    timeout: 1500
+
+- takeScreenshot: "screenshots/Text_SubTab_Shadow_Applied"
+
+# ==============================================================================
+# SUB-TAB 4: BACKGROUND (NỀN VĂN BẢN)
+# ==============================================================================
+# Step 14: Kích hoạt Sub-Tab Background và cấu hình nền văn bản
+- tapOn:
+    text: "Background"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "layout_text_background"
+- assertVisible:
+    id: "sbBGTransparent"
+
+# Thử áp dụng mẫu texture nền đầu tiên (mẫu miễn phí)
+- tapOn:
+    id: "imageView"
+    childOf:
+      id: "recyclerTexture"
+    index: 0
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Cuộn ngang dải Texture nền sang trái để khám phá các mẫu texture nền tiếp theo
+- swipe:
+    from:
+      id: "recyclerTexture"
+    direction: LEFT
+    duration: 500
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Cuộn ngược lại dải Texture nền sang phải
+- swipe:
+    from:
+      id: "recyclerTexture"
+    direction: RIGHT
+    duration: 500
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Gỡ bỏ texture nền để dùng màu nền trơn
+- tapOn:
+    id: "imgRemoveTexture"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Chọn màu nền cho text frame
+- tapOn:
+    id: "color"
+    childOf:
+      id: "rvSolidColorPicker"
+    index: 1
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Cuộn ngang dải màu nền Background và chọn màu nền mới
+- swipe:
+    from:
+      id: "rvSolidColorPicker"
+    direction: LEFT
+    duration: 500
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "color"
+    childOf:
+      id: "rvSolidColorPicker"
+    index: 2
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Giảm nhẹ độ mờ đục của nền để tạo hiệu ứng bán trong suốt
+- swipe:
+    from:
+      id: "sbBGTransparent"
+    direction: LEFT
+    duration: 500
+
+- waitForAnimationToEnd:
+    timeout: 1500
+
+- takeScreenshot: "screenshots/Text_SubTab_Background_Applied"
+
+# ==============================================================================
+# SUB-TAB 5: OUTLINE (VIỀN CHỮ NGHỆ THUẬT)
+# ==============================================================================
+# Step 15: Kích hoạt Sub-Tab Outline và cấu hình viền chữ
+# Vuốt nhẹ thanh menu sub-tab sang trái để lộ rõ tab Outline, Curve, 3D
+- swipe:
+    from:
+      id: "layout_text_editor_menu"
+    direction: LEFT
+    duration: 400
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    text: "Outline"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "layout_sticker_outline"
+- assertVisible:
+    id: "sbOutlineWidth"
+
+# Kéo tăng độ dày đường viền chữ qua thanh trượt Outline Width
+- swipe:
+    from:
+      id: "sbOutlineWidth"
+    direction: RIGHT
+    duration: 500
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Chọn màu viền chữ tương phản (ví dụ màu ô đầu tiên)
+- tapOn:
+    id: "color"
+    childOf:
+      id: "rvSolidColorPicker"
+    index: 0
+
+- waitForAnimationToEnd:
+    timeout: 1500
+
+# Cuộn ngang dải màu viền chữ Outline và chọn màu viền mới
+- swipe:
+    from:
+      id: "rvSolidColorPicker"
+    direction: LEFT
+    duration: 500
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "color"
+    childOf:
+      id: "rvSolidColorPicker"
+    index: 2
+
+- waitForAnimationToEnd:
+    timeout: 1500
+
+- takeScreenshot: "screenshots/Text_SubTab_Outline_Applied"
+
+# ==============================================================================
+# SUB-TAB 6: CURVE (UỐN CONG & GIÃN CÁCH KÝ TỰ)
+# ==============================================================================
+# Step 16: Kích hoạt Sub-Tab Curve và cấu hình độ uốn cong
+- tapOn:
+    text: "Curve"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "layout_text_curve"
+- assertVisible:
+    id: "seekbarCurve"
+- assertVisible:
+    id: "seekbarCharSpacing"
+
+# Uốn cong chữ vòm trên bằng cách kéo thanh trượt Curve
+- swipe:
+    from:
+      id: "seekbarCurve"
+    direction: RIGHT
+    duration: 500
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Tăng khoảng cách giữa các ký tự bằng cách kéo thanh trượt Char Spacing
+- swipe:
+    from:
+      id: "seekbarCharSpacing"
+    direction: RIGHT
+    duration: 500
+
+- waitForAnimationToEnd:
+    timeout: 1500
+
+- takeScreenshot: "screenshots/Text_SubTab_Curve_Applied"
+
+# Cuộn thanh sub-tab đến tab 3D
+- swipe:
+    from:
+      id: "layout_text_editor_menu"
+    direction: LEFT
+    duration: 400
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# ==============================================================================
+# SUB-TAB 7: 3D (XOAY KHÔNG GIAN 3 CHIỀU)
+# ==============================================================================
+# Step 17: Kích hoạt Sub-Tab 3D và cấu hình góc xoay 3 chiều
+- tapOn:
+    text: "3D"
+    childOf:
+      id: "layout_text_editor_menu"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "layout_text_3d"
+- assertVisible:
+    id: "seekbarXRotation"
+- assertVisible:
+    id: "seekbarYRotation"
+- assertVisible:
+    id: "seekbarZRotation"
+
+# Xoay chữ theo trục hoành X (nghiêng phối cảnh 3D)
+- swipe:
+    from:
+      id: "seekbarXRotation"
+    direction: RIGHT
+    duration: 500
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Xoay chữ theo trục tung Y (nghiêng trái/phải 3D)
+- swipe:
+    from:
+      id: "seekbarYRotation"
+    direction: RIGHT
+    duration: 500
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- takeScreenshot: "screenshots/Text_SubTab_3D_Applied"
+
+# ==============================================================================
+# KIỂM THỬ TÍCH HỢP: UNDO / REDO & DI CHUYỂN TRÊN CANVAS
+# ==============================================================================
+# Step 18: Kiểm thử Hoàn tác (Undo) và Làm lại (Redo)
+- tapOn:
+    id: "ivUndo"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "ivRedo"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Step 19: Di chuyển Text Frame "SPECIAL" trên Canvas sang vị trí mới
+- tapOn:
+    point: "50%, 23%"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- swipe:
+    start: "50%, 23%"
+    end: "50%, 33%"
+    duration: 800
+
+- waitForAnimationToEnd:
+    timeout: 1500
+
+# Step 20: Chụp ảnh màn hình kết quả hoàn chỉnh cuối cùng
+- takeScreenshot: "screenshots/Text_SubTabs_All_Applied_Result"

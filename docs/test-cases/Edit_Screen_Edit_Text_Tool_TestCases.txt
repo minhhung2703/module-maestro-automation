@@ -1,0 +1,381 @@
+====================================================================================================
+           BỘ TEST CASES KIỂM THỬ TÍNH NĂNG EDIT TEXT TOOL - MÀN EDIT (LOGO MAKER)
+====================================================================================================
+Ứng dụng: Logo Maker (Logos4U)
+Application ID: com.thmobile.logomaker
+Platform: Android
+Framework kiểm thử: Maestro Automation Framework
+Màn hình kiểm thử: Edit Screen (Template Detail) & Màn hình Input Text (Soạn thảo văn bản)
+Phân hệ tính năng: Edit Text Tool (Chỉnh sửa nội dung văn bản qua nút EDIT và màn hình Input Text)
+Luồng điều hướng: Home > Template > Category "Restaurant" (Template đầu tiên) > Edit Screen > Layer Text > Nút "EDIT" (hoặc Tab "Text") > Màn hình "Input Text"
+Ngày tạo: 2026-10-15
+Tài nguyên Hierarchy: layout_text_editor_menu, layout_text_controls, btnEdit, editText, numOfLetters, cardLetters, item_apply, banner...
+====================================================================================================
+
+I. DANH SÁCH RESOURCE-ID & VIEW PHÂN TÍCH TỪ THIẾT BỊ THẬT (UI DUMP)
+----------------------------------------------------------------------------------------------------
+1. Thanh Toolbar & Điều hướng chung trên Edit Screen:
+   - android.widget.ImageButton (desc: "Navigate up")   : Nút quay lại màn hình trước
+   - Text "Logos4U"                                     : Tiêu đề màn hình thiết kế
+   - com.thmobile.logomaker:id/mnItemSave               : Nút Lưu / Xuất logo (Save / Export)
+   - com.thmobile.logomaker:id/imageViewLayerTag        : Icon mở hộp thoại quản lý Layer
+   - com.thmobile.logomaker:id/imageShowGrid            : Icon bật / tắt lưới căn chỉnh (Grid)
+   - com.thmobile.logomaker:id/btnUndo (ivUndo)         : Nút Hoàn tác (Undo)
+   - com.thmobile.logomaker:id/btnRedo (ivRedo)         : Nút Làm lại (Redo)
+   - com.thmobile.logomaker:id/btnClosePanel            : Nút mũi tên thu gọn / đóng bảng công cụ dưới
+
+2. Container Công cụ Text & Thanh Điều khiển (Edit Screen):
+   - com.thmobile.logomaker:id/itemText                 : Tab công cụ Text (Thanh bottom chính - mở Input Text khi tạo text mới)
+   - com.thmobile.logomaker:id/layout_text_editor_menu  : Container cuộn ngang chứa các sub-tab Text
+   - Sub-tab "Controls" (Text: "Controls")             : Điều hướng vị trí, căn lề, duplicate, edit
+   - com.thmobile.logomaker:id/layout_text_controls     : Container chứa bảng nút điều khiển Text
+   - com.thmobile.logomaker:id/btnEdit (Text: "EDIT")   : Nút màu cam mở màn hình Input Text để sửa nội dung layer đang chọn
+   - com.thmobile.logomaker:id/btnDuplicate (DUPLICATE) : Nút nhân bản text layer
+   - com.thmobile.logomaker:id/layout_text_align        : Nhóm 3 nút căn chỉnh lề (Trái, Giữa, Phải)
+
+3. Màn hình Soạn thảo Văn bản ("Input Text" Screen):
+   A. Thanh Toolbar Input Text:
+      - android.widget.ImageButton (desc: "Navigate up"): Nút Hủy (Back) và quay lại Edit Screen mà không lưu thay đổi
+      - android.widget.TextView (text: "Input Text")    : Tiêu đề màn hình soạn thảo
+      - com.thmobile.logomaker:id/item_apply (desc: Apply): Nút Checkmark (Dấu tick) góc trên bên phải để xác nhận lưu nội dung text
+
+   B. Bộ đếm ký tự (Character Counter Capsule):
+      - com.thmobile.logomaker:id/cardLetters           : CardView khung bo góc tròn chứa bộ đếm
+      - com.thmobile.logomaker:id/numOfLetters          : TextView hiển thị số ký tự đã nhập trên giới hạn tối đa (ví dụ: "0/40", "4/40", "40/40")
+
+   C. Vùng nhập liệu (Input Field):
+      - com.thmobile.logomaker:id/editText              : EditText nhập văn bản (Hint: "Your Text Here...", căn giữa, hỗ trợ bàn phím hệ thống)
+
+   D. Quảng cáo & Thông báo:
+      - com.thmobile.logomaker:id/banner                : FrameLayout quảng cáo AdMob Adaptive Banner ở phần trên màn hình
+      - Toast Notification ("Please input text")        : Thông báo lỗi xuất hiện khi người dùng nhấn Apply với nội dung rỗng
+
+
+====================================================================================================
+II. CHI TIẾT CÁC TEST CASES THEO TỪNG NHÓM CHỨC NĂNG
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+NHÓM 1: UI & VISUAL DISPLAY TEST CASES (Kiểm thử Giao diện Màn hình Input Text)
+----------------------------------------------------------------------------------------------------
+
+[TC_EDIT_UI_01] Mở màn hình Input Text từ nút "EDIT" của Text Layer đã có sẵn
+- Mục tiêu: Xác nhận khi chọn một layer Text trên Canvas và nhấn nút "EDIT", ứng dụng chuyển sang màn hình Input Text với đầy đủ các thành phần UI.
+- Điều kiện tiên quyết: Mở app -> Chọn Template đầu tiên của chủ đề "Restaurant" -> Đang ở Edit Screen.
+- Các bước thực hiện:
+  1. Nhấn vào đối tượng Text trên Canvas (ví dụ chữ "FOOD" tại tọa độ khoảng "850, 900").
+  2. Xác nhận thanh sub-tab Text hiển thị và đang ở tab "Controls".
+  3. Nhấn vào nút "EDIT" màu cam (id: "btnEdit").
+  4. Kiểm tra các thành phần giao diện trên màn hình Input Text:
+     + Toolbar hiển thị nút Back ("Navigate up"), tiêu đề "Input Text", nút Apply (id: "item_apply").
+     + Bộ đếm ký tự (id: "numOfLetters") hiển thị độ dài text hiện tại (ví dụ: "4/40").
+     + Trường nhập liệu (id: "editText") chứa đúng chuỗi văn bản của layer ("FOOD").
+     + Bàn phím ảo hệ thống tự động bật lên sẵn sàng soạn thảo.
+- Kết quả mong đợi: Toàn bộ các view hiển thị đầy đủ, đúng ngữ cảnh chỉnh sửa layer hiện tại.
+- Maestro Selectors:
+  - tapOn: { point: "850, 900" }
+  - assertVisible: { id: "btnEdit" }
+  - tapOn: { id: "btnEdit" }
+  - assertVisible: "Input Text"
+  - assertVisible: { id: "item_apply" }
+  - assertVisible: { id: "numOfLetters" }
+  - assertVisible: { id: "editText", text: "FOOD" }
+
+[TC_EDIT_UI_02] Mở màn hình Input Text từ Tab "Text" ở thanh công cụ chính (Tạo Text mới)
+- Mục tiêu: Xác nhận khi nhấn nút "Text" ở bottom navigation bar, màn hình Input Text mở ra với trạng thái trắng ban đầu.
+- Các bước thực hiện:
+  1. Tại Edit Screen, nhấn vào tab "Text" (id: "itemText").
+- Kết quả mong đợi:
+  + Màn hình "Input Text" mở ra.
+  + Trường editText hiển thị placeholder "Your Text Here...".
+  + Bộ đếm numOfLetters hiển thị "0/40".
+  + Nút Apply sẵn sàng nhận thao tác.
+- Maestro Selectors:
+  - tapOn: { id: "itemText" }
+  - assertVisible: "Input Text"
+  - assertVisible: { id: "numOfLetters", text: "0/40" }
+
+[TC_EDIT_UI_03] Visual Regression Testing - So sánh giao diện Input Text Screen với Baseline
+- Mục tiêu: Kiểm tra độ đồng nhất hiển thị giao diện soạn thảo văn bản với ảnh chuẩn thiết kế.
+- Điều kiện tiên quyết: Đã có ảnh baseline trong thư mục assets/.
+- Các bước thực hiện:
+  1. Điều hướng tới màn hình Input Text.
+  2. Ẩn bàn phím ảo (hideKeyboard).
+  3. Chụp ảnh màn hình: takeScreenshot: "screenshots/Input_Text_Screen_Default".
+  4. Đối soát hình ảnh với baseline.
+- Kết quả mong đợi: Độ tương đồng đạt >= 95%.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 2: TEXT INPUT & REAL-TIME COUNTER TEST CASES (Kiểm thử Nhập liệu & Đếm ký tự Thời gian thực)
+----------------------------------------------------------------------------------------------------
+
+[TC_EDIT_CNT_01] Bộ đếm ký tự cập nhật chính xác theo từng ký tự nhập vào (Real-time Typing)
+- Mục tiêu: Đảm bảo TextView numOfLetters tăng/giảm số đếm ngay lập tức theo số lượng ký tự thực tế trong editText.
+- Các bước thực hiện:
+  1. Mở màn hình Input Text (trạng thái rỗng "0/40").
+  2. Nhập lần lượt từng ký tự: "L" -> "O" -> "G" -> "O".
+  3. Quan sát text của numOfLetters sau mỗi ký tự.
+- Kết quả mong đợi:
+  + Sau "L": numOfLetters hiển thị "1/40".
+  + Sau "O": numOfLetters hiển thị "2/40".
+  + Sau "G": numOfLetters hiển thị "3/40".
+  + Sau "O": numOfLetters hiển thị "4/40".
+
+[TC_EDIT_CNT_02] Bộ đếm ký tự tính cả ký tự khoảng trắng (Space character)
+- Mục tiêu: Xác nhận khoảng trắng hợp lệ được tính là 1 ký tự trong tổng số 40 ký tự.
+- Các bước thực hiện:
+  1. Nhập chuỗi: "BURGER KING" (11 ký tự gồm 10 chữ cái và 1 khoảng trắng).
+- Kết quả mong đợi:
+  + numOfLetters hiển thị chính xác "11/40".
+
+[TC_EDIT_CNT_03] Bộ đếm ký tự khi xóa bớt nội dung (Backspace / Delete)
+- Mục tiêu: Xác nhận khi xóa ký tự, số đếm giảm tương ứng theo thời gian thực.
+- Các bước thực hiện:
+  1. Đang có chuỗi "BURGER KING" (11/40).
+  2. Nhấn phím Backspace 4 lần (xóa chữ "KING").
+- Kết quả mong đợi:
+  + Chuỗi còn lại: "BURGER " (7 ký tự).
+  + numOfLetters cập nhật tức thì thành "7/40".
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 3: CHARACTER LIMITATION & VALIDATION TEST CASES (Kiểm thử Giới hạn 40 Ký tự)
+----------------------------------------------------------------------------------------------------
+
+[TC_EDIT_LIM_01] Nhập chuỗi văn bản đạt chính xác giới hạn tối đa (40/40 ký tự)
+- Mục tiêu: Xác nhận hệ thống cho phép nhập đủ 40 ký tự mà không bị cắt bớt.
+- Các bước thực hiện:
+  1. Nhập chuỗi 40 ký tự: "1234567890123456789012345678901234567890".
+- Kết quả mong đợi:
+  + editText hiển thị trọn vẹn cả 40 ký tự.
+  + numOfLetters hiển thị chính xác "40/40".
+  + Toàn bộ text hiển thị rõ ràng trên màn hình.
+
+[TC_EDIT_LIM_02] Chặn nhập vượt quá giới hạn 40 ký tự (Max Length Enforcement)
+- Mục tiêu: Đảm bảo người dùng không thể gõ hoặc dán thêm ký tự nào một khi đã đạt ngưỡng 40 ký tự.
+- Các bước thực hiện:
+  1. Nhập chuỗi 45 ký tự vào editText: "123456789012345678901234567890123456789012345".
+- Kết quả mong đợi:
+  + editText chỉ tiếp nhận đúng 40 ký tự đầu tiên: "1234567890123456789012345678901234567890".
+  + 5 ký tự vượt quá ("12345") bị từ chối nhập hoàn toàn.
+  + numOfLetters dừng lại ở "40/40".
+
+[TC_EDIT_LIM_03] Dán văn bản dài (Paste) vượt quá 40 ký tự từ Clipboard
+- Mục tiêu: Kiểm tra cơ chế tự động cắt (auto-truncate) khi dán đoạn text dài vào trường soạn thảo.
+- Các bước thực hiện:
+  1. Sao chép một đoạn văn bản dài 100 ký tự vào bộ nhớ tạm.
+  2. Dán vào trường editText.
+- Kết quả mong đợi:
+  + Ứng dụng tự động cắt lấy đúng 40 ký tự đầu tiên.
+  + Ứng dụng không bị crash, bộ đếm hiển thị "40/40".
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 4: EMPTY TEXT & ERROR VALIDATION TEST CASES (Xử lý Chuỗi rỗng & Toast Cảnh báo)
+----------------------------------------------------------------------------------------------------
+
+[TC_EDIT_EMP_01] Nhấn nút Apply khi trường nhập liệu hoàn toàn rỗng (0/40)
+- Mục tiêu: Xác nhận ứng dụng chặn việc lưu text rỗng và hiển thị thông báo lỗi rõ ràng.
+- Các bước thực hiện:
+  1. Tại màn hình Input Text, xóa sạch toàn bộ ký tự trong editText (numOfLetters hiển thị "0/40").
+  2. Nhấn nút Apply (id: "item_apply").
+- Kết quả mong đợi:
+  + Ứng dụng KHÔNG thoát khỏi màn hình Input Text.
+  + Xuất hiện thông báo Toast: "Please input text".
+  + Con trỏ soạn thảo vẫn nhấp nháy trong editText sẵn sàng cho người dùng nhập lại.
+- Maestro Selectors:
+  - tapOn: { id: "item_apply" }
+  - assertVisible: "Please input text"
+
+[TC_EDIT_EMP_02] Nhấn nút Apply khi trường chỉ chứa toàn khoảng trắng (Whitespace Only)
+- Mục tiêu: Kiểm tra cơ chế trim() khoảng trắng khi kiểm tra tính hợp lệ của chuỗi.
+- Các bước thực hiện:
+  1. Xóa hết text, sau đó nhập 5 dấu cách: "     ".
+  2. Nhấn nút Apply.
+- Kết quả mong đợi:
+  + Ứng dụng nhận diện chuỗi không có ký tự hiển thị hợp lệ.
+  + Hiển thị thông báo "Please input text" và chặn điều hướng lưu.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 5: APPLY & CANVAS RENDERING TEST CASES (Kiểm thử Áp dụng lên Canvas & Bounding Box)
+----------------------------------------------------------------------------------------------------
+
+[TC_EDIT_APP_01] Áp dụng sửa đổi nội dung text có sẵn ("FOOD" -> "DRINKS")
+- Mục tiêu: Xác nhận khi nhấn nút Apply, nội dung chữ mới được cập nhật ngay lập tức lên Canvas và khung viền Bounding Box tự động co giãn ôm khít text mới.
+- Các bước thực hiện:
+  1. Chọn layer chữ "FOOD" trên Canvas -> Nhấn "EDIT".
+  2. Xóa chữ "FOOD" và nhập chữ "DRINKS".
+  3. Nhấn nút Apply (id: "item_apply").
+- Kết quả mong đợi:
+  + Màn hình Input Text đóng lại, ứng dụng quay về màn hình Edit Screen.
+  + Chữ "FOOD" trên Canvas được thay thế hoàn toàn bằng chữ "DRINKS".
+  + Khung viền chọn (Bounding Box) tự động mở rộng theo chiều ngang để vừa vặn với độ dài 6 ký tự của chữ "DRINKS".
+  + Các thuộc tính định dạng trước đó (Font chữ, màu sắc, bóng mờ, kích thước) được giữ nguyên vẹn 100%.
+- Maestro Selectors:
+  - eraseText
+  - inputText: "DRINKS"
+  - tapOn: { id: "item_apply" }
+  - assertVisible: "Logos4U"
+
+[TC_EDIT_APP_02] Thêm Text layer mới từ Tab "Text" và kiểm tra hiển thị trên Canvas
+- Mục tiêu: Kiểm tra tạo mới hoàn toàn một đối tượng văn bản từ thanh công cụ dưới.
+- Các bước thực hiện:
+  1. Nhấn tab "Text" (id: "itemText") ở bottom navigation bar.
+  2. Nhập chuỗi: "SPECIAL OFFER".
+  3. Nhấn Apply.
+- Kết quả mong đợi:
+  + Layer chữ mới "SPECIAL OFFER" xuất hiện tại vị trí trung tâm Canvas.
+  + Layer mới tự động ở trạng thái được chọn (Active) kèm Bounding Box 4 handle.
+  + Thanh công cụ chuyển sang bộ sub-tab Text (Controls, Fonts, Color...).
+
+[TC_EDIT_APP_03] Sửa đổi text của một layer đang có hiệu ứng Uốn cong (Curve Text)
+- Mục tiêu: Đảm bảo khi đổi nội dung text, hiệu ứng đường cong Curve tự động tính toán và uốn cong chuỗi chữ mới mượt mà.
+- Các bước thực hiện:
+  1. Chọn layer chữ "PREMIUM MENU" (đang có hiệu ứng cong hình cánh cung).
+  2. Nhấn "EDIT" -> Đổi thành "TASTY FOOD" -> Apply.
+- Kết quả mong đợi: Chuỗi chữ "TASTY FOOD" uốn cong chuẩn xác theo bán kính cong đã thiết lập.
+
+[TC_EDIT_APP_04] Sửa đổi text của một layer đang xoay 3D (3D Rotation)
+- Mục tiêu: Đảm bảo ma trận góc phối cảnh 3D không bị biến dạng hay reset khi đổi nội dung chữ.
+- Các bước thực hiện:
+  1. Đặt layer text ở góc xoay 3D (ví dụ X=20°, Y=20°).
+  2. Nhấn "EDIT" -> Đổi nội dung chữ -> Apply.
+- Kết quả mong đợi: Chữ mới xuất hiện và nằm trọn vẹn trong mặt phẳng phối cảnh 3D trước đó.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 6: CANCEL & DISCARD TEST CASES (Kiểm thử Hủy bỏ Thao tác & Bảo toàn Dữ liệu)
+----------------------------------------------------------------------------------------------------
+
+[TC_EDIT_CAN_01] Hủy chỉnh sửa bằng nút Back ("Navigate up") trên Toolbar
+- Mục tiêu: Xác nhận khi người dùng đã gõ nội dung mới nhưng nhấn nút Back, toàn bộ thay đổi bị hủy bỏ và text cũ được giữ nguyên.
+- Các bước thực hiện:
+  1. Layer đang hiển thị chữ "BEST".
+  2. Nhấn "EDIT" -> Nhập chuỗi mới: "SUPER QUALITY 2026".
+  3. Nhấn nút Back mũi tên trái ("Navigate up") trên Toolbar.
+- Kết quả mong đợi:
+  + Màn hình Input Text đóng lại, quay về Edit Screen.
+  + Layer trên Canvas vẫn hiển thị nguyên vẹn chữ "BEST", không bị đổi thành "SUPER QUALITY 2026".
+- Maestro Selectors:
+  - tapOn: "Navigate up"
+
+[TC_EDIT_CAN_02] Hủy chỉnh sửa bằng phím Back vật lý / cử chỉ Back hệ thống Android
+- Mục tiêu: Đảm bảo nút Back hệ thống hoạt động đồng bộ như nút Back Toolbar.
+- Các bước thực hiện:
+  1. Nhấn "EDIT" -> Gõ thay đổi nội dung -> Ẩn bàn phím -> Nhấn phím Back hệ thống.
+- Kết quả mong đợi: Màn hình Input Text đóng lại mà không áp dụng thay đổi.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 7: HISTORY (UNDO & REDO) TEST CASES (Kiểm thử Hoàn tác & Làm lại Nội dung Sửa đổi)
+----------------------------------------------------------------------------------------------------
+
+[TC_EDIT_HIS_01] Hoàn tác (Undo) sau khi đổi nội dung văn bản thành công
+- Mục tiêu: Xác nhận nút Undo trên Edit Screen khôi phục lại chuỗi văn bản ban đầu trước khi sửa.
+- Các bước thực hiện:
+  1. Sửa chữ "BEST" thành "SUPER" -> Nhấn Apply.
+  2. Tại Edit Screen, quan sát chữ "SUPER" trên Canvas.
+  3. Nhấn nút Undo (id: "ivUndo" hoặc "btnUndo").
+- Kết quả mong đợi:
+  + Chữ trên Canvas lập tức hoàn tác quay trở lại thành chữ "BEST".
+  + Bounding box tự co lại theo kích thước của chữ "BEST".
+- Maestro Selectors:
+  - tapOn: { id: "ivUndo" }
+
+[TC_EDIT_HIS_02] Làm lại (Redo) phục hồi lại chuỗi văn bản vừa Undo
+- Mục tiêu: Xác nhận nút Redo áp dụng lại nội dung vừa bị hoàn tác.
+- Các bước thực hiện:
+  1. Sau khi đã Undo về chữ "BEST".
+  2. Nhấn nút Redo (id: "ivRedo" hoặc "btnRedo").
+- Kết quả mong đợi: Chữ trên Canvas đổi lại thành "SUPER".
+- Maestro Selectors:
+  - tapOn: { id: "ivRedo" }
+
+[TC_EDIT_HIS_03] Lịch sử chỉnh sửa chuỗi nhiều lần liên tiếp (Multi-step History)
+- Mục tiêu: Kiểm tra Action Stack lưu trữ chính xác chuỗi hành động sửa đổi liên tục.
+- Các bước thực hiện:
+  1. Sửa text lần 1: "FOOD" -> "DRINKS".
+  2. Sửa text lần 2: "DRINKS" -> "COFFEE".
+  3. Sửa text lần 3: "COFFEE" -> "TEA".
+  4. Nhấn Undo lần 1 -> Trở về "COFFEE".
+  5. Nhấn Undo lần 2 -> Trở về "DRINKS".
+  6. Nhấn Undo lần 3 -> Trở về "FOOD".
+- Kết quả mong đợi: Toàn bộ lịch sử hoàn tác hoạt động chuẩn xác từng bước theo nguyên tắc LIFO (Last In First Out).
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 8: SPECIAL CHARACTERS & LOCALIZATION TEST CASES (Kiểm thử Ký tự đặc biệt, Tiếng Việt & Emoji)
+----------------------------------------------------------------------------------------------------
+
+[TC_EDIT_LOC_01] Nhập chuỗi Tiếng Việt có dấu đầy đủ thanh điệu
+- Mục tiêu: Đảm bảo bộ gõ Tiếng Việt (Telex/VNI) hoạt động chuẩn, không lỗi font chữ và đếm đúng số ký tự.
+- Các bước thực hiện:
+  1. Nhập chuỗi Tiếng Việt: "QUÁN ĂN NGON ĐẬM ĐÀ".
+  2. Kiểm tra hiển thị trong editText và số ký tự trên numOfLetters (20/40).
+  3. Nhấn Apply -> Quan sát render trên Canvas.
+- Kết quả mong đợi:
+  + Các ký tự có dấu hiển thị sắc nét, không bị ô vuông hay lỗi font chữ (tofu character).
+  + Canvas render đúng chuỗi Tiếng Việt đã nhập.
+
+[TC_EDIT_LOC_02] Nhập ký tự số và ký tự biểu tượng đặc biệt (Numbers & Symbols)
+- Mục tiêu: Kiểm tra xử lý các ký tự: @, #, $, %, &, *, (), -, +, /, !, ?
+- Các bước thực hiện:
+  1. Nhập chuỗi: "HOT 100% #1 RESTAURANT & BAR!".
+  2. Nhấn Apply.
+- Kết quả mong đợi: Toàn bộ ký tự số và ký hiệu đặc biệt được lưu và render chính xác trên Canvas.
+
+[TC_EDIT_LOC_03] Nhập biểu tượng cảm xúc (Emoji)
+- Mục tiêu: Kiểm tra cách ứng dụng xử lý ký tự Unicode đa byte (Surrogate pairs).
+- Các bước thực hiện:
+  1. Nhập chuỗi kết hợp chữ và Emoji: "BEST BURGER 🍔🔥⭐".
+  2. Quan sát numOfLetters.
+  3. Nhấn Apply.
+- Kết quả mong đợi:
+  + Emoji hiển thị đúng màu sắc biểu cảm.
+  + Bộ đếm ký tự tính toán độ dài chuẩn xác theo chuẩn Unicode.
+  + Ứng dụng không bị crash khi render Emoji lên Canvas đồ họa.
+
+[TC_EDIT_LOC_04] Thao tác xuống dòng (Multi-line Text)
+- Mục tiêu: Kiểm tra tính năng xuống dòng trong cùng một text layer bằng phím Enter.
+- Các bước thực hiện:
+  1. Nhập dòng 1: "COFFEE SHOP".
+  2. Nhấn phím Enter trên bàn phím ảo.
+  3. Nhập dòng 2: "SINCE 1990".
+  4. Nhấn Apply.
+- Kết quả mong đợi:
+  + Trên Canvas, layer hiển thị thành 2 dòng riêng biệt căn lề chuẩn xác.
+  + Bounding box bao quanh cả 2 dòng text.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 9: STABILITY & SYSTEM TEST CASES (Kiểm thử Độ ổn định & Xử lý Ngoại lệ Hệ thống)
+----------------------------------------------------------------------------------------------------
+
+[TC_EDIT_SYS_01] Đưa ứng dụng xuống Background khi đang mở màn hình Input Text rồi mở lại
+- Mục tiêu: Đảm bảo nội dung đang gõ dở dang không bị biến mất khi có ngắt quãng hệ thống (cuộc gọi đến, ấn nhầm Home).
+- Các bước thực hiện:
+  1. Đang gõ dở chuỗi "RESTAURANT PREMIUM 2026" trên Input Text screen.
+  2. Nhấn nút Home đưa app xuống Background 5 giây.
+  3. Mở lại app Logo Maker từ danh sách Recent Apps.
+- Kết quả mong đợi: Màn hình Input Text khôi phục nguyên vẹn, chuỗi chữ đang gõ dở vẫn nằm trong editText, con trỏ đúng vị trí.
+
+[TC_EDIT_SYS_02] Xoay ngang màn hình (Screen Orientation Change) trên màn hình Input Text
+- Mục tiêu: Kiểm tra trường editText và bộ đếm numOfLetters không bị reset khi cấu hình xoay đổi.
+- Các bước thực hiện:
+  1. Đang có text trong editText.
+  2. Xoay thiết bị sang chế độ ngang (Landscape).
+- Kết quả mong đợi: Giao diện thích ứng linh hoạt, dữ liệu text được bảo toàn nguyên vẹn.
+
+[TC_EDIT_SYS_03] Kiểm tra không bị xung đột cảm ứng với Banner Ads trên Input Text Screen
+- Mục tiêu: Đảm bảo quảng cáo banner AdMob (id: "banner") nằm gọn gàng phía trên, không che mất thanh Toolbar hoặc trường editText.
+- Kết quả mong đợi: Người dùng có thể nhấn nút Back và nút Apply dễ dàng mà không bị chạm nhầm vào banner quảng cáo.
+
+[TC_EDIT_SYS_04] Chuyển đổi liên tục giữa Edit Screen và Input Text Screen (Stress Screen Switching)
+- Mục tiêu: Kiểm tra độ ổn định bộ nhớ (Memory Leak) và hiệu năng khi người dùng mở rồi đóng màn hình soạn thảo liên tục 10 lần.
+- Kết quả mong đợi: Màn hình mở và đóng mượt mà, không xảy ra hiện tượng chậm dần hay Application Not Responding (ANR).
+
+====================================================================================================
+KẾT THÚC BỘ TEST CASES KIỂM THỬ EDIT TEXT TOOL - MÀN EDIT
+====================================================================================================

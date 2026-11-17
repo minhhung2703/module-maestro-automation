@@ -1,0 +1,229 @@
+appId: com.thmobile.logomaker
+---
+
+# ==============================================================================
+# TC_08_Test_Home_Screen
+# Kiểm thử toàn diện màn hình chính (Home Screen): UI Display, Cards, IAP & Navigation
+# Tự động thích ứng linh hoạt với quảng cáo và cuộn trang
+# Tài liệu tham chiếu: Home_Screen_TestCases.txt
+# ==============================================================================
+
+# Step 1: Khởi động ứng dụng
+- runFlow: "../config/Launch_App.yaml"
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Step 2: Xử lý popup IAP hoặc Ads khởi động (nếu có)
+- runFlow:
+    when:
+      visible:
+        text: "Get Full Access"
+    file: "../config/Close_IAP_Screen.yaml"
+
+- runFlow:
+    when:
+      visible:
+        text: "Skip the free trial?"
+    commands:
+      - tapOn: "No thanks"
+
+- runFlow:
+    when:
+      visible:
+        text: "Close"
+    file: "../config/Close_Ads_Screen.yaml"
+
+- runFlow:
+    when:
+      visible: "Close button"
+    commands:
+      - tapOn: "Close button"
+
+- runFlow:
+    when:
+      visible:
+        id: "btn_close"
+    file: "../config/Close_Discount_Popup.yaml"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# ==============================================================================
+# NHÓM 1: KIỂM THỬ GIAO DIỆN & HIỂN THỊ (UI & VISUAL DISPLAY)
+# ==============================================================================
+
+# Step 3: Kiểm tra Toolbar & Header
+- assertVisible: "Logos4U"
+
+- assertVisible:
+    id: "itemGetPro"
+
+- assertVisible:
+    id: "clGiftBox"
+
+# Step 4: Kiểm tra hiển thị Card Template & Card AI Studio ở phần trên
+- assertVisible: "Template"
+
+- assertVisible: "AI Studio"
+
+# Step 5: Cuộn hiển thị và kiểm tra các Card ở phần dưới (Create Logo, Auto Design, My Logo, My Design)
+- scrollUntilVisible:
+    element: "My Design"
+    direction: DOWN
+    timeout: 10000
+
+- assertVisible: "Create Logo"
+
+- assertVisible: "Auto Design"
+
+- assertVisible: "My Logo"
+
+- assertVisible: "My Design"
+
+# Step 6: Kiểm tra Bottom IAP Banner
+- assertVisible:
+    id: "tvProDes1"
+
+# Step 7: Cuộn trở lại đầu trang Home và chụp ảnh màn hình (Visual Regression)
+- scrollUntilVisible:
+    element: "Template"
+    direction: UP
+    timeout: 10000
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- takeScreenshot: "screenshots/Home_Screen"
+
+# ==============================================================================
+# NHÓM 2: KIỂM THỬ ĐIỀU HƯỚNG TỪ HOME (NAVIGATION TESTING)
+# ==============================================================================
+
+# Step 8: Điều hướng mở màn hình Template
+- scrollUntilVisible:
+    element: "Template"
+    direction: UP
+    timeout: 10000
+
+- tapOn: "Template"
+
+# Xử lý quảng cáo nếu có
+- runFlow:
+    when:
+      visible:
+        text: "Test Ad"
+    file: "../config/Close_Ads_Screen.yaml"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- assertVisible: "Select Template"
+
+# Quay lại màn hình Home
+- back
+
+# Đóng quảng cáo khi quay lại (nếu có)
+- runFlow:
+    when:
+      visible:
+        text: "Test Ad"
+    file: "../config/Close_Ads_Screen.yaml"
+
+- runFlow:
+    when:
+      visible: "Close button"
+    commands:
+      - tapOn: "Close button"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible: "Logos4U"
+
+# Step 9: Điều hướng mở màn hình My Design
+- scrollUntilVisible:
+    element: "My Design"
+    direction: DOWN
+    timeout: 10000
+
+- tapOn: "My Design"
+
+- runFlow:
+    when:
+      visible:
+        text: "Test Ad"
+    file: "../config/Close_Ads_Screen.yaml"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Quay lại màn hình Home
+- back
+
+- runFlow:
+    when:
+      visible:
+        text: "Test Ad"
+    file: "../config/Close_Ads_Screen.yaml"
+
+- runFlow:
+    when:
+      visible: "Close button"
+    commands:
+      - tapOn: "Close button"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible: "Logos4U"
+
+# ==============================================================================
+# NHÓM 3: KIỂM THỬ MỞ MÀN HÌNH IAP TỪ TOOLBAR
+# ==============================================================================
+
+# Step 10: Mở IAP từ icon Crown VIP trên Toolbar
+- scrollUntilVisible:
+    element: "Template"
+    direction: UP
+    timeout: 10000
+
+- tapOn:
+    id: "itemGetPro"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- assertVisible: "Get Full Access"
+
+# Đóng màn hình IAP quay lại Home
+- tapOn:
+    id: "btn_cancel"
+
+- runFlow:
+    when:
+      visible:
+        text: "Skip the free trial?"
+    commands:
+      - tapOn: "No thanks"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- assertVisible: "Logos4U"
+
+- back
+
+- assertVisible: "Do you want to exit Logo Maker?"
+- assertVisible: "Cancel"
+- assertVisible: "Yes"
+
+- tapOn: "Cancel"
+
+- back
+
+- assertVisible: "Do you want to exit Logo Maker?"
+- assertVisible: "Cancel"
+- assertVisible: "Yes"
+
+- tapOn: "Yes"

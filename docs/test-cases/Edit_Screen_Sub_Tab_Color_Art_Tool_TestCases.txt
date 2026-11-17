@@ -1,0 +1,550 @@
+====================================================================================================
+               BỘ TEST CASES KIỂM THỬ TÍNH NĂNG SUB TAB COLOR - MÀN HÌNH EDIT (LOGO MAKER)
+====================================================================================================
+Ứng dụng: Logo Maker (Logos4U)
+Application ID: com.thmobile.logomaker
+Platform: Android
+Framework kiểm thử: Maestro Automation Framework
+Màn hình kiểm thử: Edit Screen (Template Detail / Trình chỉnh sửa thiết kế)
+Phân hệ tính năng: Sub Tab "Color" thuộc thanh công cụ Art Tool
+Luồng điều hướng: Home > Template > Category "Restaurant" (Template đầu tiên) > Edit Screen > Layer Art > Sub-tab Color
+Ngày tạo: 2026-10-13
+====================================================================================================
+
+I. DANH SÁCH RESOURCE-ID & VIEW PHÂN TÍCH TỪ THIẾT BỊ THẬT (UI DUMP)
+----------------------------------------------------------------------------------------------------
+1. Thanh Toolbar & Điều hướng chung trên Edit Screen:
+   - android.widget.ImageButton (desc: "Navigate up")   : Nút quay lại màn hình trước
+   - Text "Logos4U"                                     : Tiêu đề màn hình
+   - com.thmobile.logomaker:id/mnItemSave               : Nút Lưu / Xuất logo (Save / Export)
+   - com.thmobile.logomaker:id/imageViewLayerTag        : Icon mở hộp thoại quản lý Layer
+   - com.thmobile.logomaker:id/imageShowGrid            : Icon bật / tắt lưới căn chỉnh (Grid)
+   - com.thmobile.logomaker:id/btnUndo (ivUndo)         : Nút Hoàn tác (Undo)
+   - com.thmobile.logomaker:id/btnRedo (ivRedo)         : Nút Làm lại (Redo)
+   - com.thmobile.logomaker:id/btnClosePanel            : Nút mũi tên thu gọn / đóng bảng công cụ dưới
+
+2. Container Công cụ Art & Thanh Sub-Tab:
+   - com.thmobile.logomaker:id/itemArt                  : Tab công cụ Art (Thanh bottom chính)
+   - com.thmobile.logomaker:id/layout_art_editor_menu   : Container cuộn ngang chứa các sub-tab
+   - Sub-tab "Controls" (Text: "Controls")              : Điều hướng vị trí, layer up/down, duplicate
+   - Sub-tab "Color" (Text: "Color")                    : Thanh công cụ màu sắc & hiệu ứng màu
+   - Sub-tab "Outline" (Text: "Outline")                : Tạo viền cho đối tượng
+   - Sub-tab "3D" (Text: "3D")                          : Hiệu ứng 3D xoay chiều
+
+3. Các thành phần chính trong Container Color (`layout_art_color`):
+   A. Khu vực Độ mờ đục (Opacity / Transparency Slider):
+      - com.thmobile.logomaker:id/icon_transparent      : Icon hình tròn kẻ sọc biểu thị Opacity
+      - com.thmobile.logomaker:id/seekbarTransparent    : Thanh trượt SeekBar điều chỉnh độ mờ đục (0 - 100)
+      - com.thmobile.logomaker:id/tvTransparent         : TextView hiển thị phần trăm mờ đục (Mặc định: 100)
+
+   B. Khu vực Màu đơn sắc (Solid Color Palette):
+      - com.thmobile.logomaker:id/imgColorPicker        : Icon ống hút màu (Eyedropper) trên Canvas
+      - com.thmobile.logomaker:id/imgPalette            : Icon bảng màu tròn (Mở dialog chọn màu nâng cao)
+      - com.thmobile.logomaker:id/rvSolidColorPicker    : RecyclerView cuộn ngang danh sách màu đơn sắc
+      - com.thmobile.logomaker:id/color                 : ImageView từng ô màu (Bao gồm màu Reset/Transparent, Đen, Trắng, Đỏ, Xanh lá, Xanh dương, Vàng, Cyan, Hồng...)
+
+   C. Màn hình Hút màu Canvas ("Select Color" - Eyedropper):
+      - android.widget.ImageButton (desc: "Navigate up"): Nút Hủy và quay lại Edit Screen
+      - TextView (text: "Select Color")                 : Tiêu đề màn hình hút màu
+      - com.thmobile.logomaker:id/item_apply            : Nút Áp dụng (Apply / Tick chọn màu)
+      - com.thmobile.logomaker:id/layout_picker         : Container khung màu xem trước
+      - com.thmobile.logomaker:id/layout_color_picker   : Hộp hiển thị màu được chọn trực tiếp
+      - com.thmobile.logomaker:id/imageView             : Ảnh canvas logo hiển thị để người dùng chạm hút màu
+
+   D. Hộp thoại Bảng màu Nâng cao ("Select a Color" Dialog):
+      - com.thmobile.logomaker:id/alertTitle            : Tiêu đề "Select a Color"
+      - com.thmobile.logomaker:id/gridView              : Lưới chứa 20 ô màu cơ bản
+      - com.thmobile.logomaker:id/cpv_color_panel_view  : Từng ô màu trong bảng
+      - com.thmobile.logomaker:id/cpv_color_image_view  : Dấu checkmark trắng đánh dấu màu đang chọn
+      - com.thmobile.logomaker:id/shades_layout         : Dải 5 sắc độ (Shades) từ đậm đến nhạt của màu đã chọn
+      - android:id/button3 (Text: "CUSTOM")             : Nút mở giao diện chọn màu tự do & nhập mã HEX
+      - android:id/button1 (Text: "SELECT")             : Nút xác nhận chọn màu
+
+   E. Hộp thoại Tùy biến Màu tự do & Mã HEX ("Custom Color"):
+      - com.thmobile.logomaker:id/cpv_color_picker_view : Vùng chọn màu 2D (Saturation/Value) + Thanh trượt Hue
+      - com.thmobile.logomaker:id/cpv_color_panel_old   : Khung màu cũ trước khi đổi
+      - com.thmobile.logomaker:id/cpv_arrow_right       : Icon mũi tên chuyển đổi
+      - com.thmobile.logomaker:id/cpv_color_panel_new   : Khung màu mới sau khi đổi
+      - com.thmobile.logomaker:id/cpv_hex               : EditText nhập/hiển thị mã màu HEX (ví dụ: "16062E")
+      - android:id/button3 (Text: "PRESETS")            : Nút quay lại bảng màu mẫu
+      - android:id/button1 (Text: "SELECT")             : Nút áp dụng màu HEX vừa chọn
+
+   F. Khu vực Màu dải chuyển tiếp (Gradient Color):
+      - com.thmobile.logomaker:id/btnCustomGradient     : Nút mở màn hình thiết kế Gradient tùy chỉnh
+      - com.thmobile.logomaker:id/rvGradientColorPicker : RecyclerView cuộn ngang chứa các mẫu Gradient có sẵn
+      - com.thmobile.logomaker:id/color                 : Từng mẫu Gradient (Đơn sắc chuyển, đa sắc, pastel...)
+
+   G. Màn hình Thiết kế Gradient ("Custom Gradient"):
+      - android.widget.ImageButton (desc: "Navigate up"): Nút quay lại Edit Screen
+      - TextView (text: "Custom Gradient")              : Tiêu đề màn hình
+      - com.thmobile.logomaker:id/imgPreview            : Khung xem trước Gradient lớn
+      - com.thmobile.logomaker:id/imgStartColor         : Nút chọn màu bắt đầu (Start Color)
+      - com.thmobile.logomaker:id/imgSwap               : Nút đảo ngược 2 màu (Swap)
+      - com.thmobile.logomaker:id/imgEndColor           : Nút chọn màu kết thúc (End Color)
+      - com.thmobile.logomaker:id/rbLinear              : Radio chọn kiểu Gradient tuyến tính (Linear)
+      - com.thmobile.logomaker:id/rbRadial              : Radio chọn kiểu Gradient tỏa tròn (Radial)
+      - com.thmobile.logomaker:id/layoutAngleLinear     : Container các góc hướng chiếu Gradient
+      - com.thmobile.logomaker:id/imgDirDown            : Hướng đổ màu xuống (Down)
+      - com.thmobile.logomaker:id/imgDirRight           : Hướng đổ màu sang phải (Right)
+      - com.thmobile.logomaker:id/imgDirDownRigh        : Hướng đổ màu chéo phải (Down-Right)
+      - com.thmobile.logomaker:id/imgDirDownLeft        : Hướng đổ màu chéo trái (Down-Left)
+      - com.thmobile.logomaker:id/applyButton           : Nút xác nhận "APPLY" áp dụng Gradient vào layer
+
+   H. Khu vực Họa tiết & Chất liệu (Texture / Pattern):
+      - com.thmobile.logomaker:id/recyclerTexture       : RecyclerView cuộn ngang danh sách Texture
+      - com.thmobile.logomaker:id/imageView             : Từng mẫu Texture (Kẻ sọc, lá cây, hoa văn, trái tim...)
+      - com.thmobile.logomaker:id/imgLock               : Biểu tượng vương miện khóa VIP trên texture trả phí
+      - com.thmobile.logomaker:id/imgRemoveTexture      : Nút xóa/bỏ áp dụng texture (Hiển thị đầu danh sách)
+      - com.thmobile.logomaker:id/icon_texture_scale    : Icon Texture Scale (Chỉ xuất hiện khi Texture được áp dụng)
+      - com.thmobile.logomaker:id/seekbarTextureScale   : SeekBar điều chỉnh tỷ lệ / kích thước Texture (Mặc định: 20)
+      - com.thmobile.logomaker:id/tvTextureScale        : TextView hiển thị tỷ lệ kích thước Texture
+
+   I. Monetization & Popup IAP:
+      - com.thmobile.logomaker:id/btn_cancel            : Nút đóng màn hình IAP "Get Full Access"
+      - Khi chạm vào Texture có `imgLock`, ứng dụng kích hoạt màn hình IAP Paywall
+
+
+====================================================================================================
+II. CHI TIẾT CÁC TEST CASES THEO TỪNG NHÓM CHỨC NĂNG
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+NHÓM 1: UI & VISUAL DISPLAY TEST CASES (Kiểm thử Giao diện & Hiển thị Sub Tab Color)
+----------------------------------------------------------------------------------------------------
+
+[TC_COLOR_UI_01] Kiểm tra hiển thị tổng thể Sub Tab Color trên Edit Screen
+- Mục tiêu: Xác nhận khi chọn đối tượng Art và chuyển sang tab Color, toàn bộ các công cụ con hiển thị đầy đủ, không vỡ giao diện.
+- Điều kiện tiên quyết: Mở app -> Chọn Template đầu tiên của chủ đề "Restaurant" -> Đang ở Edit Screen.
+- Các bước thực hiện:
+  1. Nhấn vào đối tượng Art trên Canvas (tọa độ khoảng "50%, 30%").
+  2. Xác nhận thanh công cụ Art hiển thị các sub-tab: Controls, Color, Outline, 3D.
+  3. Nhấn vào sub-tab "Color".
+  4. Kiểm tra hiển thị các khối chức năng con:
+     + Khối Opacity: icon_transparent, seekbarTransparent, tvTransparent (giá trị 100).
+     + Khối Solid Color: imgColorPicker, imgPalette, rvSolidColorPicker với các ô màu cơ bản.
+     + Khối Gradient: btnCustomGradient, rvGradientColorPicker với các mẫu gradient.
+     + Khối Texture: imgRemoveTexture, recyclerTexture với các mẫu họa tiết miễn phí và khóa VIP.
+- Kết quả mong đợi:
+  + Tab "Color" được chọn (có đường gạch chân chỉ báo màu tím/xanh).
+  + Toàn bộ 4 khối chức năng hiển thị trực quan, đúng kích thước, không che khuất nhau.
+- Maestro Selectors:
+  - tapOn: { point: "50%, 30%" }
+  - tapOn: "Color"
+  - assertVisible: { id: "layout_art_color" }
+  - assertVisible: { id: "icon_transparent" }
+  - assertVisible: { id: "seekbarTransparent" }
+  - assertVisible: { id: "tvTransparent" }
+  - assertVisible: { id: "imgColorPicker" }
+  - assertVisible: { id: "imgPalette" }
+  - assertVisible: { id: "rvSolidColorPicker" }
+  - assertVisible: { id: "btnCustomGradient" }
+  - assertVisible: { id: "rvGradientColorPicker" }
+  - assertVisible: { id: "recyclerTexture" }
+
+[TC_COLOR_UI_02] Visual Regression Testing - So sánh giao diện mặc định Sub Tab Color với Baseline
+- Mục tiêu: Kiểm tra độ đồng nhất màu sắc, khoảng cách padding/margin của Sub Tab Color bằng hình ảnh mẫu.
+- Điều kiện tiên quyết: Đã có ảnh baseline trong thư mục assets/.
+- Các bước thực hiện:
+  1. Điều hướng tới Edit Screen -> Chọn sub-tab Color.
+  2. Chụp ảnh màn hình: takeScreenshot: "screenshots/Color_SubTab_Default".
+  3. Đối soát hình ảnh khu vực bảng điều khiển.
+- Kết quả mong đợi: Giao diện đạt độ tương đồng (Match Percentage) >= 95% so với thiết kế chuẩn.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 2: OPACITY / TRANSPARENCY TEST CASES (Kiểm thử Độ mờ đục / Trong suốt)
+----------------------------------------------------------------------------------------------------
+
+[TC_COLOR_OPA_01] Giảm độ mờ đục của đối tượng về 50% bằng thanh trượt SeekBar
+- Mục tiêu: Đảm bảo khi kéo SeekBar transparent, giá trị số cập nhật chính xác và đối tượng trên canvas trở nên bán trong suốt.
+- Các bước thực hiện:
+  1. Tại sub-tab Color, nhấn hoặc kéo seekbarTransparent về mức giữa (50%).
+  2. Quan sát TextView hiển thị giá trị tvTransparent.
+  3. Quan sát đối tượng Art trên Canvas.
+- Kết quả mong đợi:
+  + tvTransparent hiển thị số "50".
+  + Đối tượng đồ họa trên Canvas giảm độ đậm, nhìn xuyên thấy lớp nền phía sau.
+- Maestro Selectors:
+  - tapOn: { point: "50%, 71%" } (hoặc kéo seekbarTransparent)
+  - assertVisible:
+      id: "tvTransparent"
+      text: "50"
+
+[TC_COLOR_OPA_02] Giảm độ mờ đục tối đa về 0% (Hoàn toàn trong suốt)
+- Mục tiêu: Kiểm tra giá trị cực tiểu của độ mờ đục.
+- Các bước thực hiện:
+  1. Kéo seekbarTransparent về kịch bên trái (vị trí x=120, y=1551).
+  2. Kiểm tra giá trị hiển thị.
+- Kết quả mong đợi:
+  + tvTransparent hiển thị "0".
+  + Đối tượng trên Canvas trở nên tàng hình / trong suốt hoàn toàn nhưng khung viền chọn vẫn giữ nguyên.
+
+[TC_COLOR_OPA_03] Tăng lại độ mờ đục tối đa 100% (Hiển thị đầy đủ)
+- Mục tiêu: Kiểm tra khôi phục độ mờ đục tối đa.
+- Các bước thực hiện:
+  1. Kéo seekbarTransparent về kịch bên phải (vị trí x=912, y=1551).
+- Kết quả mong đợi:
+  + tvTransparent hiển thị "100".
+  + Đối tượng hiển thị sắc nét, đậm màu tối đa không bị trong suốt.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 3: SOLID COLOR PALETTE TEST CASES (Kiểm thử Màu đơn sắc có sẵn)
+----------------------------------------------------------------------------------------------------
+
+[TC_COLOR_SOL_01] Áp dụng màu đơn sắc Đỏ (Red) từ danh sách nhanh
+- Mục tiêu: Đảm bảo chọn một ô màu đơn sắc sẽ đổi màu đối tượng tức thì mà không cần mở popup.
+- Các bước thực hiện:
+  1. Tại hàng màu rvSolidColorPicker, nhấn vào ô màu Đỏ (Red swatch).
+  2. Quan sát đối tượng Art trên Canvas.
+- Kết quả mong đợi:
+  + Đối tượng đổi sang màu Đỏ đồng nhất.
+  + Không xuất hiện popup làm gián đoạn trải nghiệm người dùng.
+- Maestro Selectors:
+  - tapOn:
+      id: "color"
+      index: 5 (ô màu đỏ trong rvSolidColorPicker)
+
+[TC_COLOR_SOL_02] Áp dụng màu Đen (Black) và màu Trắng (White)
+- Mục tiêu: Kiểm tra áp dụng 2 màu tương phản cơ bản.
+- Các bước thực hiện:
+  1. Nhấn vào ô màu Đen -> Kiểm tra Canvas đối tượng chuyển sang màu Đen.
+  2. Nhấn vào ô màu Trắng -> Kiểm tra Canvas đối tượng chuyển sang màu Trắng.
+- Kết quả mong đợi: Đối tượng trên canvas hiển thị chính xác màu Đen và Trắng tương ứng.
+
+[TC_COLOR_SOL_03] Reset màu về mặc định ban đầu bằng ô "Transparent / None"
+- Mục tiêu: Xác nhận ô màu tròn có gạch chéo đầu tiên sẽ hủy bỏ màu đơn sắc tùy chỉnh và khôi phục màu gốc của template.
+- Các bước thực hiện:
+  1. Đã áp dụng một màu đơn sắc khác (ví dụ màu Đỏ).
+  2. Nhấn vào ô đầu tiên có biểu tượng gạch chéo trong rvSolidColorPicker (tọa độ [216, 1611][288, 1683]).
+- Kết quả mong đợi: Đối tượng đồ họa khôi phục lại màu nguyên bản của Template nhà hàng (màu kem/vàng ban đầu).
+
+[TC_COLOR_SOL_04] Cuộn ngang danh sách màu đơn sắc (Horizontal Scroll)
+- Mục tiêu: Đảm bảo danh sách màu đơn sắc hỗ trợ cuộn mượt mà để hiển thị thêm các gam màu pastel/phụ.
+- Các bước thực hiện:
+  1. Vuốt danh sách rvSolidColorPicker từ phải qua trái.
+  2. Nhấn chọn một màu ở cuối danh sách (ví dụ màu Tím nhạt / Cam đất).
+- Kết quả mong đợi: Danh sách cuộn trơn tru, hiển thị các màu mới và tương tác chọn màu hoạt động chính xác.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 4: EYEDROPPER COLOR PICKER TEST CASES (Kiểm thử Ống hút màu trên màn hình)
+----------------------------------------------------------------------------------------------------
+
+[TC_COLOR_EYE_01] Mở màn hình Select Color từ nút ống hút màu (imgColorPicker)
+- Mục tiêu: Xác nhận nhấn vào icon imgColorPicker mở ra màn hình hút màu chuyên dụng.
+- Các bước thực hiện:
+  1. Tại sub-tab Color, nhấn vào icon id "imgColorPicker".
+- Kết quả mong đợi:
+  + Màn hình chuyển sang giao diện "Select Color".
+  + Hiển thị Toolbar có tiêu đề "Select Color", nút Back và nút Apply.
+  + Hiển thị ô hộp màu xem trước (layout_color_picker).
+  + Hiển thị ảnh Canvas thu nhỏ (id: "imageView") cho phép chấm chọn điểm màu.
+- Maestro Selectors:
+  - tapOn: { id: "imgColorPicker" }
+  - assertVisible: "Select Color"
+  - assertVisible: { id: "item_apply" }
+  - assertVisible: { id: "layout_color_picker" }
+
+[TC_COLOR_EYE_02] Chấm chọn màu trên Canvas và xác nhận áp dụng (Apply)
+- Mục tiêu: Kiểm tra tính năng hút màu từ một tọa độ bất kỳ trên canvas và gán vào layer hiện tại.
+- Các bước thực hiện:
+  1. Tại màn hình "Select Color", nhấn vào dải ruy băng màu vàng/xanh trên ảnh logo (tọa độ khoảng x=500, y=1100).
+  2. Quan sát ô layout_color_picker xem trước màu vừa hút.
+  3. Nhấn nút tick hoàn tất (id: "item_apply").
+- Kết quả mong đợi:
+  + Ứng dụng đóng màn hình "Select Color" và quay về Edit Screen.
+  + Đối tượng Art được cập nhật chính xác theo màu vừa được hút từ ruy băng.
+- Maestro Selectors:
+  - tapOn: { point: "50%, 50%" }
+  - tapOn: { id: "item_apply" }
+  - assertVisible: "Logos4U"
+
+[TC_COLOR_EYE_03] Hủy thao tác hút màu bằng nút Back (Navigate up)
+- Mục tiêu: Đảm bảo khi người dùng nhấn nút Back trên màn hình Select Color, không có màu mới nào bị áp dụng.
+- Các bước thực hiện:
+  1. Nhấn mở "imgColorPicker".
+  2. Chấm chọn màu ngẫu nhiên.
+  3. Nhấn nút Back (desc: "Navigate up") trên Toolbar.
+- Kết quả mong đợi: Quay lại Edit Screen, đối tượng giữ nguyên màu sắc trước đó.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 5: ADVANCED PALETTE & CUSTOM HEX COLOR TEST CASES (Kiểm thử Bảng màu & Mã HEX)
+----------------------------------------------------------------------------------------------------
+
+[TC_COLOR_PAL_01] Mở hộp thoại "Select a Color" từ icon imgPalette
+- Mục tiêu: Xác nhận nhấn icon imgPalette mở popup chọn màu có sẵn dạng Grid 20 màu kèm dải Shades.
+- Các bước thực hiện:
+  1. Nhấn vào icon id "imgPalette".
+- Kết quả mong đợi:
+  + Hộp thoại Dialog hiển thị tiêu đề "Select a Color".
+  + Hiển thị GridView chứa 20 màu thông dụng.
+  + Màu đang được chọn có dấu tick trắng (id: "cpv_color_image_view").
+  + Phía dưới hiển thị thanh dải sắc độ (shades_layout) với 5 mức sáng/tối.
+  + Có 2 nút điều hướng: "CUSTOM" và "SELECT".
+- Maestro Selectors:
+  - tapOn: { id: "imgPalette" }
+  - assertVisible: "Select a Color"
+  - assertVisible: "CUSTOM"
+  - assertVisible: "SELECT"
+
+[TC_COLOR_PAL_02] Chọn một màu trong Grid và chọn sắc độ (Shade), sau đó nhấn SELECT
+- Mục tiêu: Kiểm tra thay đổi màu sắc kèm sắc độ cụ thể từ Dialog.
+- Các bước thực hiện:
+  1. Tại dialog "Select a Color", nhấn vào ô màu Xanh lam bất kỳ trong GridView.
+  2. Quan sát dải shades_layout cập nhật các sắc độ của màu Xanh lam đó.
+  3. Nhấn chọn ô sắc độ đậm nhất trong shades_layout.
+  4. Nhấn nút "SELECT" (id: "button1").
+- Kết quả mong đợi:
+  + Dialog đóng lại.
+  + Đối tượng Art trên canvas chuyển sang màu xanh lam đậm vừa chọn.
+
+[TC_COLOR_PAL_03] Chuyển sang giao diện Tùy biến mã màu tự do bằng nút "CUSTOM"
+- Mục tiêu: Xác nhận nút CUSTOM mở ra giao diện chọn màu 2D và trường nhập mã màu HEX.
+- Các bước thực hiện:
+  1. Mở dialog "Select a Color".
+  2. Nhấn nút "CUSTOM" (id: "button3").
+- Kết quả mong đợi:
+  + Giao diện dialog chuyển sang chế độ Custom.
+  + Hiển thị bảng chọn màu 2D (Saturation/Value) và thanh Hue.
+  + Hiển thị ô so sánh: Màu cũ (cpv_color_panel_old) -> Màu mới (cpv_color_panel_new).
+  + Hiển thị ô EditText cpv_hex chứa mã HEX của màu hiện tại.
+  + Nút "CUSTOM" chuyển thành nút "PRESETS".
+- Maestro Selectors:
+  - tapOn: "CUSTOM"
+  - assertVisible: { id: "cpv_hex" }
+  - assertVisible: { id: "cpv_color_panel_new" }
+  - assertVisible: "PRESETS"
+  - assertVisible: "SELECT"
+
+[TC_COLOR_PAL_04] Nhập mã màu HEX tùy chỉnh (ví dụ: #FF5722)
+- Mục tiêu: Kiểm tra tính năng nhập trực tiếp mã HEX chuẩn thiết kế để gán màu chính xác.
+- Các bước thực hiện:
+  1. Tại màn hình Custom Color, nhấn vào ô EditText id "cpv_hex".
+  2. Xóa mã cũ và nhập mã mới: "FF5722" (màu Cam rực).
+  3. Ẩn bàn phím (hideKeyboard).
+  4. Quan sát ô cpv_color_panel_new cập nhật sang màu Cam tương ứng.
+  5. Nhấn nút "SELECT".
+- Kết quả mong đợi:
+  + Dialog đóng lại.
+  + Đối tượng trên canvas áp dụng chính xác mã màu #FF5722.
+
+[TC_COLOR_PAL_05] Quay lại danh sách màu mẫu bằng nút "PRESETS"
+- Mục tiêu: Kiểm tra chuyển đổi qua lại giữa chế độ Custom và chế độ Presets mà không bị mất trạng thái.
+- Các bước thực hiện:
+  1. Tại màn hình Custom Color, nhấn nút "PRESETS".
+- Kết quả mong đợi: Dialog lập tức quay lại giao diện Grid 20 màu ban đầu.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 6: GRADIENT COLOR TEST CASES (Kiểm thử Màu dải chuyển tiếp Gradient)
+----------------------------------------------------------------------------------------------------
+
+[TC_COLOR_GRD_01] Áp dụng mẫu Gradient có sẵn từ RecyclerView
+- Mục tiêu: Kiểm tra việc chọn nhanh một mẫu Gradient từ hàng danh sách rvGradientColorPicker.
+- Các bước thực hiện:
+  1. Tại sub-tab Color, quan sát hàng rvGradientColorPicker.
+  2. Nhấn vào mẫu Gradient thứ 1 (hoặc thứ 2: dải chuyển Hồng - Xanh).
+- Kết quả mong đợi: Đối tượng trên canvas chuyển từ màu đơn sắc sang hiệu ứng dải màu Gradient êm mượt.
+- Maestro Selectors:
+  - tapOn:
+      id: "color"
+      index: 10 (trong hàng rvGradientColorPicker)
+
+[TC_COLOR_GRD_02] Mở màn hình tạo Gradient tùy biến từ nút btnCustomGradient
+- Mục tiêu: Xác nhận nút btnCustomGradient mở màn hình "Custom Gradient" với đầy đủ công cụ cấu hình.
+- Các bước thực hiện:
+  1. Nhấn vào nút id "btnCustomGradient" ở đầu hàng Gradient.
+- Kết quả mong đợi:
+  + Màn hình "Custom Gradient" hiển thị.
+  + Hiển thị khung xem trước imgPreview.
+  + Hiển thị nút Start Color (imgStartColor), Swap (imgSwap), End Color (imgEndColor).
+  + Hiển thị nhóm Radio Gradient Type ("Linear", "Radial").
+  + Hiển thị nhóm chọn góc Gradient Angle (4 hướng mũi tên).
+  + Hiển thị nút "APPLY" lớn phía dưới.
+- Maestro Selectors:
+  - tapOn: { id: "btnCustomGradient" }
+  - assertVisible: "Custom Gradient"
+  - assertVisible: { id: "imgPreview" }
+  - assertVisible: { id: "imgStartColor" }
+  - assertVisible: { id: "imgSwap" }
+  - assertVisible: { id: "imgEndColor" }
+  - assertVisible: { id: "rbLinear" }
+  - assertVisible: { id: "rbRadial" }
+  - assertVisible: { id: "applyButton" }
+
+[TC_COLOR_GRD_03] Đảo ngược 2 màu Gradient bằng nút Swap (imgSwap)
+- Mục tiêu: Kiểm tra chức năng tráo đổi vị trí màu Bắt đầu và màu Kết thúc.
+- Các bước thực hiện:
+  1. Tại màn hình "Custom Gradient", nhấn nút id "imgSwap".
+- Kết quả mong đợi: Vị trí của Start Color và End Color tráo đổi cho nhau; khung xem trước imgPreview lập tức đảo ngược chiều dải màu.
+
+[TC_COLOR_GRD_04] Chuyển đổi giữa 2 kiểu Gradient: Linear (Tuyến tính) và Radial (Tỏa tròn)
+- Mục tiêu: Kiểm tra thay đổi kiểu toán học của dải Gradient.
+- Các bước thực hiện:
+  1. Nhấn chọn RadioButton id "rbRadial" (Radial).
+  2. Quan sát khung imgPreview xem trước dạng tỏa tròn từ tâm ra viền.
+  3. Nhấn lại RadioButton id "rbLinear" (Linear).
+- Kết quả mong đợi: Khung preview cập nhật tương ứng theo từng kiểu được chọn.
+
+[TC_COLOR_GRD_05] Thay đổi hướng chiếu Gradient (Gradient Angle)
+- Mục tiêu: Kiểm tra các nút hướng: Đổ màu xuống (Down), Sang phải (Right), Chéo phải (Down-Right), Chéo trái (Down-Left).
+- Các bước thực hiện:
+  1. Nhấn lần lượt các icon: imgDirDown, imgDirRight, imgDirDownRigh, imgDirDownLeft.
+- Kết quả mong đợi: Góc chuyển tiếp của dải màu trên khung preview thay đổi tương ứng theo chiều mũi tên.
+
+[TC_COLOR_GRD_06] Xác nhận áp dụng Gradient tùy biến bằng nút APPLY
+- Mục tiêu: Đảm bảo sau khi cấu hình Gradient tùy biến, nhấn APPLY sẽ lưu và áp dụng lên layer đối tượng.
+- Các bước thực hiện:
+  1. Chọn Start Color, End Color, Linear và góc Down-Right.
+  2. Nhấn nút "APPLY" (id: "applyButton").
+- Kết quả mong đợi:
+  + Màn hình "Custom Gradient" đóng lại, quay về Edit Screen.
+  + Đối tượng Art hiển thị chuẩn xác dải màu Gradient vừa thiết lập.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 7: TEXTURE & PATTERN TEST CASES (Kiểm thử Họa tiết / Chất liệu & Scale)
+----------------------------------------------------------------------------------------------------
+
+[TC_COLOR_TEX_01] Áp dụng Texture miễn phí đầu tiên (Họa tiết kẻ sọc)
+- Mục tiêu: Đảm bảo chọn một texture miễn phí sẽ phủ chất liệu lên đối tượng và tự động kích hoạt thanh trượt Texture Scale.
+- Các bước thực hiện:
+  1. Tại sub-tab Color, quan sát hàng recyclerTexture.
+  2. Nhấn vào mẫu Texture đầu tiên (không có icon khóa, vị trí index 0).
+- Kết quả mong đợi:
+  + Đối tượng trên canvas được phủ hoa văn kẻ sọc tương ứng.
+  + Một thanh trượt mới xuất hiện ngay phía trên thanh Opacity:
+    - icon_texture_scale
+    - seekbarTextureScale
+    - tvTextureScale (giá trị mặc định ban đầu là "20").
+- Maestro Selectors:
+  - tapOn: { point: "16%, 86%" } (hoặc item đầu trong recyclerTexture)
+  - assertVisible: { id: "seekbarTextureScale" }
+  - assertVisible: { id: "tvTextureScale" }
+
+[TC_COLOR_TEX_02] Điều chỉnh kích thước tỷ lệ Texture bằng thanh trượt seekbarTextureScale
+- Mục tiêu: Kiểm tra thanh trượt scale làm thay đổi độ dày đặc / phóng to thu nhỏ của hoa văn họa tiết.
+- Các bước thực hiện:
+  1. Khi đối tượng đã có Texture, kéo thanh trượt seekbarTextureScale lên mức 80%.
+  2. Quan sát giá trị tvTextureScale và hoa văn trên đối tượng.
+- Kết quả mong đợi:
+  + tvTextureScale cập nhật giá trị mới.
+  + Các đường vân họa tiết trên đối tượng Art phóng to tương ứng.
+
+[TC_COLOR_TEX_03] Thay đổi sang Texture miễn phí khác (Họa tiết hoa văn lá cây)
+- Mục tiêu: Kiểm tra đổi qua lại giữa các mẫu texture khác nhau trong danh sách.
+- Các bước thực hiện:
+  1. Nhấn chọn mẫu Texture thứ 2 hoặc thứ 3 trong recyclerTexture.
+- Kết quả mong đợi: Đối tượng Art lập tức đổi sang mẫu hoa văn mới mà không bị lỗi hiển thị.
+
+[TC_COLOR_TEX_04] Xóa Texture và quay về màu đơn sắc bằng nút imgRemoveTexture hoặc chọn Màu
+- Mục tiêu: Kiểm tra loại bỏ Texture khỏi đối tượng để quay về trạng thái màu bình thường.
+- Các bước thực hiện:
+  1. Nhấn vào icon đầu hàng Texture (id: "imgRemoveTexture") hoặc nhấn vào một ô màu trong rvSolidColorPicker (ví dụ màu Đỏ).
+- Kết quả mong đợi:
+  + Họa tiết Texture biến mất khỏi đối tượng, thay thế bằng màu đồng nhất.
+  + Thanh trượt Texture Scale (seekbarTextureScale) tự động ẩn đi khỏi giao diện sub-tab Color.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 8: MONETIZATION & SUBSCRIPTION TEST CASES (Kiểm thử Gói VIP với Texture Khóa)
+----------------------------------------------------------------------------------------------------
+
+[TC_COLOR_VIP_01] Nhấn vào Texture có biểu tượng khóa VIP (imgLock)
+- Mục tiêu: Đảm bảo khi người dùng miễn phí chọn một họa tiết VIP có gắn vương miện, ứng dụng mở màn hình IAP Paywall.
+- Các bước thực hiện:
+  1. Tại hàng recyclerTexture, cuộn sang phải để tìm mẫu có icon id "imgLock".
+  2. Nhấn vào mẫu Texture bị khóa đó (ví dụ item index 4).
+- Kết quả mong đợi:
+  + Màn hình mua gói trả phí "Get Full Access" xuất hiện ngay lập tức.
+  + Hiển thị các đặc quyền VIP (Unlock 5000+ Premium Designs, Access All Design Elements, No Ads...).
+  + Hiển thị các gói đăng ký tuần/năm và nút "CONTINUE".
+- Maestro Selectors:
+  - tapOn: { point: "60%, 86%" }
+  - assertVisible: "Get Full Access"
+  - assertVisible: { id: "btn_cancel" }
+
+[TC_COLOR_VIP_02] Đóng màn hình IAP và giữ nguyên trạng thái làm việc tại Edit Screen
+- Mục tiêu: Người dùng có thể đóng màn hình IAP quay về tiếp tục thiết kế mà không bị lỗi app hay mất đối tượng.
+- Các bước thực hiện:
+  1. Tại màn hình "Get Full Access", nhấn nút 'X' đóng (id: "btn_cancel").
+  2. Nếu xuất hiện popup giữ chân ("Skip the free trial?") -> Nhấn "No thanks".
+- Kết quả mong đợi: Quay lại màn hình Edit Screen với đúng layer Art và sub-tab Color đang mở.
+- Maestro Selectors:
+  - tapOn: { id: "btn_cancel" }
+  - runFlow:
+      when: { visible: "Skip the free trial?" }
+      commands: [{ tapOn: "No thanks" }]
+  - assertVisible: "Logos4U"
+  - assertVisible: { id: "layout_art_color" }
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 9: HISTORY & ACTIONS TEST CASES (Kiểm thử Hoàn tác Undo, Làm lại Redo & Lưu)
+----------------------------------------------------------------------------------------------------
+
+[TC_COLOR_ACT_01] Hoàn tác (Undo) sau khi đổi màu
+- Mục tiêu: Xác nhận nút Undo trên Toolbar khôi phục lại màu sắc trước đó của layer Art.
+- Các bước thực hiện:
+  1. Đang ở màu ban đầu (màu Vàng).
+  2. Đổi sang màu Đỏ.
+  3. Nhấn nút Undo (id: "btnUndo" hoặc "ivUndo").
+- Kết quả mong đợi: Đối tượng trên canvas lập tức hoàn tác về lại màu Vàng ban đầu.
+- Maestro Selectors:
+  - tapOn: { id: "ivUndo" }
+
+[TC_COLOR_ACT_02] Làm lại (Redo) sau khi đã Undo màu
+- Mục tiêu: Xác nhận nút Redo áp dụng lại màu sắc vừa bị hoàn tác.
+- Các bước thực hiện:
+  1. Sau khi đã Undo thành công về màu Vàng.
+  2. Nhấn nút Redo (id: "btnRedo" hoặc "ivRedo").
+- Kết quả mong đợi: Đối tượng trên canvas đổi lại thành màu Đỏ.
+- Maestro Selectors:
+  - tapOn: { id: "ivRedo" }
+
+[TC_COLOR_ACT_03] Thu gọn bảng công cụ Color bằng nút btnClosePanel
+- Mục tiêu: Kiểm tra nút mũi tên xuống thu gọn bảng công cụ giúp tăng không gian nhìn cho Canvas.
+- Các bước thực hiện:
+  1. Nhấn nút mũi tên xuống bên phải (id: "btnClosePanel", bounds [984,1287][1080,1383]).
+- Kết quả mong đợi: Bảng công cụ sub-tab Color trượt thu gọn xuống dưới, mở rộng tầm nhìn Canvas.
+
+[TC_COLOR_ACT_04] Lưu dự án (Save Project) và Xuất file (Export PNG) sau khi chỉnh màu thành công
+- Mục tiêu: Đảm bảo màu sắc mới được lưu chính xác vào file dự án và ảnh xuất ra.
+- Các bước thực hiện:
+  1. Sau khi chỉnh màu ưng ý cho layer, nhấn nút Save trên Toolbar (id: "mnItemSave").
+  2. Chọn "Export Logo (PNG)".
+  3. Chọn độ phân giải "HD (1024 * 1024)".
+  4. Nhấn nút Save (id: "tvSave").
+  5. Xử lý popup quảng cáo có thưởng (nếu có).
+- Kết quả mong đợi:
+  + Logo được xuất thành công, chuyển sang màn hình Preview.
+  + Ảnh preview hiển thị đúng màu sắc vừa được thay đổi.
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 10: EDGE CASES & SYSTEM ROBUSTNESS (Kiểm thử Ngoại lệ & Độ ổn định hệ thống)
+----------------------------------------------------------------------------------------------------
+
+[TC_COLOR_SYS_01] Thay đổi màu liên tục và nhanh chóng giữa các loại màu (Stress Color Tapping)
+- Mục tiêu: Kiểm tra ứng dụng không bị crash hoặc giật lag/memory leak khi người dùng đổi màu dồn dập.
+- Các bước thực hiện:
+  1. Nhấn liên tục 10 lần luân phiên giữa: Màu Đỏ -> Gradient 1 -> Texture 1 -> Hút màu -> Màu Trắng.
+- Kết quả mong đợi: Giao diện phản hồi mượt mà, render canvas chính xác, không xảy ra hiện tượng ANR hay crash đột ngột.
+
+[TC_COLOR_SYS_02] Chuyển ứng dụng xuống Background rồi mở lại khi đang ở sub-tab Color
+- Mục tiêu: Đảm bảo trạng thái màu sắc và công cụ được lưu giữ trọn vẹn khi có ngắt quãng hệ thống.
+- Các bước thực hiện:
+  1. Đang ở màn hình Edit với sub-tab Color đã chọn màu tùy chỉnh.
+  2. Nhấn nút Home thiết bị để đưa ứng dụng xuống Background trong 5 giây.
+  3. Mở lại ứng dụng từ Recent Apps.
+- Kết quả mong đợi: Ứng dụng khôi phục ngay lập tức tại Edit Screen, layer vẫn giữ nguyên màu đã chỉnh.
+
+[TC_COLOR_SYS_03] Xử lý khi có Banner Ads xuất hiện phía trên thanh công cụ
+- Mục tiêu: Đảm bảo quảng cáo banner AdMob (id: "flAdsContainer") không che mất các hàng nút chọn màu hoặc các thanh SeekBar.
+- Kết quả mong đợi: Tất cả các nút bấm trong layout_art_color đều nằm trong vùng chạm an toàn (Clickable Area).
+
+====================================================================================================
+KẾT THÚC BỘ TEST CASES KIỂM THỬ SUB TAB COLOR - MÀN HÌNH EDIT
+====================================================================================================

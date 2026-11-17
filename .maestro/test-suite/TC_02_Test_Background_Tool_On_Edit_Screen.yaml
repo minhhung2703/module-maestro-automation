@@ -1,0 +1,459 @@
+appId: com.thmobile.logomaker
+---
+# ==============================================================================
+# TC_02_Test_Background_Tool_On_Edit_Screen
+# Mục tiêu: Kiểm thử toàn diện công cụ Background Tool trên màn Edit, tích hợp điều hướng các Sub-Tools, Cắt ảnh, Lưu/Xuất và kiểm tra My Design:
+#           - Khởi động ứng dụng > Đẩy ảnh mẫu > Đóng popup IAP > Chọn Template Food & Drink > Mở màn hình Edit Screen
+#           - Kích hoạt Background Tool: Xác minh thanh công cụ phụ hiển thị đầy đủ (Color, Gradient, Background, Texture, Image) và độ mờ đục 100%
+#           - Thay đổi hình dạng hình học khung nền (Geometry Shapes): Thử nghiệm chuyển đổi giữa hình Tam giác (Triangle) và hình Tròn (Circle)
+#           - Kiểm thử điều hướng và tính năng của các Sub-Tools trên Background Tool:
+#             1. Sub-tool Color: Mở màn hình "Select Color", chọn đổi màu nền đơn sắc (Màu trắng), kiểm tra hiển thị "Current Color" và Back về Edit
+#             2. Sub-tool Gradient: Điều hướng tới màn hình "Custom Gradient", xác minh giao diện và Back về Edit
+#             3. Sub-tool Background: Điều hướng tới thư viện hình nền "Background Select", xác minh giao diện và Back về Edit
+#             4. Sub-tool Texture: Điều hướng tới thư viện chất liệu "Texture Select", xác minh giao diện và Back về Edit
+#           - Kiểm thử Sub-tool Image & Công cụ Crop:
+#             + Mở bộ chọn ảnh (Media grid), chọn ảnh mẫu và điều hướng vào màn hình Crop Screen
+#             + Xoay ảnh 90 độ (Rotate Right) và Lật ảnh theo chiều ngang (Flip Horizontally)
+#             + Nhấn "CROP" để áp dụng ảnh làm nền Canvas của logo
+#           - Kiểm thử chu trình Xuất Logo (Export Logo PNG Standard) và xử lý popup đánh giá (Rate App)
+#           - Xác minh chuyển sang màn hình Preview Screen thành công và chụp ảnh kết quả
+#           - Quay về Home Screen, cuộn tới mục "My Design" và mở lại bản thiết kế vừa lưu để xác nhận tính toàn vẹn của nền
+# ==============================================================================
+
+# Step 1: Khởi động ứng dụng
+- runFlow: "../config/Launch_App.yaml"
+
+
+- runFlow:
+    when:
+      visible:
+        text: "Get Full Access"
+    file: "../config/Close_IAP_Screen.yaml"
+        
+- tapOn:
+    id: "btnTemplate"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Nhấn vào "See all" của mục "Food & Drink" (index 2: 0=Fashion, 1=Beauty & Wellness, 2=Food & Drink)
+- runFlow:
+    when: 
+        visible: "Dismiss"
+    commands:
+        - tapOn: "Dismiss"
+
+- tapOn:
+    id: "imageView"
+    index: 0
+    below:
+      text: "Beauty & Wellness"
+      index: 1
+
+# Close Collapsible Ads
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+# Xử lý dialog tải tài nguyên template nếu có
+- runFlow:
+    when:
+      visible: "Downloading resources"
+    commands:
+      - runFlow:
+          when:
+            visible: "Download in background"
+          commands:
+            - tapOn: "Download in background"
+      - extendedWaitUntil:
+          notVisible: "Downloading resources"
+          timeout: 30000
+
+- extendedWaitUntil:
+    visible: "Logos4U"
+    timeout: 20000
+
+# Displayed title and tools on the Edit Screen
+- assertVisible: "Logos4U"
+
+- assertVisible: "Navigate up"
+
+- assertVisible:
+    id: "mnItemSave"
+
+- assertVisible:
+    id: "imageViewLayerTag"
+
+- assertVisible:
+    id: "imageShowGrid"
+
+- assertVisible:
+    id: "btnUndo"
+    enabled: true
+
+- assertVisible:
+    id: "btnRedo"
+    enabled: true
+
+- assertVisible:
+    id: "itemBackground"
+    containsDescendants: 
+        - text: "Background"
+        - id: "img"
+
+- assertVisible:
+    id: "itemArt"
+    containsDescendants: 
+        - text: "Art"
+        - id: "img"
+
+- assertVisible:
+    id: "itemText"
+    containsDescendants: 
+        - text: "Text"
+        - id: "img"
+
+- assertVisible:
+    id: "itemEffect"
+    containsDescendants: 
+        - text: "Effect"
+        - id: "img"
+
+- assertVisible:
+    id: "itemPalette"
+    containsDescendants: 
+        - text: "Palette"
+        - id: "img"
+
+- assertVisible:
+    id: "itemImage"
+    containsDescendants: 
+        - text: "Image"
+        - id: "img"
+
+# Click on Background tool - verify that displayed sub-tool Background - Changing geometry shape
+- tapOn:
+    id: "itemBackground"
+    containsDescendants: 
+        - text: "Background"
+        - id: "img"
+
+- assertVisible:
+    id: "itemBackground"
+    containsDescendants: 
+        - text: "Background"
+        - id: "img"
+
+- assertVisible:
+    id: "frame_tools_expand"
+    containsDescendants:
+        - text: "Color"
+        - text: "Gradient"
+        - text: "Background"
+        - text: "Texture"
+        - text: "Image"
+
+- assertVisible:
+    id: "tvTransparent"
+    text: "100"
+
+- takeScreenshot: "screenshots/Verify_Editing_Panel_Displays_Opacity_100_And_Geometric_Shapes"
+
+- tapOn:
+    id: "imgShape"
+    index: 3
+    childOf: 
+        id: "rvShape"
+
+- assertVisible:
+    id: "imgShape"
+    index: 3
+    childOf: 
+        id: "rvShape"
+
+- takeScreenshot: "screenshots/Verify_Logo_Inside_Triangle_Shape_On_Canvas"
+
+- tapOn:
+    id: "imgShape"
+    index: 4
+    childOf: 
+        id: "rvShape"
+
+- assertVisible:
+    id: "imgShape"
+    index: 4
+    childOf: 
+        id: "rvShape"
+
+- takeScreenshot: "screenshots/Verify_Logo_Inside_Circle_Shape_On_Canvas"
+
+# Verify that navigating to pages on sub-tools (Color-Gradient-Background-Texture-Image)
+- repeat:
+    times: 2
+    commands:
+        - tapOn:
+            text: "Color"
+            childOf: 
+                id: "layout_background_editor_menu"
+            enabled: true
+    
+        - assertVisible:
+            text: "Select Color"
+        - assertVisible: "Navigate up"
+
+        - assertVisible: 
+            text: "PICK ANOTHER"
+            id: "btnPickOther"
+
+        - assertVisible: "Current Color"
+
+        - takeScreenshot: "screenshots/Verify_Select_Color_Screen_Layout"
+
+        - runFlow: "../config/Back_Action.yaml"
+
+        - takeScreenshot: "screenshots/Verify_Logo_Inside_Circle_Shape_After_Back_To_Edit_Screen"
+
+# Pick a color on Select Color Screen
+- tapOn:
+    text: "Color"
+    childOf: 
+        id: "layout_background_editor_menu"
+    enabled: true
+- assertVisible: "Select Color"
+
+- tapOn:
+    id: "img"
+    index: 0
+
+- assertVisible: "Logos4U"
+
+- takeScreenshot: "screenshots/Verify_Logo_Inside_White_Circle_Shape_On_Canvas"
+
+# Verify that displayed the current background color 
+- tapOn:
+    text: "Color"
+    childOf: 
+        id: "layout_background_editor_menu"
+    enabled: true
+- assertVisible: "Select Color"
+- assertVisible:
+    id: "imgColor"
+- assertVisible: "Current Color"
+
+- runFlow: "../config/Back_Action.yaml"
+
+# Navigate to Gradient Screen -> Back to Edit Screen
+- takeScreenshot: "screenshots/backgroundTool_on_Edit_Screen"
+
+- tapOn:
+    text: "Gradient"
+    childOf: 
+        id: "layout_background_editor_menu"
+    enabled: true
+
+- assertVisible: "Custom Gradient"
+
+- assertVisible: "Navigate up"
+
+- takeScreenshot: "screenshots/Custom_Gradient"
+
+- runFlow: "../config/Back_Action.yaml"
+
+- takeScreenshot: "screenshots/backgroundTool_on_Edit_Screen2"
+
+# Navigate to Select Background Screen -> Back to Edit Screen
+
+- tapOn:
+    text: "Background"
+    childOf: 
+        id: "layout_background_editor_menu"
+    enabled: true
+
+# - assertVisible: "Background Select"
+- extendedWaitUntil:
+    visible:
+      text: "Background Select"
+    timeout: 2000
+
+- assertVisible: "Navigate up"
+
+- takeScreenshot: "screenshots/background_Select_Screen"
+
+- runFlow: "../config/Back_Action.yaml"
+
+- takeScreenshot: "screenshots/backgroundTool_on_Edit_Screen3"
+
+# Navigate to Texture Select Screen -> Back to Edit Screen
+
+- tapOn:
+    text: "Texture"
+    childOf: 
+        id: "layout_background_editor_menu"
+    enabled: true
+
+- assertVisible: "Texture Select"
+
+- assertVisible: "Navigate up"
+
+- takeScreenshot: "screenshots/texture_Select_Screen"
+
+- runFlow: "../config/Back_Action.yaml"
+
+- assertVisible: "Logos4U"
+
+- takeScreenshot: "screenshots/backgroundTool_on_Edit_Screen4"
+
+# Navigate to Crop Screen -> Back to Edit Screen
+- tapOn:
+    text: "Image"
+    childOf:
+        id: "layout_background_editor_menu"
+    enabled: true
+
+- tapOn:
+    text: "Photo taken.*"
+    index: 0
+
+- tapOn: "Done"
+
+- runFlow: "../config/Back_Action.yaml"
+
+- takeScreenshot: "screenshots/backgroundTool_on_Edit_Screen5"
+
+- tapOn:
+    text: "Image"
+    childOf:
+        id: "layout_background_editor_menu"
+    enabled: true
+
+- tapOn:
+    text: "Photo taken.*"
+    index: 0
+
+- tapOn: "Done"
+
+# Navigate to Crop Screen
+- assertVisible:
+    id: "action_bar"
+    containsDescendants: 
+        - text: "Navigate up"
+        - text: "CROP"
+        - id: "ic_rotate_right_24"
+        - id: "ic_flip_24"
+    
+- tapOn:
+    id: "ic_rotate_right_24"
+    enabled: true
+
+- tapOn:
+    id: "ic_flip_24"
+    enabled: true
+
+- assertVisible: "Flip horizontally"
+- assertVisible: "Flip vertically"
+
+- tapOn: "Flip horizontally"
+
+- tapOn: "CROP"
+
+- takeScreenshot: "screenshots/Add_Image_Background_on_Edit_Screen"
+
+- tapOn: "save"
+
+- takeScreenshot: "screenshots/Verify_Displayed_Save_Options_Popup"
+
+- assertVisible:
+    id: "action_bar_root"
+    containsDescendants:
+        - text: "Export Logo (PNG)"
+        - text: "Save Project (Edit Later)"
+
+- tapOn:
+    id: "llExportLogo"
+    containsChild:
+      text: "Export Logo (PNG)"
+
+- assertVisible: "Logo Size"
+
+- assertVisible:
+    id: "layout_hd"
+    containsDescendants:
+      - text: "HD"
+      - text: "(1024 * 1024)"
+
+- tapOn: "Standard"
+
+# Bấm nút SAVE trên dialog Logo Size
+- tapOn:
+    id: "tvSave"
+
+# - runFlow: "../config/Back_Action.yaml"
+
+- assertVisible:
+    id: "action_bar_root"
+    containsDescendants:
+        - text: "Did you like this app?"
+        - text: "We tried to make this app helpful and easy to use. Please select how you feel"
+        - text: "Bad"
+        - text: "Good"
+        - text: "Excellent"
+
+- back
+
+- assertVisible: "Preview"
+
+# Chụp ảnh và kiểm tra hình ảnh màn Preview
+- takeScreenshot: "screenshots/preview_screen_logo"
+
+- assertVisible:
+    id: "btnHome"
+
+# Navigated to Home Screen
+- tapOn:
+    id: "btnHome"
+
+- runFlow:
+    when:
+      visible: "Test Ad"
+    file: "../config/Close_Ads_Screen.yaml"
+
+- scrollUntilVisible:
+    element:
+        text: "My Design"
+        childOf:
+            id: "btnMyDesignFile"
+    direction: DOWN
+
+# Navigated to My Design Screen
+- tapOn:
+    id: "btnMyDesignFile"
+    containsDescendants:
+        - text: "My Design"
+
+- assertVisible: "My Design"
+- assertVisible: 
+    text: "Select"
+    enabled: true
+- assertVisible:
+    id: "imageTransparentGrid"
+    
+- assertVisible: 
+    id: "imageView"
+
+- assertVisible: 
+    id: "textView"    
+
+- tapOn: 
+    id: "imageView"
+    index: 0
+
+# Close Collapsible Ads
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+- takeScreenshot: "screenshots/TemplateDraft_Displayed_correctly"

@@ -1,0 +1,338 @@
+appId: com.thmobile.logomaker
+---
+# ==============================================================================
+# TC_11_Test_Mockup_Preview_Screen
+# Mục tiêu: Kiểm thử toàn diện tính năng Mockup Preview Screen (Brand Identify)
+#           bao gồm cả 2 luồng điều hướng cốt lõi:
+#           - PHẦN 1: Luồng tạo mới từ Template Restaurant -> Lưu logo PNG -> Preview Screen
+#                     -> Nhấn Brand Identify -> Mockup Preview Screen
+#                     -> Kiểm tra UI Header, danh sách các thẻ Mockup
+#                     -> Mở popup Save Mockup trên thẻ đầu tiên -> Lưu có Watermark
+#                     -> Kiểm tra nút Save chuyển thành nút Share
+#                     -> Cuộn duyệt toàn bộ danh sách 5 mẫu sản phẩm (Biển hiệu, Mũ, Áo thun, Cốc cafe)
+#                     -> Nút Back trên Toolbar quay lại Preview Screen an toàn
+#           - PHẦN 2: Luồng điều hướng từ My Logo trên Home Screen:
+#                     -> Nút Home đưa về MainMenuActivity
+#                     -> Cuộn tới "My Logo" (btnMyDesignImageFile) -> Mở MyDesignImageActivity
+#                     -> Chọn Logo đầu tiên trong Grid -> Điều hướng vào Preview Screen
+#                     -> Nhấn Brand Identify -> Mở Mockup Preview Screen
+#                     -> Kiểm tra Logo đã lưu được áp dụng chuẩn xác lên các Mockup cards
+#           - PHẦN 3: Thoát an toàn về Home Screen (Safe Exit Pattern)
+# ==============================================================================
+
+# Step 1: Khởi động ứng dụng an toàn
+- runFlow: "../config/Launch_App.yaml"
+
+# Step 2: Bắt và đóng IAP nếu xuất hiện
+- runFlow:
+    when:
+      visible:
+        text: "Get Full Access"
+    file: "../config/Close_IAP_Screen.yaml"
+
+- runFlow:
+    when:
+      visible:
+        text: "START FREE TRIAL"
+    file: "../config/Close_IAP_Screen.yaml"
+
+- runFlow:
+    when:
+      visible: "Skip the free trial?"
+    file: "../config/Close_Skip_The_Free_Trial_Popup.yaml"
+
+# ==============================================================================
+# PHẦN 1: ĐIỀU HƯỚNG TỪ TEMPLATE VÀ KIỂM THỬ TÍNH NĂNG MOCKUP PREVIEW
+# ==============================================================================
+
+# Step 3: Điều hướng từ Home Screen vào Template Restaurant
+- runFlow: "../config/Navigate_To_Restaurant_Edit.yaml"
+
+# Step 4: Lưu logo từ Edit Screen sang Preview Screen
+- extendedWaitUntil:
+    visible:
+      id: ".*mnItemSave.*"
+    timeout: 10000
+
+- assertVisible:
+    id: ".*mnItemSave.*"
+
+- tapOn:
+    id: ".*mnItemSave.*"
+
+- extendedWaitUntil:
+    visible:
+      id: "llExportLogo"
+    timeout: 5000
+
+- tapOn:
+    id: "llExportLogo"
+
+- extendedWaitUntil:
+    visible:
+      id: "tvSave"
+    timeout: 5000
+
+- tapOn:
+    id: "tvSave"
+
+# Step 5: Xử lý quảng cáo sau khi xuất logo (nếu có)
+- runFlow:
+    when:
+      visible: "Test Ad"
+    file: "../config/Close_Ads_Rewards.yaml"
+
+- runFlow:
+    when:
+      visible: "Test Ad"
+    file: "../config/Close_Ads_Screen.yaml"
+
+- runFlow:
+    when:
+      visible: "Close"
+    file: "../config/Close_Ads_Screen.yaml"
+
+- runFlow:
+    when:
+      visible: "Did you like this app?"
+    commands:
+      - tapOn:
+          point: "10%, 10%"
+
+# Step 6: Tại Preview Screen, bấm nút Brand Identify
+- extendedWaitUntil:
+    visible:
+      id: "btnBrandIdentify"
+    timeout: 15000
+
+- assertVisible:
+    id: "btnBrandIdentify"
+
+- tapOn:
+    id: "btnBrandIdentify"
+
+# Step 7: Xử lý quảng cáo hoặc popup đánh giá trung gian
+- runFlow:
+    when:
+      visible: "Did you like this app?"
+    commands:
+      - tapOn:
+          point: "10%, 10%"
+
+- runFlow:
+    when:
+      visible: "Test Ad"
+    file: "../config/Close_Ads_Rewards.yaml"
+
+- runFlow:
+    when:
+      visible: "Test Ad"
+    file: "../config/Close_Ads_Screen.yaml"
+
+- runFlow:
+    when:
+      visible: "Close"
+    file: "../config/Close_Ads_Screen.yaml"
+
+# Step 8: Xác minh các thành phần UI trên Mockup Preview Screen
+- extendedWaitUntil:
+    visible: "Mockup Preview"
+    timeout: 15000
+
+- assertVisible: "Mockup Preview"
+
+- assertVisible:
+    id: "btnHome"
+
+# Chụp ảnh màn hình Mockup Preview ban đầu (Visual Compare)
+- takeScreenshot: "screenshots/TC_11_Verify_Navigated_To_Mockup_Preview_Screen"
+
+# Step 9: Nhấn nút Save trên thẻ Mockup (Nếu còn ở trạng thái Download)
+- runFlow:
+    when:
+      visible:
+        id: "btnSave"
+    commands:
+      - tapOn:
+          id: "btnSave"
+          index: 0
+      - waitForAnimationToEnd:
+          timeout: 2000
+      - runFlow:
+          when:
+            visible:
+              id: "tvSaveMockupTitle"
+          commands:
+            - tapOn:
+                id: "btn_save_with_watermark"
+            - waitForAnimationToEnd:
+                timeout: 3000
+
+# Step 10: Xác nhận nút Save đã chuyển thành nút Share (hoặc đã ở trạng thái Share)
+- extendedWaitUntil:
+    visible:
+      id: "btnShare"
+    timeout: 5000
+
+- assertVisible:
+    id: "btnShare"
+
+# Step 11: Cuộn duyệt toàn bộ danh sách 5 mẫu sản phẩm (Biển hiệu vuông, Mũ, Áo thun, Cốc cafe)
+- repeat:
+    times: 4
+    commands:
+      - scroll
+      - waitForAnimationToEnd:
+          timeout: 1000
+
+# Chụp ảnh màn hình Mockup cuối cùng (Cốc sứ cafe)
+- takeScreenshot: "screenshots/TC_11_Verify_Displayed_Last_Image_On_Mockup_Preview_Screen"
+
+# Step 12: Cuộn ngược lại lên đầu danh sách
+- repeat:
+    times: 4
+    commands:
+      - swipe:
+          start: "50%, 30%"
+          end: "50%, 80%"
+      - waitForAnimationToEnd:
+          timeout: 1000
+
+# Step 13: Bấm nút Back trên Toolbar để quay lại Preview Screen
+- tapOn:
+    point: "8%, 7%"
+
+- runFlow:
+    when:
+      visible: "Mockup Preview"
+    commands:
+      - back
+
+- runFlow:
+    when:
+      visible: "Close"
+    file: "../config/Close_Ads_Screen.yaml"
+
+- extendedWaitUntil:
+    visible:
+      id: "btnBrandIdentify"
+    timeout: 10000
+
+- assertVisible: "Preview"
+
+# ==============================================================================
+# PHẦN 2: ĐIỀU HƯỚNG TỪ MY LOGO TRÊN HOME SCREEN VÀO MOCKUP PREVIEW
+# ==============================================================================
+
+# Step 14: Tại Preview Screen, bấm nút Home để về màn hình chính
+- tapOn:
+    id: "btnHome"
+
+- runFlow:
+    when:
+      visible: "Did you like this app?"
+    commands:
+      - back
+
+- runFlow:
+    when:
+      visible: "Close"
+    file: "../config/Close_Ads_Screen.yaml"
+
+- extendedWaitUntil:
+    visible:
+      id: "btnTemplate"
+    timeout: 10000
+
+# Step 15: Cuộn xuống và mở thư viện "My Logo"
+- scrollUntilVisible:
+    element:
+      id: "btnMyDesignImageFile"
+    direction: "DOWN"
+
+- tapOn:
+    id: "btnMyDesignImageFile"
+
+- extendedWaitUntil:
+    visible: "My Logo"
+    timeout: 10000
+
+- assertVisible: "My Logo"
+
+# Step 16: Chọn logo đầu tiên trong danh sách lưới (Top-Left card)
+- tapOn:
+    point: "25%, 22%"
+
+# Xử lý quảng cáo xen kẽ nếu có
+- runFlow:
+    when:
+      visible: "Close"
+    file: "../config/Close_Ads_Screen.yaml"
+
+- runFlow:
+    when:
+      visible: "Test Ad"
+    file: "../config/Close_Ads_Screen.yaml"
+
+# Step 17: Xác nhận đã vào Preview Screen và bấm nút Brand Identify
+- extendedWaitUntil:
+    visible:
+      id: "btnBrandIdentify"
+    timeout: 10000
+
+- assertVisible:
+    id: "btnBrandIdentify"
+
+- tapOn:
+    id: "btnBrandIdentify"
+
+# Xử lý popup đánh giá hoặc quảng cáo
+- runFlow:
+    when:
+      visible: "Did you like this app?"
+    commands:
+      - tapOn:
+          point: "10%, 10%"
+
+- runFlow:
+    when:
+      visible: "Test Ad"
+    file: "../config/Close_Ads_Rewards.yaml"
+
+- runFlow:
+    when:
+      visible: "Test Ad"
+    file: "../config/Close_Ads_Screen.yaml"
+
+- runFlow:
+    when:
+      visible: "Close"
+    file: "../config/Close_Ads_Screen.yaml"
+
+# Step 18: Xác nhận điều hướng thành công vào Mockup Preview Screen từ My Logo
+- extendedWaitUntil:
+    visible: "Mockup Preview"
+    timeout: 15000
+
+- assertVisible: "Mockup Preview"
+
+- assertVisible:
+    id: "btnHome"
+
+# ==============================================================================
+# PHẦN 3: THOÁT MÀN HÌNH AN TOÀN VỀ HOME SCREEN (SAFE EXIT PATTERN)
+# ==============================================================================
+
+# Step 19: Khởi động lại an toàn về Home Screen cho test case tiếp theo
+- stopApp
+- launchApp:
+    clearState: false
+    permissions:
+      all: allow
+- waitForAnimationToEnd:
+    timeout: 3000
+- extendedWaitUntil:
+    visible:
+      id: "btnTemplate"
+    timeout: 10000
+

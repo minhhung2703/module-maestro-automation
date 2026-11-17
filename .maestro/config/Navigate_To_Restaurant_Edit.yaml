@@ -1,0 +1,165 @@
+appId: com.thmobile.logomaker
+---
+
+# ==============================================================================
+# 1. PHIÊN BẢN FREE: Không tìm template Premium, chọn template Free tiêu chuẩn
+# ==============================================================================
+- runFlow:
+    when:
+      true: ${typeof APP_VERSION !== 'undefined' && APP_VERSION === 'Free'}
+    commands:
+      - runFlow:
+          when:
+            visible: ".*(Subscribe|Đăng ký|Starting today|Google Play).*"
+          commands:
+            - back
+      - runFlow:
+          when:
+            visible:
+              id: "btnCancel"
+          commands:
+            - tapOn:
+                id: "btnCancel"
+      - tapOn:
+          id: "btnTemplate"
+
+      - waitForAnimationToEnd:
+          timeout: 3000
+
+      - runFlow:
+          when: 
+              visible: "Dismiss"
+          commands:
+              - tapOn: "Dismiss"
+
+      - tapOn:
+          id: "imageView"
+          index: 0
+          below:
+            text: "Restaurant"
+
+      - runFlow:
+          when:
+            visible: "Close button"
+          commands: 
+              - tapOn: "Close button"
+
+      - runFlow:
+          when:
+            visible: "Close"
+          file: "./Close_Ads_Screen.yaml"
+
+      # Xử lý dialog tải tài nguyên template nếu có
+      - runFlow:
+          when:
+            visible: "Downloading resources"
+          commands:
+            - runFlow:
+                when:
+                  visible: "Download in background"
+                commands:
+                  - tapOn: "Download in background"
+            - extendedWaitUntil:
+                notVisible: "Downloading resources"
+                timeout: 30000
+
+      - waitForAnimationToEnd:
+          timeout: 3000
+
+# ==============================================================================
+# 2. PHIÊN BẢN PREMIUM: Tự động tìm và chọn đúng template Nhà Hàng bằng OpenCV
+# ==============================================================================
+- runFlow:
+    when:
+      true: ${typeof APP_VERSION === 'undefined' || APP_VERSION === 'Premium'}
+    commands:
+      - runFlow:
+          when:
+            visible: ".*(Subscribe|Đăng ký|Starting today|Google Play).*"
+          commands:
+            - back
+      - runFlow:
+          when:
+            visible:
+              id: "btnCancel"
+          commands:
+            - tapOn:
+                id: "btnCancel"
+      - tapOn:
+          id: "btnTemplate"
+
+      - waitForAnimationToEnd:
+          timeout: 3000
+
+      - runFlow:
+          when: 
+              visible: "Dismiss"
+          commands:
+              - tapOn: "Dismiss"
+
+      - extendedWaitUntil:
+          visible:
+            id: "tvSeeAll"
+          timeout: 10000
+
+      - tapOn:
+          id: "tvSeeAll"
+          index: 2
+
+      - assertVisible: 
+          id: "tvCategory"
+          text: "Food & Drink"
+
+      - runFlow:
+          when:
+            visible: "Dismiss"
+          commands:
+            - tapOn: "Dismiss"
+
+      # Gọi script Python OpenCV qua HTTP daemon để quét màn hình và tap đúng template
+      - runScript: "../../scripts/select_premium_template.js"
+
+      - runFlow:
+          when:
+            visible: "Close button"
+          commands:
+            - tapOn: "Close button"
+
+      - runFlow:
+          when:
+            visible: "Close"
+          file: "./Close_Ads_Screen.yaml"
+
+      # Xử lý dialog tải tài nguyên template nếu có
+      - runFlow:
+          when:
+            visible: "Downloading resources"
+          commands:
+            - runFlow:
+                when:
+                  visible: "Download in background"
+                commands:
+                  - tapOn: "Download in background"
+            - extendedWaitUntil:
+                notVisible: "Downloading resources"
+                timeout: 30000
+
+      - extendedWaitUntil:
+          visible: "Logos4U"
+          timeout: 20000
+
+# ==============================================================================
+# 3. TỰ ĐỘNG GIẢI PHÓNG 8 MÀN INTRO HƯỚNG DẪN KHI VÀO EDIT SCREEN LẦN ĐẦU (SELF-HEALING)
+# ==============================================================================
+- repeat:
+    times: 8
+    while:
+      notVisible:
+        id: "mnItemSave"
+    commands:
+      - back
+      - waitForAnimationToEnd:
+          timeout: 800
+
+- waitForAnimationToEnd:
+    timeout: 3000

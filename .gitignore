@@ -1,0 +1,31 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs and editor
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Android Binaries
+app/*.apk
+app/*.aab
+
+# Test artifacts
+/*.png
+.maestro/screenshots/
+!/assets/
+!/screenshots/
+
+# Reports and runtime logs
+reports/*
+!reports/.gitkeep
+*.log
+
+# AI Agent local brain & skills
+.agents/
+

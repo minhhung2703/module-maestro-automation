@@ -1,0 +1,57 @@
+appId: com.thmobile.logomaker
+---
+- runFlow: "../../config/Launch_App_Clear_State.yaml"
+- runFlow: "../../config/Language_Screen/Tap_On_Language_Success.yaml"
+- runFlow: "../../config/Close_Ads_Screen.yaml"
+
+# Verify Onboarding 1 screen
+- assertVisible:
+    id: "img"
+- assertVisible: "LogoX - AI Logo Maker"
+- assertVisible: "Edit your design easily!"
+- assertVisible: "Next"
+- swipe:
+    start: 90%, 50%
+    end: 10%, 50%
+    duration: 500
+
+# Verify Onboarding 2 screen
+- assertVisible:
+    id: "img"
+- assertVisible: "1000+ Templates"
+- assertVisible: "Create stunning logos!"
+- assertVisible: "Next"
+- swipe:
+    start: 90%, 50%
+    end: 10%, 50%
+    duration: 500
+
+# Verify Onboarding 3 screen
+- assertVisible:
+    id: "img"
+- assertVisible: "Create Logo Easily"
+- assertVisible: "With Auto Design Tool"
+- assertVisible: "Get Start"
+- assertNotVisible: "Next"
+
+- swipe:
+    start: 10%, 50%
+    end: 90%, 50%
+    duration: 500
+- assertVisible:
+    id: "img"
+- assertVisible: "1000+ Templates"
+- assertVisible: "Create stunning logos!"
+- assertVisible: "Next"
+
+- assertNotVisible: "Create Logo Easily"
+- assertNotVisible: "With Auto Design Tool"
+- assertNotVisible: "Get Start"
+
+- swipe:
+    start: 10%, 50%
+    end: 90%, 50%
+    duration: 500
+- assertVisible: "LogoX - AI Logo Maker"
+- assertVisible: "Edit your design easily!"
+- assertVisible: "Next"

@@ -1,0 +1,6 @@
+appId: com.thmobile.logomaker
+---
+
+- tapOn:
+    text: "Dismiss"
+    optional: true

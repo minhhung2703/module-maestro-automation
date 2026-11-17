@@ -1,0 +1,49 @@
+appId: com.thmobile.logomaker
+---
+- runFlow: "../../config/Launch_App_Clear_State.yaml"
+
+- assertVisible: "Language"
+
+- tapOn: "English"
+
+# Xác minh checkbox bên trong dòng English đã được tích chọn (Sử dụng childOf)
+- assertVisible:
+    id: "checkbox"
+    childOf:
+      id: "rlItem"
+      containsChild:
+        text: "English"
+    selected: true
+
+- tapOn:
+    id: "rlItem"
+    containsChild: "Afrikaans"
+
+- assertVisible:
+    id: "checkbox"
+    childOf:
+      id: "rlItem"
+      containsChild:
+        text: "English"
+    selected: false
+
+- assertVisible:
+    id: "checkbox"
+    childOf:
+      id: "rlItem"
+      containsChild:
+        text: "Afrikaans"
+    selected: true
+
+- tapOn: "Tiếng Việt"
+
+- assertVisible:
+    id: "checkbox"
+    childOf:
+      id: "rlItem"
+      containsChild:
+        text: "Tiếng Việt"
+    selected: true
+
+- assertWithAI:
+    assertion: "On this screen, there is a list of language options. Verify that only the currently selected language ('Tiếng Việt') is highlighted with a border and has its radio button checked/selected. All other language options must be unselected (radio buttons unchecked) and must not have any highlighted borders."

@@ -1,0 +1,29 @@
+appId: com.thmobile.logomaker
+---
+- stopApp
+
+- launchApp:
+    clearState: false
+    permissions:
+      all: allow
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- runFlow:
+    when:
+      visible: "Close"
+    file: "./Close_Ads_Screen.yaml"
+
+- runFlow:
+    when:
+      visible: "Skip the free trial?"
+    file: "./Close_Skip_The_Free_Trial_Popup.yaml"
+
+- runFlow:
+    when:
+      visible:
+        id: "btnCancel"
+    commands:
+      - tapOn:
+          id: "btnCancel"

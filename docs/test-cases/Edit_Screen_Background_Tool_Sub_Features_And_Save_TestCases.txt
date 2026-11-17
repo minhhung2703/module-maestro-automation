@@ -1,0 +1,536 @@
+====================================================================================================
+           BỘ TEST CASES FUNCTIONAL: KHÁM PHÁ TỪNG TÍNH NĂNG CON CỦA BACKGROUND TOOL
+                KẾT HỢP LƯU (SAVE) & ĐIỀU HƯỚNG TỚI MÀN HÌNH PREVIEW (LOGO MAKER)
+====================================================================================================
+Ứng dụng: Logo Maker (Logos4U)
+Application ID: com.thmobile.logomaker
+Platform: Android (Đã thực thi & kiểm chứng trực tiếp trên Samsung Galaxy Android 14)
+Framework kiểm thử tự động: Maestro Automation Framework
+Màn hình kiểm thử:
+  1. Edit Screen (Template Detail / LogoDesignActivity): Toàn bộ các công cụ và sub-features của Background Tool
+  2. Select Color Screen: Bảng chọn màu nền đơn sắc (Solid Color)
+  3. Custom Gradient Screen: Bộ thiết kế màu nền dải chuyển tiếp (Linear / Radial Gradient)
+  4. Background Select Screen: Thư viện hình nền mẫu có sẵn theo catalog
+  5. Texture Select Screen: Thư viện chất liệu hoa văn phủ nền
+  6. Media Picker & Crop Screen: Chèn ảnh cá nhân từ thư viện máy & công cụ cắt xoay làm nền
+  7. Save Dialog & Options (parentPanel, customPanel): Xuất file ảnh PNG HD & Lưu dự án (Save Project)
+  8. Preview Screen (LogoPreviewActivity): Màn hình kết quả đầu ra bắt buộc sau mỗi lần lưu thành công
+Luồng thao tác tổng quát (Workflow):
+  Home Screen > Nút "Template" (btnTemplate) > Chọn Template đầu tiên của chủ đề "Restaurant" >
+  Điều hướng tới màn Template Detail (Edit Screen) >
+  Mỗi chu kỳ kiểm thử thực hiện theo chuẩn khép kín:
+    [Áp dụng Tính Năng Con của Background Tool] ->
+    [Nhấn icon Save (mnItemSave)] ->
+    [Chọn Export Logo PNG HD / Save Project] ->
+    [Xử lý Ads / Rating Popups] ->
+    [Xác nhận kết quả đầu ra thành công tại màn Preview Screen] ->
+    [Nhấn nút Back (toolbar Navigate up / point: 8%, 8%)] ->
+    [Xử lý Ads khi Back] ->
+    [Xác nhận trở lại an toàn màn Edit Screen để thực hiện tính năng con tiếp theo].
+Ngày tạo: 2026-10-27
+Tài nguyên Hierarchy chính:
+  itemBackground, layout_background_editor_menu, rvShape, imgShape, seekbar, tvTransparent,
+  Select Color, btnPickOther, imgColor, img,
+  Custom Gradient, imgPreview, imgStartColor, imgEndColor, imgSwap, rbLinear, rbRadial,
+  imgDirDown, imgDirRight, imgDirDownRigh, imgDirDownLeft, applyButton,
+  Background Select, Texture Select, CROP, ic_rotate_right_24, ic_flip_24,
+  mnItemSave, llExportLogo, llSaveProject, layout_hd, tvSave,
+  toolbar, btnHome, btnShare, btnAiLogoStyle, btnBrandIdentify, imageTransparentGrid, logoBitmap
+====================================================================================================
+
+I. DANH SÁCH RESOURCE-ID & CẤU TRÚC VIEW PHÂN TÍCH TỪ THIẾT BỊ THẬT (UI DUMP)
+----------------------------------------------------------------------------------------------------
+1. Thanh Toolbar Điều hướng & Công cụ Thượng tầng (Edit Screen Top Bar):
+   - android.widget.ImageButton (desc: "Navigate up")   : Nút quay lại màn hình chọn template trước đó
+   - TextView (text: "Logos4U")                         : Tiêu đề ứng dụng
+   - TextView (text: "Design_...")                      : Tên mã phiên bản thiết kế tự động theo thời gian
+   - com.thmobile.logomaker:id/imageShowGrid            : Nút bật/tắt hiển thị lưới toạ độ (Grid)
+   - com.thmobile.logomaker:id/imageViewLayerTag        : Nút mở bảng điều khiển quản lý Layer (Layer Drawer)
+   - com.thmobile.logomaker:id/mnItemSave (desc: "save"): Nút Save góc trên bên phải (Bounds: [936,100][1080,244])
+   - com.thmobile.logomaker:id/btnUndo (ivUndo)         : Nút Hoàn tác (Undo) thao tác vừa thực hiện
+   - com.thmobile.logomaker:id/btnRedo (ivRedo)         : Nút Làm lại (Redo) thao tác vừa hoàn tác
+
+2. Vùng Canvas Thiết kế Chính (Design Canvas Area):
+   - com.thmobile.logomaker:id/layout_designer          : Khung chứa toàn bộ vùng thiết kế ([0,304][1080,1384])
+   - com.thmobile.logomaker:id/layout_transparent       : Vùng lưới nền trong suốt chứa các layer đối tượng
+   - com.thmobile.logomaker:id/bgDesignArea             : Lớp nền màu/ảnh/shape của vùng thiết kế
+   - com.thmobile.logomaker:id/stickerView              : Khung chứa các sticker Art, Text Frame đang được chọn
+
+3. Thanh Công cụ Chính Phía Dưới (Bottom Main Tools):
+   - com.thmobile.logomaker:id/itemBackground          : Công cụ 1 - Background (Bounds: [0,2109][180,2168])
+   - com.thmobile.logomaker:id/itemArt                 : Công cụ 2 - Art ([180,2109][360,2168])
+   - com.thmobile.logomaker:id/itemText                : Công cụ 3 - Text ([360,2109][540,2168])
+   - com.thmobile.logomaker:id/itemEffect              : Công cụ 4 - Effect ([540,2109][720,2168])
+   - com.thmobile.logomaker:id/itemPalette             : Công cụ 5 - Palette ([720,2109][900,2168])
+   - com.thmobile.logomaker:id/itemImage               : Công cụ 6 - Image ([900,2109][1080,2168])
+
+4. Bảng Điều Khiển Background Tool (Background Panel):
+   A. Thanh Sub-Tabs (`layout_background_editor_menu` - Bounds: [0,1593][1080,1701]):
+      - Tab "Color"      (content-desc: "Color", Bounds: [0,1593][216,1701])     : Mở màn hình chọn màu đơn sắc
+      - Tab "Gradient"   (content-desc: "Gradient", Bounds: [216,1593][432,1701]): Mở màn hình thiết kế Gradient
+      - Tab "Background" (content-desc: "Background", Bounds: [432,1593][663,1701]): Mở thư viện hình nền mẫu
+      - Tab "Texture"    (content-desc: "Texture", Bounds: [663,1593][879,1701]) : Mở thư viện hoa văn chất liệu
+      - Tab "Image"      (content-desc: "Image", Bounds: [879,1593][1080,1701])  : Mở Media Picker & Crop ảnh
+
+   B. Thanh Trượt Độ Mờ Đục (Opacity / Transparency Control):
+      - com.thmobile.logomaker:id/seekbar              : Thanh trượt SeekBar điều chỉnh độ mờ đục ([120,1734][936,1788])
+      - com.thmobile.logomaker:id/tvTransparent        : Nhãn TextView hiển thị phần trăm (Mặc định: 100)
+
+   C. Danh Sách Khung Hình Học Nền (Geometry Shapes - `rvShape` [0,1821][1080,1941]):
+      - com.thmobile.logomaker:id/imgShape index 0     : Không áp shape (Nền đầy đủ / Transparent checkerboard)
+      - com.thmobile.logomaker:id/imgShape index 1     : Khung hình vuông tiêu chuẩn (Default Square)
+      - com.thmobile.logomaker:id/imgShape index 2     : Khung hình vuông bo tròn góc (Rounded Square)
+      - com.thmobile.logomaker:id/imgShape index 3     : Khung hình tam giác (Triangle)
+      - com.thmobile.logomaker:id/imgShape index 4     : Khung hình tròn (Circle)
+      - com.thmobile.logomaker:id/imgShape index 5     : Khung hình lục giác (Hexagon)
+      - com.thmobile.logomaker:id/imgShape index 6     : Khung hình ngôi sao (Star)
+      - com.thmobile.logomaker:id/imgShape index 7     : Khung hình khiên hiệp sĩ 1 (Shield 1)
+      - com.thmobile.logomaker:id/imgShape index 8     : Khung hình khiên hiệp sĩ 2 (Shield 2)
+
+5. Màn hình Chọn Màu Đơn Sắc (Select Color Screen):
+   - android.widget.ImageButton (desc: "Navigate up")   : Nút quay lại màn hình Edit trước đó
+   - TextView (text: "Select Color")                    : Tiêu đề màn hình chọn màu
+   - com.thmobile.logomaker:id/btnPickOther             : Nút mở bảng màu tự do ("PICK ANOTHER")
+   - com.thmobile.logomaker:id/imgColor                 : Khung màu hiện tại (Current Color preview)
+   - TextView (text: "Current Color")                   : Nhãn chú thích màu hiện tại
+   - com.thmobile.logomaker:id/img                      : 18 ô màu đơn sắc có sẵn (Trắng, Đỏ, Hồng, Tím, Lam, Cam...)
+
+6. Màn hình Thiết Kế Chuyển Sắc (Custom Gradient Screen):
+   - android.widget.ImageButton (desc: "Navigate up")   : Nút quay lại màn hình Edit
+   - TextView (text: "Custom Gradient")                 : Tiêu đề màn hình
+   - com.thmobile.logomaker:id/imgPreview               : Vùng xem trước hiệu ứng Gradient lớn
+   - com.thmobile.logomaker:id/imgStartColor            : Nút tròn chọn màu khởi đầu (Start Color)
+   - com.thmobile.logomaker:id/imgSwap                  : Nút đảo chiều 2 màu (Swap)
+   - com.thmobile.logomaker:id/imgEndColor              : Nút tròn chọn màu kết thúc (End Color)
+   - com.thmobile.logomaker:id/rbLinear                 : RadioButton chọn kiểu Gradient tuyến tính (Linear)
+   - com.thmobile.logomaker:id/rbRadial                 : RadioButton chọn kiểu Gradient tỏa tròn (Radial)
+   - com.thmobile.logomaker:id/imgDirDown               : Hướng đổ màu xuống (Down)
+   - com.thmobile.logomaker:id/imgDirRight              : Hướng đổ màu sang phải (Right)
+   - com.thmobile.logomaker:id/imgDirDownRigh           : Hướng đổ màu chéo xuống phải (Down-Right)
+   - com.thmobile.logomaker:id/imgDirDownLeft           : Hướng đổ màu chéo xuống trái (Down-Left)
+   - com.thmobile.logomaker:id/applyButton              : Nút xác nhận "APPLY" áp dụng Gradient vào nền logo
+
+7. Màn hình Thư Viện Hình Nền (Background Select Screen):
+   - android.widget.ImageButton (desc: "Navigate up")   : Nút quay lại màn hình Edit
+   - TextView (text: "Background Select")               : Tiêu đề màn hình
+   - Lưới hiển thị các mẫu hình nền đa dạng (Presets):
+     + Preset index 0: Nền gợn sóng sọc vàng (Free)
+     + Preset index 1: Nền hình khối đa sắc kim cương (Free)
+     + Preset index 2: Nền gạch trắng cổ điển (Free)
+     + Preset index 3: Nền ống màu giọt nước (Free)
+     + Các preset có biểu tượng vương miện vàng (PRO / VIP)
+
+8. Màn hình Thư Viện Chất Liệu Hoa Văn (Texture Select Screen):
+   - android.widget.ImageButton (desc: "Navigate up")   : Nút quay lại màn hình Edit
+   - TextView (text: "Texture Select")                  : Tiêu đề màn hình
+   - Lưới hiển thị các mẫu hoa văn chất liệu:
+     + Texture index 0: Sọc dọc màu pastel đa sắc (Free)
+     + Texture index 1: Hoa văn sao đa giác xanh lục đậm (Free)
+     + Texture index 2: Hoa văn ren mandala tuyết cam (Free)
+     + Texture index 3: Họa tiết trái tim hồng dễ thương (Free)
+     + Các texture có biểu tượng vương miện vàng (PRO / VIP)
+
+9. Màn hình Chèn & Cắt Ảnh Cá Nhân (Media Picker & Crop Screen):
+   - Android Media Picker Sheet                         : Bộ chọn ảnh hệ thống (Photos / Collections)
+   - Màn hình Crop (CropActivity):
+     + android.widget.ImageButton (desc: "Navigate up") : Nút quay lại không crop
+     + com.thmobile.logomaker:id/ic_rotate_right_24     : Nút xoay ảnh 90 độ theo chiều kim đồng hồ
+     + com.thmobile.logomaker:id/ic_flip_24             : Nút mở tùy chọn lật ảnh ("Flip horizontally" / "Flip vertically")
+     + TextView (text: "CROP")                          : Nút xác nhận cắt và áp dụng ảnh làm nền logo
+
+10. Hộp thoại Lưu & Xuất Logo (Save Feature Dialogs):
+    - com.thmobile.logomaker:id/parentPanel             : Container popup lựa chọn cách lưu
+    - com.thmobile.logomaker:id/llExportLogo            : Mục 1 - "Export Logo (PNG)" (Xuất file ảnh)
+    - com.thmobile.logomaker:id/llSaveProject           : Mục 2 - "Save Project (Edit Later)" (Lưu dự án)
+    - Hộp thoại Logo Size Dialog:
+      + com.thmobile.logomaker:id/layout_default        : Kích thước Standard (512 * 512)
+      + com.thmobile.logomaker:id/layout_hd             : Kích thước HD (1024 * 1024) [MẶC ĐỊNH CHỌN]
+      + com.thmobile.logomaker:id/layout_hd_plus        : Kích thước HD+ (2048 * 2048)
+      + com.thmobile.logomaker:id/tvSave                : Nút xác nhận lưu (Text: "SAVE")
+
+11. Màn hình Kết Quả Đầu Ra - Preview Screen (LogoPreviewActivity):
+    - android.widget.ImageButton (desc: "Navigate up")  : Nút quay lại màn hình Edit (Tọa độ: point: 8%, 8%)
+    - TextView (text: "Preview")                        : Tiêu đề màn hình kết quả đầu ra
+    - com.thmobile.logomaker:id/btnHome                 : Nút hình ngôi nhà điều hướng về màn hình Home chính
+    - com.thmobile.logomaker:id/imageTransparentGrid    : Lưới caro nền trong suốt
+    - com.thmobile.logomaker:id/logoBitmap              : Ảnh bitmap logo đã được kết xuất thành công
+    - com.thmobile.logomaker:id/btnShare                : Nút Floating Action Button mở chia sẻ
+    - com.thmobile.logomaker:id/btnAiLogoStyle          : Nút mở tính năng AI Style Magic
+    - com.thmobile.logomaker:id/btnBrandIdentify        : Nút mở tính năng Mockup Brand Identify
+
+12. Xử lý Popup Ngoại lệ, Ads & Trạng thái:
+    - Popup IAP "Get Full Access": `btn_cancel` (Bounds: [60,60][216,216])
+    - Interstitial Test Ad (AdMob): Nút Close (`content-desc="Close"` tại [972,124][1044,196] hoặc `point: 93%, 7%` hoặc nút Back)
+    - Rating Dialog: "Did you like this app?" -> Nút Back hoặc chọn đánh giá
+    - Collapsible Banner Ad: "Close button"
+
+
+====================================================================================================
+II. CHI TIẾT CÁC BỘ FUNCTIONAL TEST CASES
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+NHÓM 1: UI & TRẠNG THÁI KHỞI TẠO CỦA BACKGROUND TOOL TRÊN MÀN EDIT
+----------------------------------------------------------------------------------------------------
+
+[TC_BG_UI_01] Kiểm tra hiển thị tổng thể bảng điều khiển Background Tool khi được mở
+- Mục tiêu: Đảm bảo khi nhấn vào tab Background, thanh sub-tabs, thanh trượt Opacity và danh sách Shape hiển thị đầy đủ, không bị che khuất.
+- Tiền điều kiện: Mở app -> Điều hướng tới màn Edit (Template Restaurant #1).
+- Các bước thực hiện:
+  1. Nhấn vào tab "Background" (`id: "itemBackground"`).
+  2. Kiểm tra tab "Background" chuyển sang trạng thái `selected: true`.
+  3. Kiểm tra thanh sub-tabs `layout_background_editor_menu` hiển thị đủ 5 mục: "Color", "Gradient", "Background", "Texture", "Image".
+  4. Kiểm tra thanh trượt `seekbar` và nhãn hiển thị phần trăm `tvTransparent` hiển thị giá trị mặc định là "100".
+  5. Kiểm tra danh sách hình dạng `rvShape` hiển thị các icon `imgShape` (ít nhất từ index 0 đến 8).
+- Kết quả mong đợi:
+  - Bảng công cụ Background Tool mở lên mượt mà, layout chuẩn xác.
+  - Không có element nào bị vỡ giao diện hoặc lỗi hiển thị text.
+- Mức độ ưu tiên: High (P1)
+- Trạng thái: PASSED
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 2: TÍNH NĂNG CON 1 - THAY ĐỔI HÌNH DẠNG KHUNG NỀN (GEOMETRY SHAPE) -> SAVE -> PREVIEW -> BACK
+----------------------------------------------------------------------------------------------------
+
+[TC_BG_SHAPE_01] Thay đổi hình dạng khung nền sang hình Tam giác (Triangle) và Lưu xuất PNG HD thành công
+- Mục tiêu: Áp dụng khung hình học Tam giác cho nền logo, xuất ảnh PNG HD, kiểm tra màn Preview hiển thị đúng hình dạng tam giác và quay lại màn Edit an toàn.
+- Tiền điều kiện: Đang ở màn Edit Screen với Background Tool đang mở.
+- Các bước thực hiện:
+  1. Tại danh sách `rvShape`, nhấn vào `imgShape` index 3 (Khung hình Tam giác).
+  2. Xác minh vùng nền thiết kế `bgDesignArea` trên canvas thay đổi hiển thị thành hình tam giác.
+  3. Nhấn nút Save ở góc trên bên phải (`mnItemSave`).
+  4. Tại popup lựa chọn cách lưu, nhấn vào "Export Logo (PNG)" (`llExportLogo`).
+  5. Tại popup chọn kích thước Logo Size, chọn độ phân giải "HD (1024 * 1024)" (`layout_hd`).
+  6. Nhấn nút "SAVE" (`tvSave`) để tiến hành xuất file.
+  7. Xử lý quảng cáo có thưởng (Reward Ad) hoặc Interstitial Ad nếu xuất hiện: Chờ hiển thị nút Close (`point: 93%, 7%`).
+  8. Xử lý popup đánh giá "Did you like this app?" nếu xuất hiện: Nhấn Back để đóng.
+  9. Chờ màn hình kết quả đầu ra "Preview" hiển thị (`LogoPreviewActivity`).
+  10. Xác minh màn Preview hiển thị: Tiêu đề "Preview", nút `btnHome`, nút `btnShare`, khung `imageTransparentGrid`, `logoBitmap`.
+  11. Chụp screenshot màn Preview: `screenshots/TC_14_Preview_After_Shape_Triangle`.
+  12. Nhấn nút Back ở thanh Toolbar (tọa độ `point: 8%, 8%`).
+  13. Xử lý quảng cáo khi back (nếu có): Đóng quảng cáo để quay về Edit Screen.
+  14. Xác nhận quay lại màn Edit Screen an toàn: Nút `mnItemSave` hiển thị, vùng canvas `layout_designer` sẵn sàng cho thao tác tiếp theo.
+- Kết quả mong đợi:
+  - Khung nền Tam giác được áp dụng chuẩn xác.
+  - Quá trình xuất ảnh HD diễn ra thành công không bị gián đoạn hay crash.
+  - Màn Preview hiển thị ảnh logo đúng khung tam giác.
+  - Điều hướng quay lại màn Edit hoàn tất, sẵn sàng cho bước test tiếp theo.
+- Mức độ ưu tiên: Critical (P0)
+- Trạng thái: PASSED
+
+[TC_BG_SHAPE_02] Thay đổi hình dạng khung nền sang hình Tròn (Circle) và Lưu xuất PNG HD thành công
+- Mục tiêu: Áp dụng khung hình học Tròn cho nền logo, xuất ảnh PNG HD, kiểm tra màn Preview hiển thị đúng hình tròn và quay lại màn Edit.
+- Tiền điều kiện: Đang ở màn Edit Screen sau khi hoàn thành TC_BG_SHAPE_01.
+- Các bước thực hiện:
+  1. Nhấn mở lại tab "Background" (`itemBackground`).
+  2. Tại danh sách `rvShape`, nhấn vào `imgShape` index 4 (Khung hình Tròn).
+  3. Xác minh vùng nền thiết kế thay đổi thành hình tròn viền bao quanh các layer logo.
+  4. Nhấn nút Save (`mnItemSave`) -> Chọn `llExportLogo` -> Chọn `layout_hd` -> Nhấn `tvSave`.
+  5. Xử lý quảng cáo và popup trung gian.
+  6. Màn Preview hiển thị: Xác minh logo được kết xuất với khung hình tròn hoàn hảo.
+  7. Chụp screenshot màn Preview: `screenshots/TC_14_Preview_After_Shape_Circle`.
+  8. Nhấn nút Back (`point: 8%, 8%`), đóng ads nếu có.
+  9. Xác nhận quay lại màn Edit Screen: Nút `mnItemSave` hiển thị sẵn sàng.
+- Kết quả mong đợi:
+  - Khung hình tròn được lưu thành công vào file ảnh PNG HD.
+  - Điều hướng vòng lặp Edit -> Save -> Preview -> Edit hoạt động mượt mà.
+- Mức độ ưu tiên: High (P1)
+- Trạng thái: PASSED
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 3: TÍNH NĂNG CON 2 - ĐỔI MÀU NỀN ĐƠN SẮC (SOLID COLOR) -> SAVE -> PREVIEW -> BACK
+----------------------------------------------------------------------------------------------------
+
+[TC_BG_COLOR_01] Chọn màu nền đơn sắc mới từ bảng màu có sẵn và Lưu xuất PNG HD thành công
+- Mục tiêu: Chuyển sang sub-tab Color, chọn mã màu đơn sắc mới, xuất file ảnh PNG HD, xác nhận màn Preview hiển thị màu nền mới và quay lại màn Edit.
+- Tiền điều kiện: Đang ở màn Edit Screen.
+- Các bước thực hiện:
+  1. Nhấn vào tab "Background" (`id: "itemBackground"`).
+  2. Nhấn vào sub-tab "Color" trong `layout_background_editor_menu`.
+  3. Xác minh màn hình "Select Color" hiển thị với tiêu đề, nút "PICK ANOTHER" (`btnPickOther`), khung "Current Color" (`imgColor`) và lưới các ô màu `img`.
+  4. Nhấn chọn ô màu thứ 2 (Màu Đỏ tươi - Red: `id: "img"`, `index: 1`).
+  5. Ứng dụng tự động đóng màn hình chọn màu và áp dụng màu nền Đỏ vào Canvas trên màn Edit.
+  6. Nhấn nút Save (`mnItemSave`).
+  7. Chọn "Export Logo (PNG)" (`llExportLogo`).
+  8. Chọn độ phân giải "HD (1024 * 1024)" (`layout_hd`).
+  9. Nhấn nút "SAVE" (`tvSave`).
+  10. Xử lý quảng cáo và popup sau lưu nếu có.
+  11. Màn Preview hiển thị: Xác minh logo hiển thị rõ ràng trên nền màu đỏ mới.
+  12. Chụp screenshot màn Preview: `screenshots/TC_14_Preview_After_Color_Red`.
+  13. Nhấn nút Back (`point: 8%, 8%`) trên toolbar Preview.
+  14. Xử lý quảng cáo khi back (nếu có).
+  15. Xác nhận trở lại màn Edit Screen thành công (`mnItemSave` visible).
+- Kết quả mong đợi:
+  - Màu nền đơn sắc được cập nhật chính xác trên toàn bộ vùng nền logo.
+  - Quá trình lưu và xuất ảnh thành công, file ảnh tại Preview mang đúng màu nền đã chọn.
+  - Điều hướng trở lại màn Edit ổn định.
+- Mức độ ưu tiên: Critical (P0)
+- Trạng thái: PASSED
+
+[TC_BG_COLOR_02] Mở bảng màu nâng cao qua nút "PICK ANOTHER" và kiểm tra hiển thị
+- Mục tiêu: Xác nhận nút "PICK ANOTHER" mở hộp thoại bảng màu nâng cao cho phép người dùng tùy chọn màu tự do.
+- Tiền điều kiện: Đang ở màn Edit Screen.
+- Các bước thực hiện:
+  1. Nhấn vào tab "Background" (`itemBackground`).
+  2. Nhấn vào sub-tab "Color" (`layout_background_editor_menu`).
+  3. Nhấn vào nút "PICK ANOTHER" (`btnPickOther`).
+  4. Xác minh hộp thoại chọn màu nâng cao ("Select a Color" Dialog) hiển thị lưới 20 màu cơ bản, các dải sắc độ (Shades), nút "CUSTOM" và "SELECT".
+  5. Nhấn nút Back trên thiết bị để đóng dialog.
+  6. Nhấn nút Navigate up để quay lại màn Edit.
+- Kết quả mong đợi:
+  - Giao diện bảng màu nâng cao mở và đóng ổn định, không gây lỗi giao diện.
+- Mức độ ưu tiên: Medium (P2)
+- Trạng thái: PASSED
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 4: TÍNH NĂNG CON 3 - MÀU CHUYỂN SẮC NỀN (CUSTOM GRADIENT) -> SAVE -> PREVIEW -> BACK
+----------------------------------------------------------------------------------------------------
+
+[TC_BG_GRADIENT_01] Thiết lập màu Gradient tùy chỉnh, áp dụng và Lưu xuất PNG HD thành công
+- Mục tiêu: Mở màn hình Custom Gradient, đổi góc hướng đổ màu (Gradient Angle), áp dụng vào logo, xuất ảnh PNG HD, xác nhận màn Preview và quay lại màn Edit.
+- Tiền điều kiện: Đang ở màn Edit Screen.
+- Các bước thực hiện:
+  1. Nhấn vào tab "Background" (`id: "itemBackground"`).
+  2. Nhấn vào sub-tab "Gradient" trong `layout_background_editor_menu`.
+  3. Xác minh màn hình "Custom Gradient" hiển thị đầy đủ: Khung `imgPreview`, các nút `imgStartColor`, `imgSwap`, `imgEndColor`, RadioButton `rbLinear`, `rbRadial`, các nút góc hướng `imgDirDown`, `imgDirRight`, `imgDirDownRigh`, `imgDirDownLeft`, nút "APPLY" (`applyButton`).
+  4. Nhấn vào nút hướng đổ màu chéo xuống phải (`id: "imgDirDownRigh"`).
+  5. Nhấn nút "APPLY" (`id: "applyButton"`) để xác nhận áp dụng hiệu ứng Gradient vào nền logo.
+  6. Hệ thống quay về màn Edit Screen với nền logo đã được phủ màu Gradient mới.
+  7. Nhấn nút Save (`mnItemSave`).
+  8. Chọn "Export Logo (PNG)" (`llExportLogo`).
+  9. Chọn độ phân giải "HD (1024 * 1024)" (`layout_hd`).
+  10. Nhấn nút "SAVE" (`tvSave`).
+  11. Xử lý quảng cáo và popup sau khi lưu.
+  12. Màn Preview hiển thị: Xác minh ảnh logo được kết xuất với dải màu Gradient mịn màng theo hướng chéo.
+  13. Chụp screenshot màn Preview: `screenshots/TC_14_Preview_After_Gradient`.
+  14. Nhấn nút Back (`point: 8%, 8%`) trên toolbar Preview.
+  15. Xử lý quảng cáo khi back.
+  16. Xác nhận trở lại màn Edit Screen an toàn (`mnItemSave` visible).
+- Kết quả mong đợi:
+  - Hiệu ứng Gradient được áp dụng chính xác và lưu thành công vào file ảnh PNG HD.
+  - Vòng lặp Save -> Preview -> Edit hoàn tất trơn tru.
+- Mức độ ưu tiên: Critical (P0)
+- Trạng thái: PASSED
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 5: TÍNH NĂNG CON 4 - THƯ VIỆN HÌNH NỀN MẪU (BACKGROUND PRESETS) -> SAVE -> PREVIEW -> BACK
+----------------------------------------------------------------------------------------------------
+
+[TC_BG_PRESET_01] Chọn hình nền mẫu có sẵn (Preset Background) và Lưu xuất PNG HD thành công
+- Mục tiêu: Mở thư viện hình nền Background Select, chọn một mẫu hình nền miễn phí, xuất ảnh PNG HD, xác nhận màn Preview hiển thị đúng hình nền mẫu và quay lại màn Edit.
+- Tiền điều kiện: Đang ở màn Edit Screen.
+- Các bước thực hiện:
+  1. Nhấn vào tab "Background" (`id: "itemBackground"`).
+  2. Nhấn vào sub-tab "Background" trong `layout_background_editor_menu`.
+  3. Xác minh màn hình "Background Select" hiển thị lưới các mẫu hình nền phong phú.
+  4. Nhấn chọn mẫu hình nền miễn phí đầu tiên (Preset index 0: Nền gợn sóng sọc vàng, hoặc index 1: Nền kim cương đa sắc).
+  5. Ứng dụng tự động đóng màn hình chọn nền và nạp hình nền mẫu vào Canvas trên màn Edit.
+  6. Nhấn nút Save (`mnItemSave`).
+  7. Chọn "Export Logo (PNG)" (`llExportLogo`).
+  8. Chọn độ phân giải "HD (1024 * 1024)" (`layout_hd`).
+  9. Nhấn nút "SAVE" (`tvSave`).
+  10. Xử lý quảng cáo và popup sau lưu.
+  11. Màn Preview hiển thị: Xác minh hình nền mẫu đã chọn hiển thị sắc nét làm nền cho toàn bộ các layer logo.
+  12. Chụp screenshot màn Preview: `screenshots/TC_14_Preview_After_Background_Preset`.
+  13. Nhấn nút Back (`point: 8%, 8%`) trên toolbar Preview.
+  14. Xử lý quảng cáo khi back.
+  15. Xác nhận trở lại màn Edit Screen an toàn (`mnItemSave` visible).
+- Kết quả mong đợi:
+  - Hình nền mẫu catalog được tích hợp mượt mà vào logo và xuất ra file PNG đạt chuẩn HD.
+  - Quay về màn Edit thành công không xảy ra sự cố.
+- Mức độ ưu tiên: Critical (P0)
+- Trạng thái: PASSED
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 6: TÍNH NĂNG CON 5 - CHẤT LIỆU HOA VĂN PHỦ NỀN (TEXTURE) -> SAVE -> PREVIEW -> BACK
+----------------------------------------------------------------------------------------------------
+
+[TC_BG_TEXTURE_01] Áp dụng chất liệu Texture hoa văn cho nền logo và Lưu xuất PNG HD thành công
+- Mục tiêu: Mở thư viện Texture Select, chọn một mẫu hoa văn miễn phí, xuất ảnh PNG HD, xác nhận màn Preview hiển thị đúng Texture và quay lại màn Edit.
+- Tiền điều kiện: Đang ở màn Edit Screen.
+- Các bước thực hiện:
+  1. Nhấn vào tab "Background" (`id: "itemBackground"`).
+  2. Nhấn vào sub-tab "Texture" trong `layout_background_editor_menu`.
+  3. Xác minh màn hình "Texture Select" hiển thị lưới các mẫu chất liệu hoa văn nghệ thuật.
+  4. Nhấn chọn mẫu Texture miễn phí đầu tiên (Texture index 0: Sọc dọc pastel đa sắc, hoặc index 2: Hoa văn mandala).
+  5. Ứng dụng tự động đóng màn hình chọn texture và phủ chất liệu lên nền logo trên Canvas màn Edit.
+  6. Nhấn nút Save (`mnItemSave`).
+  7. Chọn "Export Logo (PNG)" (`llExportLogo`).
+  8. Chọn độ phân giải "HD (1024 * 1024)" (`layout_hd`).
+  9. Nhấn nút "SAVE" (`tvSave`).
+  10. Xử lý quảng cáo và popup sau lưu.
+  11. Màn Preview hiển thị: Xác minh logo được kết xuất với lớp hoa văn texture phủ nền nghệ thuật.
+  12. Chụp screenshot màn Preview: `screenshots/TC_14_Preview_After_Texture`.
+  13. Nhấn nút Back (`point: 8%, 8%`) trên toolbar Preview.
+  14. Xử lý quảng cáo khi back.
+  15. Xác nhận trở lại màn Edit Screen an toàn (`mnItemSave` visible).
+- Kết quả mong đợi:
+  - Lớp Texture hòa trộn hoàn hảo vào nền logo, xuất ảnh PNG HD rõ ràng, không bị bể vỡ hạt.
+  - Quay về màn Edit thành công, sẵn sàng cho các thao tác tiếp theo.
+- Mức độ ưu tiên: Critical (P0)
+- Trạng thái: PASSED
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 7: TÍNH NĂNG CON 6 - CHÈN ẢNH TỪ THIẾT BỊ & CẮT XOAY LÀM NỀN (IMAGE & CROP) -> SAVE -> PREVIEW -> BACK
+----------------------------------------------------------------------------------------------------
+
+[TC_BG_IMAGE_01] Chọn ảnh từ thiết bị, thực hiện Cắt/Xoay ảnh và Lưu xuất PNG HD thành công
+- Mục tiêu: Mở sub-tab Image, chọn ảnh từ Media Picker thiết bị, xoay/lật ảnh trên màn Crop, áp dụng làm nền logo, xuất ảnh PNG HD, kiểm tra màn Preview và quay lại màn Edit.
+- Tiền điều kiện: Đang ở màn Edit Screen, thiết bị đã có sẵn ảnh mẫu trong thư viện media.
+- Các bước thực hiện:
+  1. Nhấn vào tab "Background" (`id: "itemBackground"`).
+  2. Nhấn vào sub-tab "Image" trong `layout_background_editor_menu`.
+  3. Bộ chọn ảnh Android Media Picker hiển thị danh sách ảnh trên thiết bị.
+  4. Nhấn chọn ảnh đầu tiên trong danh sách (`Media grid` index 0 hoặc tọa độ ảnh đầu tiên).
+  5. Màn hình CROP hiển thị với thanh công cụ gồm: "Navigate up", xoay phải `ic_rotate_right_24`, lật ảnh `ic_flip_24`, nút "CROP".
+  6. Nhấn nút xoay ảnh 90 độ (`ic_rotate_right_24`).
+  7. Nhấn nút xác nhận cắt "CROP".
+  8. Ảnh sau khi cắt được nạp làm hình nền của logo trên Canvas màn Edit.
+  9. Nhấn nút Save (`mnItemSave`).
+  10. Chọn "Export Logo (PNG)" (`llExportLogo`).
+  11. Chọn độ phân giải "HD (1024 * 1024)" (`layout_hd`).
+  12. Nhấn nút "SAVE" (`tvSave`).
+  13. Xử lý quảng cáo và popup sau lưu.
+  14. Màn Preview hiển thị: Xác minh logo hiển thị hoàn chỉnh trên nền ảnh cá nhân đã qua cắt xoay.
+  15. Chụp screenshot màn Preview: `screenshots/TC_14_Preview_After_Custom_Image`.
+  16. Nhấn nút Back (`point: 8%, 8%`) trên toolbar Preview.
+  17. Xử lý quảng cáo khi back.
+  18. Xác nhận trở lại màn Edit Screen an toàn (`mnItemSave` visible).
+- Kết quả mong đợi:
+  - Thao tác chọn ảnh, xoay và cắt ảnh diễn ra chuẩn xác.
+  - Ảnh nền cá nhân được tích hợp đầy đủ vào logo và xuất ra file PNG chất lượng HD.
+  - Điều hướng quay lại màn Edit mượt mà.
+- Mức độ ưu tiên: Critical (P0)
+- Trạng thái: PASSED
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 8: TÍNH NĂNG CON 7 - ĐIỀU CHỈNH ĐỘ MỜ ĐỤC (OPACITY / TRANSPARENCY) -> SAVE -> PREVIEW -> BACK
+----------------------------------------------------------------------------------------------------
+
+[TC_BG_OPACITY_01] Điều chỉnh độ mờ đục của nền logo (Opacity Slider) và Lưu xuất PNG HD thành công
+- Mục tiêu: Kéo thanh trượt SeekBar Opacity để giảm độ mờ đục của nền, xuất ảnh PNG HD, xác nhận màn Preview thể hiện độ trong suốt và quay lại màn Edit.
+- Tiền điều kiện: Đang ở màn Edit Screen.
+- Các bước thực hiện:
+  1. Nhấn vào tab "Background" (`id: "itemBackground"`).
+  2. Xác minh thanh trượt `seekbar` và nhãn `tvTransparent` đang ở mức 100%.
+  3. Chạm hoặc vuốt trên thanh trượt `seekbar` (tọa độ khoảng `point: 50%, 80%` hoặc swipe từ phải qua trái) để giảm Opacity xuống khoảng 50%.
+  4. Xác minh nhãn `tvTransparent` cập nhật giá trị phần trăm tương ứng (< 100).
+  5. Vùng nền Canvas hiển thị độ trong suốt mờ mờ, để lộ một phần lưới checkerboard phía sau.
+  6. Nhấn nút Save (`mnItemSave`).
+  7. Chọn "Export Logo (PNG)" (`llExportLogo`).
+  8. Chọn độ phân giải "HD (1024 * 1024)" (`layout_hd`).
+  9. Nhấn nút "SAVE" (`tvSave`).
+  10. Xử lý quảng cáo và popup sau lưu.
+  11. Màn Preview hiển thị: Xác minh nền logo có độ trong suốt mờ đục theo đúng thiết lập.
+  12. Chụp screenshot màn Preview: `screenshots/TC_14_Preview_After_Opacity`.
+  13. Nhấn nút Back (`point: 8%, 8%`) trên toolbar Preview.
+  14. Xử lý quảng cáo khi back.
+  15. Xác nhận trở lại màn Edit Screen an toàn (`mnItemSave` visible).
+- Kết quả mong đợi:
+  - Độ mờ đục nền được điều chỉnh mượt mà, lưu vào kênh Alpha của ảnh PNG HD chính xác.
+  - Màn Preview và đường truyền điều hướng Edit hoạt động ổn định.
+- Mức độ ưu tiên: High (P1)
+- Trạng thái: PASSED
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 9: TÍNH NĂNG CON 8 - LƯU DỰ ÁN ĐỂ SỬA SAU (SAVE PROJECT - EDIT LATER)
+----------------------------------------------------------------------------------------------------
+
+[TC_BG_SAVE_PROJECT_01] Thực hiện Lưu Dự án (Save Project) sau khi tùy chỉnh toàn diện Background
+- Mục tiêu: Xác nhận tính năng "Save Project (Edit Later)" lưu toàn bộ trạng thái tùy chỉnh Background của logo vào bộ nhớ cục bộ để người dùng có thể mở ra chỉnh sửa lại bất kỳ lúc nào.
+- Tiền điều kiện: Đang ở màn Edit Screen với logo đã qua các bước chỉnh sửa Background.
+- Các bước thực hiện:
+  1. Nhấn nút Save ở góc trên bên phải thanh Toolbar (`id: "mnItemSave"`).
+  2. Xác minh hộp thoại lựa chọn hiển thị đủ 2 phương thức: "Export Logo (PNG)" và "Save Project (Edit Later)".
+  3. Nhấn vào mục "Save Project (Edit Later)" (`id: "llSaveProject"`).
+  4. Hệ thống tiến hành lưu dữ liệu vector và cấu hình project vào thư mục nội bộ ứng dụng (`/data/data/com.thmobile.logomaker/files/designFile/`).
+  5. Xử lý quảng cáo Interstitial Ad nếu xuất hiện.
+  6. Xác nhận thông báo lưu dự án thành công hiển thị.
+  7. Thoát ra màn hình Home Screen: Nhấn nút Home (`btnHome`) hoặc nút Back của toolbar.
+  8. Tại Home Screen, cuộn xuống và nhấn vào mục "My Design" (`id: "btnMyDesignFile"`).
+  9. Xác minh trong danh sách My Design xuất hiện dự án vừa lưu với ảnh thumbnail phản ánh đúng các thay đổi Background đã thực hiện.
+- Kết quả mong đợi:
+  - Dự án được lưu đầy đủ cấu trúc layer, màu sắc, hình dạng và hiệu ứng nền.
+  - Danh mục My Design hiển thị chuẩn xác dự án vừa lưu.
+- Mức độ ưu tiên: Critical (P0)
+- Trạng thái: PASSED
+
+
+----------------------------------------------------------------------------------------------------
+NHÓM 10: KIỂM THỬ TÍNH NĂNG NÂNG CAO & TÌNH HUỐNG BIÊN (EDGE CASES & ROBUSTNESS)
+----------------------------------------------------------------------------------------------------
+
+[TC_BG_EDGE_01] Hoàn tác (Undo) và Làm lại (Redo) thao tác đổi nền Background
+- Mục tiêu: Xác nhận các thao tác đổi màu, đổi shape hoặc đổi hình nền có thể hoàn tác qua nút Undo và làm lại qua nút Redo.
+- Tiền điều kiện: Đang ở màn Edit Screen.
+- Các bước thực hiện:
+  1. Đổi hình dạng nền sang Circle.
+  2. Nhấn nút Undo (`id: "btnUndo"` / `ivUndo`).
+  3. Xác nhận nền quay lại hình dạng trước đó.
+  4. Nhấn nút Redo (`id: "btnRedo"` / `ivRedo`).
+  5. Xác nhận nền trở lại hình Circle.
+- Kết quả mong đợi: Chức năng Undo/Redo hoạt động đồng bộ với trạng thái Background.
+- Mức độ ưu tiên: Medium (P2)
+- Trạng thái: PASSED
+
+[TC_BG_EDGE_02] Độ bền vững của chu kỳ Save & Back liên tục (Loop Stress Test)
+- Mục tiêu: Thực hiện liên tục 6 chu kỳ Edit -> Change Background Feature -> Save PNG HD -> Preview -> Back to Edit mà không xảy ra rò rỉ bộ nhớ (Memory Leak), crash app hoặc kẹt màn hình quảng cáo.
+- Tiền điều kiện: Đang ở màn Edit Screen.
+- Các bước thực hiện:
+  - Chạy liên tiếp các test case TC_BG_SHAPE_01, TC_BG_COLOR_01, TC_BG_GRADIENT_01, TC_BG_PRESET_01, TC_BG_TEXTURE_01, TC_BG_IMAGE_01.
+- Kết quả mong đợi:
+  - 100% các chu kỳ lưu và điều hướng đều vượt qua thành công.
+  - Ứng dụng duy trì hiệu năng mượt mà trên thiết bị Android 14.
+- Mức độ ưu tiên: High (P1)
+- Trạng thái: PASSED
+
+
+====================================================================================================
+III. BẢNG TỔNG HỢP MATRIX & TRACEABILITY TEST CASES
+====================================================================================================
+
+| Test Case ID          | Tên Kịch Bản Kiểm Thử                                | Mức Ưu Tiên | Sub-Feature Tested       | Phương Thức Lưu | Kết Quả Đầu Ra Preview | Trạng Thái |
+|:----------------------|:-----------------------------------------------------|:------------|:-------------------------|:----------------|:-----------------------|:-----------|
+| TC_BG_UI_01           | Kiểm tra hiển thị tổng thể Background Tool            | P1 (High)   | Panel, Sub-tabs, Shapes  | N/A             | N/A                    | PASSED     |
+| TC_BG_SHAPE_01        | Đổi khung nền Tam giác (Triangle) & Lưu PNG HD       | P0 (Crit)   | rvShape index 3          | Export PNG HD   | Preview logo Triangle  | PASSED     |
+| TC_BG_SHAPE_02        | Đổi khung nền Tròn (Circle) & Lưu PNG HD             | P1 (High)   | rvShape index 4          | Export PNG HD   | Preview logo Circle    | PASSED     |
+| TC_BG_COLOR_01        | Đổi màu nền Solid Color & Lưu PNG HD                 | P0 (Crit)   | Sub-tab Color (Red)      | Export PNG HD   | Preview nền Đỏ         | PASSED     |
+| TC_BG_COLOR_02        | Mở bảng màu nâng cao qua "PICK ANOTHER"              | P2 (Med)    | btnPickOther Dialog      | N/A             | N/A                    | PASSED     |
+| TC_BG_GRADIENT_01     | Đổi màu chuyển sắc Custom Gradient & Lưu PNG HD      | P0 (Crit)   | Sub-tab Gradient         | Export PNG HD   | Preview nền Gradient   | PASSED     |
+| TC_BG_PRESET_01       | Chọn hình nền mẫu Catalog Preset & Lưu PNG HD        | P0 (Crit)   | Sub-tab Background       | Export PNG HD   | Preview nền Preset     | PASSED     |
+| TC_BG_TEXTURE_01      | Áp dụng chất liệu hoa văn Texture & Lưu PNG HD       | P0 (Crit)   | Sub-tab Texture          | Export PNG HD   | Preview nền Texture    | PASSED     |
+| TC_BG_IMAGE_01        | Chèn ảnh máy & Xoay/Cắt (Image & Crop) & Lưu PNG HD  | P0 (Crit)   | Sub-tab Image & CROP     | Export PNG HD   | Preview nền Ảnh Cắt    | PASSED     |
+| TC_BG_OPACITY_01      | Điều chỉnh thanh trượt Opacity 50% & Lưu PNG HD      | P1 (High)   | seekbar / tvTransparent | Export PNG HD   | Preview nền Trong Suốt | PASSED     |
+| TC_BG_SAVE_PROJECT_01 | Lưu dự án (Save Project Edit Later) cấu hình nền     | P0 (Crit)   | Background hoàn chỉnh    | Save Project    | My Design / File system| PASSED     |
+| TC_BG_EDGE_01         | Kiểm tra Hoàn tác (Undo) và Làm lại (Redo) nền       | P2 (Med)    | Undo / Redo Toolbar      | N/A             | Canvas phản hồi        | PASSED     |
+| TC_BG_EDGE_02         | Chu kỳ Save & Back liên tục (Loop Stress Test)       | P1 (High)   | Toàn bộ 6 sub-features   | Export PNG HD   | 6 lần Preview chuẩn    | PASSED     |
+
+
+====================================================================================================
+IV. QUY CHUẨN ĐIỀU HƯỚNG VÀ THỰC THI TRÊN MAESTRO AUTOMATION FRAMEWORK
+====================================================================================================
+
+1. Test Suite File tương ứng trong dự án:
+   - File kịch bản Maestro chính: `.maestro/test-suite/TC_14_Test_Background_Sub_Features_And_Save_On_Edit_Screen.yaml`
+   - Common Flows tái sử dụng:
+     + `config/Launch_App.yaml`
+     + `config/Navigate_To_Restaurant_Edit.yaml`
+     + `config/Close_IAP_Screen.yaml`
+     + `config/Close_Ads_Screen.yaml`
+     + `config/Close_Ads_Rewards.yaml`
+
+2. Kỹ thuật chống Flaky (Anti-Flaky Guidelines):
+   - Selector bền vững: Ưu tiên `id` kết hợp ngữ cảnh (`childOf`, `containsDescendants`).
+   - Xử lý quảng cáo trung gian: Luôn có các khối `runFlow: when: visible: "Test Ad"`, `when: visible: "Close"`, `when: visible: "Continue to app"`.
+   - Điều hướng Back an toàn từ Preview:
+     Sử dụng `tapOn: point: 8%, 8%` (Toolbar Back Arrow), kết hợp khối kiểm tra `when: notVisible: id: "mnItemSave"` để tự động đóng quảng cáo chèn khi Back trước khi thực hiện bước tiếp theo.
+   - Chờ hoạt ảnh: Sử dụng `waitForAnimationToEnd` và `extendedWaitUntil` thay cho sleep cứng.
+====================================================================================================

@@ -1,0 +1,19 @@
+appId: com.thmobile.logomaker
+---
+
+- runFlow: "../../config/Launch_App_Clear_State.yaml"
+
+- runFlow: "../../config/Language_Screen/Tap_On_Language_Success.yaml"
+
+- runFlow: "../../config/Close_Ads_Screen.yaml"
+
+- repeat:
+    times: 2
+    commands:
+      - swipe:
+          start: 90%, 50%
+          end: 50%, 10%
+          duration: 50
+      - assertVisible: "Ad"
+      - assertVisible:
+          id: "content"

@@ -1,0 +1,128 @@
+name: Maestro Flow Test on PR (10 Devices Parallel)
+
+on: 
+  push:
+    branches: ["main", "develop", "test/new_version/premium"]
+  pull_request:
+    branches: ["main", "develop", "test/new_version/premium"]
+  workflow_dispatch: # Cho phép bấm nút "Run workflow" thủ công trên web GitHub
+
+jobs:
+  # ==============================================================================
+  # 1. Chạy song song 10 máy ảo Android độc lập (10 Shards Parallel)
+  # ==============================================================================
+  maestro-shard-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false # Khi 1 shard fail, các shard khác vẫn tiếp tục chạy để thu thập đủ kết quả
+      matrix:
+        shardIndex: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        shardTotal: [10]
+    name: Shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Giải phóng dung lượng ổ đĩa trên GitHub Runner để QEMU tạo userdata partition không bị tràn đĩa
+      - name: Free Disk Space for Android Emulator
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf "$ANDROID_SDK_ROOT/ndk" || true
+          df -h
+
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls -la /dev/kvm || true
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python Dependencies (OpenCV & PIL for Visual Compare)
+        run: |
+          pip install opencv-python-headless numpy pillow requests
+
+      - name: Install Maestro CLI
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      # Khởi tạo máy ảo Android mô phỏng thiết bị thật (Samsung S20 FE: Android 13, 1080x2400, 480dpi)
+      - name: Run Maestro Tests on Emulator (Shard ${{ matrix.shardIndex }}/10)
+        uses: ReactiveCircus/android-emulator-runner@v2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          api-level: 33
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          ram-size: 2048M
+          heap-size: 512M
+          disk-size: 4096M
+          force-avd-creation: true
+          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -camera-back none -gpu swiftshader_indirect -dns-server 8.8.8.8 -netdelay none -netspeed full
+          emulator-boot-timeout: 900
+          disable-animations: true
+          script: |
+            mkdir -p reports
+            sed -i 's/\r$//' run_tests.sh
+            chmod +x run_tests.sh
+            bash run_tests.sh -Folder "test-suite" -Exclude "TC_00","TC_08_Test_Home_Screen" -ShardIndex ${{ matrix.shardIndex }} -ShardTotal ${{ matrix.shardTotal }} -ReportJson "reports/report_shard_${{ matrix.shardIndex }}.json"
+
+      # Lưu lại báo cáo JSON, ảnh chụp màn hình và log cho từng Shard
+      - name: Upload Shard Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shard-result-${{ matrix.shardIndex }}
+          path: |
+            reports/
+            screenshots/
+            .maestro/tests/
+          retention-days: 1
+
+  # ==============================================================================
+  # 2. Tổng hợp kết quả từ 10 Shards thành 1 Báo cáo thống nhất (Centralized Report)
+  # ==============================================================================
+  merge-and-report:
+    needs: [maestro-shard-test]
+    if: always()
+    runs-on: ubuntu-latest
+    name: Merge and Publish Test Summary
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Download all shard artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-shard-artifacts
+
+      - name: Consolidate JSON Reports
+        run: |
+          mkdir -p consolidated-reports
+          find all-shard-artifacts -name "report_shard_*.json" -exec cp {} consolidated-reports/ \;
+          ls -la consolidated-reports/
+
+      - name: Generate Consolidated Summary
+        run: |
+          python3 scripts/merge_reports.py consolidated-reports

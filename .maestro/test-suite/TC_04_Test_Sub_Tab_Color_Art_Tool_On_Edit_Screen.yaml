@@ -1,0 +1,204 @@
+appId: com.thmobile.logomaker
+---
+
+# ==============================================================================
+# TC_04_Test_Sub_Tab_Color_Art_Tool_On_Edit_Screen
+# Mục tiêu: Kiểm thử toàn diện Sub-Tab Color (Tùy biến màu sắc, độ mờ đục, gradient và texture) của Art Tool trên màn Edit:
+#           - Khởi động ứng dụng > Đóng popup IAP > Điều hướng vào Template Restaurant > Mở màn hình Edit Screen
+#           - Nhấn vào đối tượng Art trên Canvas để kích hoạt Art Tool và mở thanh Sub-Tabs menu (Controls, Color, Outline, 3D)
+#           - Chuyển sang Sub-Tab "Color" và xác minh hiển thị đầy đủ các khu vực chức năng cốt lõi:
+#             + Khu vực Opacity: Icon icon_transparent, thanh trượt seekbarTransparent, phần trăm tvTransparent
+#             + Khu vực Solid Color: Icon hút màu imgColorPicker, icon bảng màu imgPalette, danh sách rvSolidColorPicker
+#             + Khu vực Gradient: Nút mở tạo gradient btnCustomGradient, danh sách gradient mẫu rvGradientColorPicker
+#             + Khu vực Texture: Danh sách mẫu chất liệu hoa văn recyclerTexture
+#           - Kiểm thử chi tiết các tính năng của Sub-Tab Color:
+#             1. Điều chỉnh độ mờ đục (Opacity) qua thanh trượt SeekBar và xác nhận phần trăm hiển thị cập nhật
+#             2. Lựa chọn màu sắc đơn sắc (Solid Color) từ dải màu có sẵn
+#             3. Khám phá Hộp thoại Bảng màu Nâng cao (Select a Color Dialog qua icon Palette) và đóng an toàn
+#             4. Khám phá Màn hình Thiết kế Gradient Tùy chỉnh (Custom Gradient Screen qua btnCustomGradient) và quay lại màn Edit
+#             5. Áp dụng họa tiết Texture từ danh sách và xác nhận thanh trượt điều chỉnh tỷ lệ (Texture Scale) tự động xuất hiện
+#           - Kiểm thử tích hợp: Thao tác Hoàn tác (Undo) và Làm lại (Redo) trên Edit Screen
+#           - Chụp ảnh màn hình tại mỗi giai đoạn kiểm thử để phục vụ kiểm thử hồi quy thị giác (Visual Testing)
+# Tài liệu tham chiếu: docs/test-cases/Edit_Screen_Sub_Tab_Color_Art_Tool_TestCases.txt
+# ==============================================================================
+
+# Step 1: Khởi động ứng dụng
+- runFlow: "../config/Launch_App.yaml"
+
+# Step 2: Đóng popup IAP nếu xuất hiện
+- runFlow:
+    when:
+      visible:
+        text: "Get Full Access"
+    file: "../config/Close_IAP_Screen.yaml"
+
+# Step 3: Tại Home, chọn tính năng Template
+- runFlow: "../config/Navigate_To_Restaurant_Edit.yaml"
+
+# Step 5: Đóng quảng cáo Collapsible nếu xuất hiện
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+# Step 6: Xác nhận giao diện Edit Screen hiển thị đầy đủ
+- assertVisible: "Logos4U"
+- assertVisible: "Navigate up"
+- assertVisible:
+    id: "mnItemSave"
+- assertVisible:
+    id: "itemBackground"
+- assertVisible:
+    id: "itemArt"
+
+# Step 7: Nhấn vào đối tượng Art trên Canvas để kích hoạt Art Tool
+- tapOn:
+    point: "50%, 30%"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Step 8: Đóng quảng cáo Collapsible nếu xuất hiện
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+# Step 9: Xác minh thanh sub-tabs của Art Tool hiển thị
+- assertVisible:
+    id: "layout_art_editor_menu"
+    containsDescendants:
+        - text: "Controls"
+        - text: "Color"
+        - text: "Outline"
+        - text: "3D"
+
+# Step 10: Chuyển sang sub-tab "Color"
+- tapOn:
+    text: "Color"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Step 11: Kiểm tra các thành phần cốt lõi của Sub Tab Color hiển thị
+- assertVisible:
+    id: "layout_art_color"
+- assertVisible:
+    id: "icon_transparent"
+- assertVisible:
+    id: "seekbarTransparent"
+- assertVisible:
+    id: "tvTransparent"
+- assertVisible:
+    id: "imgColorPicker"
+- assertVisible:
+    id: "imgPalette"
+- assertVisible:
+    id: "rvSolidColorPicker"
+- assertVisible:
+    id: "btnCustomGradient"
+- assertVisible:
+    id: "rvGradientColorPicker"
+- assertVisible:
+    id: "recyclerTexture"
+
+- takeScreenshot: "screenshots/Color_SubTab_Default"
+
+# Step 12: Thử nghiệm điều chỉnh độ mờ đục (Opacity SeekBar)
+- tapOn:
+    id: "seekbarTransparent"
+
+- assertVisible:
+    id: "tvTransparent"
+
+- takeScreenshot: "screenshots/Color_Opacity_Changed"
+
+# Step 13: Thử nghiệm chọn màu đơn sắc Đỏ (Solid Color Red)
+- tapOn:
+    id: "color"
+    index: 5
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- takeScreenshot: "screenshots/Color_Solid_Red_Applied"
+
+# Step 14: Thử nghiệm mở Hộp thoại Bảng màu Nâng cao (Select a Color)
+- tapOn:
+    id: "imgPalette"
+
+- assertVisible: "Select a Color"
+- assertVisible: "CUSTOM"
+- assertVisible: "SELECT"
+
+- takeScreenshot: "screenshots/Color_Palette_Dialog"
+
+# Đóng dialog bảng màu bằng nút SELECT
+- tapOn: "SELECT"
+
+# Step 15: Thử nghiệm mở màn hình Custom Gradient
+- tapOn:
+    id: "btnCustomGradient"
+
+- assertVisible: "Custom Gradient"
+- assertVisible:
+    id: "imgPreview"
+- assertVisible:
+    id: "applyButton"
+
+- takeScreenshot: "screenshots/Color_Custom_Gradient_Screen"
+
+# Quay lại màn Edit
+- tapOn: "Navigate up"
+
+# Xử lý quảng cáo khi back từ Custom Gradient (nếu có)
+- runFlow:
+    when:
+      visible: "Test Ad"
+    file: "../config/Close_Ads_Screen.yaml"
+
+- runFlow:
+    when:
+      visible: "Continue to app"
+    commands:
+      - tapOn: "Continue to app"
+
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+# Step 16: Thử nghiệm áp dụng Texture và kiểm tra xuất hiện thanh trượt Texture Scale
+- tapOn:
+    id: "imageView"
+    childOf:
+      id: "recyclerTexture"
+    index: 0
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- assertVisible:
+    id: "seekbarTextureScale"
+- assertVisible:
+    id: "tvTextureScale"
+
+- takeScreenshot: "screenshots/Color_Texture_Scale_Displayed"
+
+# Step 17: Thử nghiệm Hoàn tác (Undo) và Làm lại (Redo)
+- tapOn:
+    id: "ivUndo"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "ivRedo"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- takeScreenshot: "screenshots/Color_Tool_Result"

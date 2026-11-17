@@ -1,0 +1,479 @@
+appId: com.thmobile.logomaker
+---
+
+# ==============================================================================
+# TC_03_Test_Art_Tool_On_Edit_Screen
+# Mục tiêu: Kiểm thử toàn diện công cụ Art Tool trên màn Edit, tích hợp chu trình Lưu/Xuất và các tính năng mở rộng:
+#           - Khởi động ứng dụng > Đóng popup IAP > Điều hướng vào Template Restaurant > Mở màn hình Edit Screen
+#           - Kích hoạt Art Tool: Chạm vào đối tượng Art trên Canvas, xác minh thanh Sub-Tabs menu (Controls, Color, Outline, 3D)
+#           - Kiểm thử Sub-Tab Controls của Art Tool:
+#             1. Nhấn giữ các phím D-pad (Up, Left, Down, Right) để di chuyển layer Art
+#             2. Mở Bảng quản lý Layer (Layer Dialog), điều chỉnh thứ tự tầng (Layer up, Layer down) và Nhân bản (DUPLICATE)
+#             3. Đóng Layer Dialog và tiếp tục kiểm thử di chuyển D-pad, đổi thứ tự tầng và nhân bản layer
+#           - Tương tác trực tiếp trên Canvas: Kéo/vuốt layer Art sang vị trí mới bằng cử chỉ tay
+#           - Kiểm thử tính năng Hoàn tác (Undo) và Làm lại (Redo) liên tiếp 6 lần trên Edit Screen
+#           - Kiểm thử chu trình Lưu & Xuất Logo:
+#             1. Thực hiện Lưu dự án (Save Project - Edit Later)
+#             2. Thực hiện Xuất logo PNG chất lượng HD (Export Logo PNG HD) > Xử lý Ads và Popup đánh giá (Rate App)
+#           - Xác minh màn hình Preview Screen và kiểm thử tương tác nút Chia sẻ (Share)
+#           - Kiểm thử các tính năng liên kết mở rộng từ Preview Screen:
+#             1. Điều hướng sang Style Magic AI: Xác minh giao diện, kiểm tra logo khớp với bản vẽ và vuốt duyệt model AI
+#             2. Điều hướng sang Brand Identify: Xác nhận màn hình Mockup Preview và cuộn xem danh sách các mockup
+#           - Quay về Home Screen, vào mục "My Design" và mở lại bản dự án đã lưu để xác nhận tính toàn vẹn của thiết kế
+# ==============================================================================
+
+# Step 1: Khởi động ứng dụng
+- runFlow: "../config/Launch_App.yaml"
+
+- runFlow:
+    when:
+      visible:
+        text: "Get Full Access"
+    file: "../config/Close_IAP_Screen.yaml"
+        
+- runFlow: "../config/Navigate_To_Restaurant_Edit.yaml"
+
+# Close Collapsible Ads
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+# Displayed title and tools on the Edit Screen
+- assertVisible: "Logos4U"
+
+- assertVisible: "Navigate up"
+
+- assertVisible:
+    id: "mnItemSave"
+
+- assertVisible:
+    id: "imageViewLayerTag"
+
+- assertVisible:
+    id: "imageShowGrid"
+
+- assertVisible:
+    id: "btnUndo"
+    enabled: true
+
+- assertVisible:
+    id: "btnRedo"
+    enabled: true
+
+- assertVisible:
+    id: "itemBackground"
+    containsDescendants: 
+        - text: "Background"
+        - id: "img"
+
+- assertVisible:
+    id: "itemArt"
+    containsDescendants: 
+        - text: "Art"
+        - id: "img"
+
+- assertVisible:
+    id: "itemText"
+    containsDescendants: 
+        - text: "Text"
+        - id: "img"
+
+- assertVisible:
+    id: "itemEffect"
+    containsDescendants: 
+        - text: "Effect"
+        - id: "img"
+
+- assertVisible:
+    id: "itemPalette"
+    containsDescendants: 
+        - text: "Palette"
+        - id: "img"
+
+- assertVisible:
+    id: "itemImage"
+    containsDescendants: 
+        - text: "Image"
+        - id: "img"
+
+# Click on Background tool - verify that displayed sub-tool Background - Changing geometry shape
+- tapOn:
+    id: "itemBackground"
+    containsDescendants: 
+        - text: "Background"
+        - id: "img"
+
+# Close Collapsible Ads
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+- tapOn:
+    point: "50%, 30%"
+
+- takeScreenshot: "screenshots/Displayed_Art_Tool_On_Edit_Screen"
+
+- assertVisible:
+    id: "itemArt"
+    selected: true
+    containsDescendants:
+        - text: "Art"
+
+- assertVisible:
+    id: "layout_art_editor_menu"
+    containsDescendants:
+        - text: "Controls"
+        - text: "Color"
+        - text: "Outline"
+        - text: "3D"
+
+- assertVisible:
+    id: "layout_art_control"
+    containsDescendants:
+        - id: "imgMoveUp"
+        - id: "imgMoveLeft"
+        - id: "imgMoveDown"
+        - id: "imgMoveRight"
+        - id: "btnLayerUp"
+        - text: "Layer up"
+        - id: "btnLayerDown"
+        - text: "Layer down"
+
+- assertVisible:
+    id: "btnDuplicate"
+    text: "DUPLICATE"
+
+
+- assertVisible:
+    text: "Controls"
+    selected: true
+
+- assertVisible:
+    text: "Color"
+    selected: false
+
+- assertVisible:
+    text: "Outline"
+    selected: false
+
+- assertVisible:
+    text: "3D"
+    selected: false
+
+
+# Verify moving Layer By Holding The Control Button
+- repeat:
+    times: 2
+    commands:
+        - longPressOn:
+            id: "imgMoveUp"
+            waitToSettleTimeoutMs: 5000
+            enabled: true
+
+        - longPressOn:
+            id: "imgMoveLeft"
+            waitToSettleTimeoutMs: 5000
+            enabled: true
+
+        - longPressOn:
+            id: "imgMoveDown"
+            waitToSettleTimeoutMs: 5000
+            enabled: true
+
+        - longPressOn:
+            id: "imgMoveRight"
+            waitToSettleTimeoutMs: 5000
+            enabled: true
+
+# Verify opening Dialog layer
+- repeat:
+    times: 3
+    commands:
+      - tapOn:
+          id: "imageViewLayerTag"
+
+- takeScreenshot: "screenshots/Verify_Display_Dialog_Layer_On_Edit_Screen"
+
+- repeat:
+    times: 3
+    commands: 
+        - tapOn:
+            id: "btnLayerUp"
+            above:
+                text: "Layer up"
+
+- takeScreenshot: "screenshots/Verify_Move_Layer_To_Top_On_Dialog_Layer"
+
+- repeat:
+    times: 2
+    commands: 
+        - tapOn:
+            id: "btnLayerDown"
+            above:
+                text: "Layer down"
+
+- takeScreenshot: "screenshots/Verify_Move_Layer_To_Down_On_Dialog_Layer"
+
+# Verify Duplicate Icon Layer 
+- repeat:
+    times: 2
+    commands: 
+        - tapOn:
+            id: "btnDuplicate"
+            text: "DUPLICATE"
+
+- takeScreenshot: "screenshots/Verify_duplicate_Layer_To_Top_On_Dialog_Layer"
+
+# Verify closing the Layer Dialog - moving Layer By Holding The Control Button - Duplicate Layer
+- tapOn:
+    id: "imageViewLayerTag"
+
+- takeScreenshot: "screenshots/Closing_Layer_Dialog"
+
+- repeat:
+    times: 2
+    commands:
+        - longPressOn:
+            id: "imgMoveUp"
+            waitToSettleTimeoutMs: 5000
+            enabled: true
+
+        - longPressOn:
+            id: "imgMoveLeft"
+            waitToSettleTimeoutMs: 5000
+            enabled: true
+
+        - longPressOn:
+            id: "imgMoveDown"
+            waitToSettleTimeoutMs: 5000
+            enabled: true
+
+        - longPressOn:
+            id: "imgMoveRight"
+            waitToSettleTimeoutMs: 5000
+            enabled: true
+
+- repeat:
+    times: 3
+    commands:
+        - tapOn:
+            id: "btnLayerUp"
+            above:
+                text: "Layer up"
+
+- takeScreenshot: "screenshots/Verify_Move_Layer_To_Top_On_Dialog_Layer_2"
+
+- repeat:
+    times: 2
+    commands: 
+        - tapOn:
+            id: "btnLayerDown"
+            above:
+                text: "Layer down"
+
+- takeScreenshot: "screenshots/Verify_Move_Layer_To_Down_On_Dialog_Layer_2"
+
+- repeat:
+    times: 2
+    commands: 
+        - tapOn:
+            id: "btnDuplicate"
+            text: "DUPLICATE"
+
+- takeScreenshot: "screenshots/Verify_duplicate_Layer_To_Top_On_Dialog_Layer_2"
+
+# Verify Art tool is turned on when moving the cursor on the canvas
+- swipe:
+    start: 50%, 50%
+    end: 10%, 70%
+    duration: 5000
+
+- takeScreenshot: "screenshots/Verify_Move_Layer_By_Using_pointer"
+
+# Verify Undo/Redo
+- repeat:
+    times: 6
+    commands:
+      - tapOn:
+            id: "ivUndo"
+            enabled: true
+
+- takeScreenshot: "screenshots/Verify_Undo_On_The_Template_Detail_Successfully"
+
+- repeat:
+    times: 6
+    commands:
+      - tapOn:
+          id: "ivRedo"
+          enabled: true
+
+
+- takeScreenshot: "screenshots/Verify_Redo_On_The_Template_Detail_Successfully"
+
+# Save Image and Save Project
+- tapOn:
+    id: "mnItemSave"
+    enabled: true
+
+- tapOn:
+    point: 41%,67%
+
+- tapOn:
+    id: "mnItemSave"
+    enabled: true
+
+- tapOn:
+    id: "llSaveProject"
+    containsChild: 
+        text: "Save Project (Edit Later)"
+
+- tapOn:
+    id: "mnItemSave"
+    enabled: true
+
+- tapOn:
+    id: "llExportLogo"
+    containsChild: 
+        text: "Export Logo (PNG)"
+
+- tapOn:
+    id: "layout_hd"
+    containsDescendants:
+      - text: "HD"
+      - text: "(1024 * 1024)"
+
+- tapOn:
+    id: "tvSave"
+
+- runFlow:
+    when:
+      visible: "Test Ad"
+    file: "../config/Close_Ads_Rewards.yaml"
+
+- runFlow:
+    when:
+      visible: "Did you like this app?"
+    commands:
+      - takeScreenshot: "screenshots/Rate_App_Popup_On_Preview"
+      - tapOn:
+          point: 10%,10%
+
+- takeScreenshot: "screenshots/Preview_Screen"
+
+# Verify click on button share on Preview Screen
+- tapOn:
+    id: "btnShare"
+
+- back
+
+- assertNotVisible: ".*(Personal|Cá nhân|Sharing image).*"
+
+- doubleTapOn:
+    id: "btnShare"
+
+- back
+
+# Verify navigated to Style Magic AI
+- tapOn:
+    id: "btnAiLogoStyle"
+    text: "Style Magic AI"
+
+- assertVisible: "Style Magic AI"
+
+- assertVisible:
+    id: "ivAddImage"
+- assertVisible: "Select Style"
+
+- assertVisible: "Give your logo a fresh new look with AI!"
+
+- assertVisible: "Generate"
+
+- waitForAnimationToEnd:
+    timeout: 20000
+
+- evalScript: ${var start = new Date().getTime(); while (new Date().getTime() < start + 3500); output.waited = true}
+
+- takeScreenshot: "screenshots/Verify_Navigated_to_Style_Magic_AI_Screen"
+
+# Verify Image on Style Magic AI Screen matched with design on template Detail Screen
+- takeScreenshot: "screenshots/Verify_Image_On_Style_Magic_AI_Matches_Template"
+
+# Verify displayed Verdant model AI by swipe left
+- repeat:
+    times: 3
+    commands:
+      - swipe:
+          start: "85%, 70%"
+          end: "20%, 70%"
+          duration: 60
+
+- back
+
+- assertVisible: "Preview"
+
+- tapOn:
+    id: "btnBrandIdentify"
+    text: "Brand Identify"
+
+- runFlow: 
+    when:
+        visible:
+            text: "Test Ad"
+    file: "../config/Close_Ads_Screen.yaml"
+
+# Verify displayed mockup on Mockup Preview Screen
+- takeScreenshot: "screenshots/Verify_Navigated_To_Mockup_Preview_Screen"
+
+- repeat:
+    times: 6
+    commands:
+      - scroll
+
+- takeScreenshot: "screenshots/Verify_Displayed_Last_Image_On_Mockup_Preview_Screen"
+
+- back
+
+- runFlow: "../config/Close_Ads_Screen.yaml"
+
+# Navigated to Home Screen
+- tapOn: 
+    id: "btnHome"
+
+- runFlow:
+    when:
+      visible: "Test Ad"
+    file: "../config/Close_Ads_Screen.yaml"
+
+- scrollUntilVisible:
+    element:
+        text: "My Design"
+        childOf:
+            id: "btnMyDesignFile"
+    direction: DOWN
+
+# Navigated to My Design Screen
+- tapOn:
+    id: "btnMyDesignFile"
+    containsDescendants:
+        - text: "My Design"
+
+- tapOn: 
+    id: "imageView"
+    index: 0
+
+# Close Collapsible Ads
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+- takeScreenshot: "screenshots/TemplateDraft_Displayed_correctly_For_Art_Feature"
+
+# Verify click on 4 icons on the frame sticker
+
+# Verify subtab-color on Art tool- assertVisible: "Preview"

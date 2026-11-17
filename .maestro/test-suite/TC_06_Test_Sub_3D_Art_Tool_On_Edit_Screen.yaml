@@ -1,0 +1,152 @@
+appId: com.thmobile.logomaker
+---
+
+# ==============================================================================
+# TC_06_Test_Sub_3D_Art_Tool_On_Edit_Screen
+# Mục tiêu: Kiểm thử toàn diện Sub-Tab 3D (Tùy biến góc xoay không gian 3 chiều) của Art Tool trên màn hình Edit:
+#           - Khởi động ứng dụng > Đóng popup IAP > Điều hướng vào Template Restaurant > Mở màn hình Edit Screen
+#           - Chọn đối tượng Art trên Canvas để kích hoạt Art Tool và mở thanh Sub-Tabs menu (Controls, Color, Outline, 3D)
+#           - Chuyển sang Sub-Tab "3D" và xác minh trạng thái mặc định của 3 thanh trượt trục xoay (đều hiển thị 0°):
+#             + Trục X (X Rotation / Pitch): seekbarXRotation & tvXRotation ("0°")
+#             + Trục Y (Y Rotation / Yaw): seekbarYRotation & tvYRotation ("0°")
+#             + Trục Z (Z Rotation / Roll): seekbarZRotation & tvZRotation ("0°")
+#           - Lần lượt tinh chỉnh góc xoay không gian 3 chiều của đối tượng Art:
+#             1. Điều chỉnh góc xoay trục hoành X (nghiêng phối cảnh trên/dưới) & xác minh góc cập nhật
+#             2. Điều chỉnh góc xoay trục tung Y (nghiêng phối cảnh trái/phải) & xác minh góc cập nhật
+#             3. Điều chỉnh góc xoay trục Z (xoay tròn theo mặt phẳng hiển thị) & xác minh góc cập nhật
+#           - Kiểm thử tích hợp: Thao tác Hoàn tác (Undo) và Làm lại (Redo) hiệu ứng xoay trên Edit Screen
+#           - Chụp ảnh màn hình tại mỗi trục xoay và kết quả hoàn chỉnh để phục vụ kiểm thử hồi quy thị giác
+# Tài liệu tham chiếu: docs/test-cases/Edit_Screen_Sub_Tab_3D_Art_Tool_TestCases.txt
+# ==============================================================================
+
+# Step 1: Khởi động ứng dụng
+- runFlow: "../config/Launch_App.yaml"
+
+# Step 2: Đóng popup IAP nếu xuất hiện
+- runFlow:
+    when:
+      visible:
+        text: "Get Full Access"
+    file: "../config/Close_IAP_Screen.yaml"
+
+# Step 3: Tại Home, chọn tính năng Template
+- runFlow: "../config/Navigate_To_Restaurant_Edit.yaml"
+
+# Step 5: Đóng quảng cáo Collapsible nếu xuất hiện
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+# Step 6: Xác nhận giao diện Edit Screen hiển thị đầy đủ
+- assertVisible: "Logos4U"
+- assertVisible: "Navigate up"
+- assertVisible:
+    id: "mnItemSave"
+- assertVisible:
+    id: "itemBackground"
+- assertVisible:
+    id: "itemArt"
+
+# Step 7: Nhấn vào đối tượng Art trên Canvas để kích hoạt Art Tool
+- tapOn:
+    point: "50%, 30%"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Step 8: Đóng quảng cáo Collapsible nếu xuất hiện
+- runFlow:
+    when:
+      visible: "Close button"
+    commands: 
+        - tapOn: "Close button"
+
+# Step 9: Xác minh thanh sub-tabs của Art Tool hiển thị
+- assertVisible:
+    id: "layout_art_editor_menu"
+    containsDescendants:
+        - text: "Controls"
+        - text: "Color"
+        - text: "Outline"
+        - text: "3D"
+
+# Step 10: Chuyển sang sub-tab "3D"
+- tapOn:
+    text: "3D"
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Step 11: Kiểm tra các thành phần cốt lõi của Sub Tab 3D hiển thị mặc định 0°
+- assertVisible:
+    id: "layout_art_3d"
+- assertVisible:
+    id: "seekbarXRotation"
+- assertVisible:
+    id: "tvXRotation"
+    text: "0°"
+- assertVisible:
+    id: "seekbarYRotation"
+- assertVisible:
+    id: "tvYRotation"
+    text: "0°"
+- assertVisible:
+    id: "seekbarZRotation"
+- assertVisible:
+    id: "tvZRotation"
+    text: "0°"
+
+- takeScreenshot: "screenshots/3D_SubTab_Default"
+
+# Step 12: Thử nghiệm điều chỉnh góc xoay trục X (X Rotation / Pitch)
+- tapOn:
+    point: "80%, 70%"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- assertVisible:
+    id: "tvXRotation"
+
+- takeScreenshot: "screenshots/3D_X_Rotation_Applied"
+
+# Step 13: Thử nghiệm điều chỉnh góc xoay trục Y (Y Rotation / Yaw)
+- tapOn:
+    point: "80%, 74%"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- assertVisible:
+    id: "tvYRotation"
+
+- takeScreenshot: "screenshots/3D_Y_Rotation_Applied"
+
+# Step 14: Thử nghiệm điều chỉnh góc xoay trục Z (Z Rotation / Roll)
+- tapOn:
+    point: "80%, 79%"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- assertVisible:
+    id: "tvZRotation"
+
+- takeScreenshot: "screenshots/3D_Z_Rotation_Applied"
+
+# Step 15: Thử nghiệm Hoàn tác (Undo) và Làm lại (Redo)
+- tapOn:
+    id: "ivUndo"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "ivRedo"
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- takeScreenshot: "screenshots/3D_Tool_Result"

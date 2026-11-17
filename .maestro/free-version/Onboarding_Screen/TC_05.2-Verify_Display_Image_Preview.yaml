@@ -1,0 +1,39 @@
+appId: com.thmobile.logomaker
+---
+
+- runFlow: "../../config/Launch_App_Clear_State.yaml"
+
+- tapOn: "한국어"
+
+- tapOn:
+    id: "btnOK"
+
+- runFlow: "../../config/Close_Ads_Screen.yaml"
+
+# ============================================
+#   PHƯƠNG PHÁP 1: Kiểm tra element tồn tại
+#   (Độ chính xác: Thấp - chỉ biết element có mặt)
+# ============================================
+- assertVisible:
+    id: "img"
+
+# ============================================
+#   PHƯƠNG PHÁP 2: Chụp screenshot
+#   (Lưu ảnh thực tế để so sánh pixel-level ở bước 3)
+#   File sẽ được lưu tại: D:\logo-maker\onboarding_compare.png
+# ============================================
+- takeScreenshot: "onboarding_compare"
+
+# ============================================
+#   PHƯƠNG PHÁP 3: AI phân tích visual design
+#   (Độ chính xác: Trung bình - AI kiểm tra layout + content)
+# ============================================
+- assertWithAI:
+    assertion: "On this Onboarding screen, verify that: (1) A large image preview is displayed in the upper-center area showing a logo design example on a dark background with editing tools visible (like color palette, text, background options). (2) Below the image, the text 'LogoX - AI Logo Maker' is visible as the app title. (3) A description text is shown below the title. (4) Dot indicators are visible on the screen."
+
+# ============================================
+#   PHƯƠNG PHÁP 4 (Post-step - chạy ngoài Maestro):
+#   So sánh pixel-level bằng compare.py
+#   Lệnh chạy thủ công sau khi test xong:
+#   python scripts/compare.py . assets/onboarding_step1.png
+# ============================================

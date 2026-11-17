@@ -1,0 +1,14 @@
+appId: com.thmobile.logomaker
+---
+
+# Close ads screen (works for both Test Ads and real Ads on cloud)
+- waitForAnimationToEnd:
+    timeout: 10000
+
+- assertVisible: "Reward granted" 
+
+- tapOn:
+    point: 87%,4%
+
+- waitForAnimationToEnd:
+    timeout: 3000

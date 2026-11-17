@@ -1,0 +1,471 @@
+====================================================================================================
+           BỘ TEST CASES FUNCTIONAL & E2E KIỂM THỬ TÍNH NĂNG MOCKUP PREVIEW SCREEN
+                  TỪ LUỒNG THƯƠNG HIỆU BRAND IDENTIFY (LOGO MAKER)
+====================================================================================================
+Ứng dụng: Logo Maker (Logos4U)
+Application ID: com.thmobile.logomaker
+Platform: Android 13 / Android 14 (Samsung Galaxy S20 FE 1080x2400 @ 480dpi)
+Framework kiểm thử tự động: Maestro Mobile Automation Framework
+Màn hình kiểm thử chính:
+  1. IAP Screen: Khởi tạo, xử lý màn hình mua gói cước/dùng thử
+  2. Home Screen (MainMenuActivity): Màn hình chính điều hướng vào tính năng thiết kế
+  3. Edit Screen (LogoDesignActivity): Lưu thiết kế và xuất logo (Export Logo PNG)
+  4. Preview Screen (LogoPreviewActivity): Màn hình xem trước kết quả & nút "Brand Identify"
+  5. Mockup Preview Screen (MockupPreviewActivity): Màn hình mô phỏng logo trên sản phẩm thực tế
+Luồng thao tác (End-to-End Workflow):
+  - Luồng 1 (Từ Template trực tiếp):
+    IAP Screen > Đóng IAP/Ads > Home Screen > Nút "Template" (btnTemplate) > Chọn Template Restaurant >
+    Mở Template Detail (Edit Screen) > Nhấn nút Save góc trên bên phải (mnItemSave) > Chọn "Export Logo (PNG)" >
+    Xác nhận kích cỡ Logo Size > Nhấn SAVE (tvSave) > Xử lý Ads/Rate > Điều hướng tới Preview Screen >
+    Nhấn vào nút "Brand Identify" (btnBrandIdentify) > Điều hướng tới Mockup Preview Screen.
+  - Luồng 2 (Từ My Logo đã lưu trước đó):
+    Home Screen > Cuộn xuống phần tính năng > Nhấn vào card "My Logo" (btnMyDesignImageFile) >
+    Màn hình "My Logo" (MyDesignImageActivity) > Chọn Logo đầu tiên trong danh sách > Xử lý Interstitial Ads >
+    Điều hướng tới màn hình Preview Screen (LogoPreviewActivity) > Nhấn nút "Brand Identify" (btnBrandIdentify) >
+    Xử lý popup đánh giá / Ads > Điều hướng tới Mockup Preview Screen.
+Ngày tạo: 2026-11-05
+Tài nguyên Hierarchy chính trích xuất từ thiết bị:
+  - Toolbar: toolbar, ImageButton (Navigate up), TextView ("Mockup Preview"), btnHome
+  - Danh sách Mockup: rvMockup, logoMockup, btnSave, logoIcContainer, logoIcon, appNameTv ("Logos4U")
+  - Hộp thoại Save Mockup: tvSaveMockupTitle, ivMockup, btn_save_with_watermark, btn_remove_watermark_and_save
+  - Quảng cáo đáy màn hình: banner, adsContent, Test Ad (AdMob Adaptive Banner)
+  - Điều hướng ngoài: Android System Share Sheet (Intent.ACTION_SEND)
+====================================================================================================
+
+I. DANH SÁCH RESOURCE-ID & THUỘC TÍNH UI PHÂN TÍCH TỪ THIẾT BỊ THẬT (UI DUMP)
+----------------------------------------------------------------------------------------------------
+1. Thanh Toolbar Điều hướng (MockupPreviewActivity - com.thmobile.logomaker:id/toolbar):
+   - android.widget.ImageButton (Clickable: true, Bounds: [0,88][168,256])
+     + Vai trò: Nút Back (Navigate Up), quay lại màn hình Preview Screen trước đó.
+   - android.widget.TextView (Text: "Mockup Preview", Bounds: [216,136][698,208])
+     + Vai trò: Tiêu đề màn hình kiểm tra nhận diện Mockup.
+   - android.widget.ImageView (id: "com.thmobile.logomaker:id/btnHome", Bounds: [876,88][1044,256])
+     + Vai trò: Nút Home ở góc trên bên phải, đưa người dùng trở về thẳng MainMenuActivity (Home Screen).
+
+2. Danh sách cuộn Mockup Sản phẩm (com.thmobile.logomaker:id/rvMockup):
+   - Loại View: androidx.recyclerview.widget.RecyclerView (Scrollable: true, Bounds: [0,256][1080,2187])
+   - Danh sách 5 sản phẩm mô phỏng (Mockup Cards):
+     1. Mockup 1: Biển hiệu tròn treo tường ngoài trời (Round Wall Signboard)
+     2. Mockup 2: Biển hiệu hộp đèn vuông gắn tường (Square Lightbox Signboard)
+     3. Mockup 3: Mũ lưỡi trai màu trắng (White Baseball Cap)
+     4. Mockup 4: Áo thun cổ tròn màu trắng (White T-Shirt)
+     5. Mockup 5: Cốc sứ cafe màu trắng (White Ceramic Mug)
+   - Cấu trúc từng Card Mockup:
+     + com.thmobile.logomaker:id/logoMockup (ImageView): Ảnh kết hợp giữa sản phẩm thực tế và logo của người dùng.
+     + com.thmobile.logomaker:id/btnSave (ImageView, Clickable: true):
+       * Trạng thái 1 (Chưa lưu): Icon Download (Mũi tên chỉ xuống `↓`).
+       * Trạng thái 2 (Đã lưu thành công): Tự động chuyển đổi thành Icon Share (Biểu tượng chia sẻ 3 chấm kết nối).
+     + com.thmobile.logomaker:id/logoIcContainer + id/logoIcon (ImageView): Logo watermark của ứng dụng ở góc phải dưới thẻ.
+     + com.thmobile.logomaker:id/appNameTv (TextView, Text: "Logos4U"): Tên thương hiệu ứng dụng watermark.
+
+3. Hộp thoại Lưu Mockup (Save Mockup Dialog - android:id/content):
+   - Xuất hiện khi nhấn nút Download (btnSave) trên bất kỳ thẻ Mockup nào:
+   - com.thmobile.logomaker:id/tvSaveMockupTitle (TextView): Tiêu đề "Save Mockup"
+   - com.thmobile.logomaker:id/ivMockup (ImageView): Ảnh xem trước thu nhỏ của Mockup được chọn
+   - com.thmobile.logomaker:id/btn_save_with_watermark (Button):
+     + Text: "Save with Watermark"
+     + Hành vi: Lưu ảnh mockup kèm logo watermark vào thư mục máy `/sdcard/Pictures/LogoMaker/LogoMockup/`
+   - com.thmobile.logomaker:id/btn_remove_watermark_and_save (Button):
+     + Text: "Remove Watermark & Save"
+     + Hành vi: Kích hoạt xem quảng cáo có thưởng (Rewarded Ad) hoặc yêu cầu Premium để xóa watermark trước khi lưu
+
+4. Hệ thống Chia sẻ (Android System Share Sheet):
+   - Kích hoạt khi nhấn vào `btnSave` sau khi đã chuyển sang Icon Share:
+   - Mở giao diện chia sẻ chuẩn của hệ điều hành Android (Intent.ACTION_SEND) với các lựa chọn: Quick Share, Drive, Email, v.v.
+
+5. Khung Quảng cáo Đáy (Banner Container):
+   - com.thmobile.logomaker:id/banner & id/adsContent (Bounds: [0,2187][1080,2267])
+   - Hiển thị AdMob Adaptive Banner (hoặc Test Ad trên môi trường thử nghiệm).
+====================================================================================================
+
+II. MA TRẬN PHÂN LOẠI & DANH MỤC TEST CASES
+----------------------------------------------------------------------------------------------------
+| Mã Test Case       | Tên Test Case & Tính Năng                           | Mức độ Ưu tiên | Loại Kiểm thử  |
+|:-------------------|:-----------------------------------------------------|:----------------|:---------------|
+| TC_MOCKUP_E2E_01   | Điều hướng toàn trình E2E từ IAP -> Edit -> Mockup   | Critical        | End-to-End     |
+| TC_MOCKUP_E2E_02   | Điều hướng vào Mockup Preview từ mục "My Logo" (Home)| Critical        | End-to-End     |
+| TC_MOCKUP_UI_01    | Kiểm tra hiển thị Toolbar & Header Mockup Preview    | High            | Functional/UI  |
+| TC_MOCKUP_LIST_01  | Kiểm tra danh sách hiển thị các thẻ Mockup ban đầu   | High            | Functional     |
+| TC_MOCKUP_SCROLL_01| Kiểm tra thao tác cuộn duyệt toàn bộ 5 Mockup cards  | High            | Gesture/Scroll |
+| TC_MOCKUP_SAVE_01  | Kiểm tra hiển thị Hộp thoại "Save Mockup"            | Critical        | Functional/UI  |
+| TC_MOCKUP_SAVE_02  | Kiểm tra tính năng "Save with Watermark"             | Critical        | Functional/File|
+| TC_MOCKUP_SAVE_03  | Kiểm tra tính năng "Remove Watermark & Save"         | High            | Functional/Ads |
+| TC_MOCKUP_STATE_01 | Kiểm tra chuyển đổi trạng thái nút Save -> Share     | High            | State Change   |
+| TC_MOCKUP_SHARE_01 | Kiểm tra tính năng chia sẻ qua Android Share Sheet   | Medium          | Integration    |
+| TC_MOCKUP_NAV_01   | Kiểm tra nút Back quay về màn hình Preview Screen    | High            | Navigation     |
+| TC_MOCKUP_NAV_02   | Kiểm tra nút Home (btnHome) quay về Home Screen      | High            | Navigation     |
+| TC_MOCKUP_VIS_01   | Visual Regression kiểm tra tính toàn vẹn Mockup      | Medium          | Visual Testing |
+====================================================================================================
+
+III. ĐẶC TẢ CHI TIẾT TỪNG TEST CASE
+----------------------------------------------------------------------------------------------------
+
+[TC_MOCKUP_E2E_01] Điều hướng toàn trình từ Khởi động qua Edit Screen tới Mockup Preview
+----------------------------------------------------------------------------------------------------
+- Mục tiêu: Xác nhận luồng đi thông suốt từ màn hình khởi động qua thiết kế và lưu logo tới màn hình Mockup Preview.
+- Điều kiện tiên quyết: Ứng dụng đã cài đặt trên thiết bị, sẵn sàng khởi chạy.
+- Các bước thực hiện:
+  1. Khởi chạy ứng dụng qua flow `Launch_App.yaml` (`clearState: false`).
+  2. Bắt và đóng popup IAP ("Get Full Access" / "START FREE TRIAL") nếu có.
+  3. Tại Home Screen, nhấn vào mục Template ("btnTemplate").
+  4. Chọn Template đầu tiên của chủ đề Restaurant.
+  5. Tại Edit Screen, nhấn icon Save ("mnItemSave").
+  6. Chọn mục "Export Logo (PNG)" ("llExportLogo").
+  7. Chọn kích thước Standard hoặc HD rồi bấm "SAVE" ("tvSave").
+  8. Xử lý popup quảng cáo ("Close_Ads_Screen.yaml") nếu hiển thị.
+  9. Màn hình Preview Screen xuất hiện, xác nhận hiển thị nút "Brand Identify" ("btnBrandIdentify").
+  10. Nhấn vào nút "Brand Identify".
+  11. Xử lý quảng cáo xen kẽ (nếu có).
+- Kết quả mong đợi:
+  + Ứng dụng điều hướng thành công vào Activity: `com.thmobile.logomaker.ui.logo_preview.MockupPreviewActivity`.
+  + Màn hình "Mockup Preview" hiển thị rõ ràng, không bị crash hoặc treo.
+- Maestro Selector:
+  + tapOn: { id: "btnBrandIdentify" }
+  + extendedWaitUntil: { visible: "Mockup Preview", timeout: 15000 }
+
+
+[TC_MOCKUP_E2E_02] Điều hướng vào Mockup Preview từ mục "My Logo" trên Home Screen
+----------------------------------------------------------------------------------------------------
+- Mục tiêu: Xác nhận luồng mở lại một logo đã lưu trước đó trong "My Logo", sau đó điều hướng vào màn hình Mockup Preview xem mô phỏng sản phẩm.
+- Điều kiện tiên quyết: Thiết bị đã từng lưu ít nhất 1 logo (đang có dữ liệu trong mục "My Logo").
+- Các bước thực hiện:
+  1. Khởi chạy ứng dụng và đưa về Home Screen (`MainMenuActivity`).
+  2. Bắt và đóng popup IAP ("Get Full Access" / "START FREE TRIAL") nếu có.
+  3. Cuộn nhẹ màn hình xuống và nhấn vào thẻ tính năng "My Logo" (`id/btnMyDesignImageFile`).
+  4. Ứng dụng điều hướng vào màn hình "My Logo" (`MyDesignImageActivity`).
+  5. Nhấn chọn thẻ logo đầu tiên trong danh sách lưới (Top-Left logo card).
+  6. Xử lý popup quảng cáo xen kẽ Interstitial Ad (nếu có, nhấn nút Close).
+  7. Màn hình Preview Screen xuất hiện (`LogoPreviewActivity`) hiển thị đúng logo đã chọn.
+  8. Nhấn vào nút "Brand Identify" (`id/btnBrandIdentify`).
+  9. Xử lý quảng cáo hoặc popup đánh giá "Did you like this app?" nếu xuất hiện.
+  10. Quan sát màn hình Mockup Preview hiển thị.
+- Kết quả mong đợi:
+  + Điều hướng thành công từ `MyDesignImageActivity` $\rightarrow$ `LogoPreviewActivity` $\rightarrow$ `MockupPreviewActivity`.
+  + Logo đã chọn từ thư viện "My Logo" được render chính xác và khớp vị trí trên toàn bộ 5 sản phẩm mô phỏng.
+  + Không bị văng ứng dụng (crash) hay màn hình trắng.
+- Maestro Selector:
+  + scrollUntilVisible: { element: { id: "btnMyDesignImageFile" }, direction: "DOWN" }
+  + tapOn: { id: "btnMyDesignImageFile" }
+  + extendedWaitUntil: { visible: "My Logo", timeout: 10000 }
+  + tapOn: { point: "25%, 22%" } # Hoặc tap vào item logo đầu tiên
+  + runFlow: "../config/Close_Ads_Screen.yaml"
+  + extendedWaitUntil: { visible: { id: "btnBrandIdentify" }, timeout: 10000 }
+  + tapOn: { id: "btnBrandIdentify" }
+  + runFlow:
+      when:
+        visible: "Did you like this app?"
+      commands:
+        - back
+  + runFlow: "../config/Close_Ads_Screen.yaml"
+  + extendedWaitUntil: { visible: "Mockup Preview", timeout: 15000 }
+
+
+[TC_MOCKUP_UI_01] Kiểm tra hiển thị Toolbar & Header trên Màn hình Mockup Preview
+----------------------------------------------------------------------------------------------------
+- Mục tiêu: Kiểm tra đầy đủ các thành phần điều hướng trên thanh Toolbar phía trên.
+- Điều kiện tiên quyết: Đang ở màn hình Mockup Preview.
+- Các bước thực hiện:
+  1. Quan sát thanh Toolbar phía trên (`id/toolbar`).
+  2. Xác minh nút Back hình mũi tên (`android.widget.ImageButton`).
+  3. Xác minh tiêu đề chữ: "Mockup Preview".
+  4. Xác minh nút Home (`id/btnHome`).
+- Kết quả mong đợi:
+  + Nút Back hiển thị ở góc trái trên cùng (`[0,88][168,256]`), trạng thái enabled và clickable.
+  + Tiêu đề "Mockup Preview" hiển thị chính xác, căn giữa/trái cân đối.
+  + Nút Home hiển thị ở góc phải trên cùng (`[876,88][1044,256]`).
+- Maestro Selector:
+  + assertVisible: "Mockup Preview"
+  + assertVisible: { id: "btnHome" }
+
+
+[TC_MOCKUP_LIST_01] Kiểm tra cấu trúc thẻ Mockup & Hiển thị Logo đã lưu
+----------------------------------------------------------------------------------------------------
+- Mục tiêu: Xác nhận danh sách RecyclerView hiển thị đúng các thẻ Mockup với logo được lồng ghép chuẩn xác.
+- Điều kiện tiên quyết: Đang ở màn hình Mockup Preview.
+- Các bước thực hiện:
+  1. Kiểm tra sự tồn tại của danh sách `id/rvMockup`.
+  2. Quan sát thẻ Mockup đầu tiên (Biển hiệu tròn treo tường).
+  3. Kiểm tra logo người dùng đã thiết kế được render bên trong ảnh mockup (`id/logoMockup`).
+  4. Kiểm tra nút hành động `id/btnSave` hiển thị ở góc trên bên phải của card.
+  5. Kiểm tra watermark ứng dụng gồm icon (`id/logoIcon`) và chữ "Logos4U" (`id/appNameTv`).
+- Kết quả mong đợi:
+  + Thẻ Mockup hiển thị đầy đủ, logo của người dùng được căn chỉnh chính xác vào vị trí trung tâm bề mặt sản phẩm.
+  + Nút `btnSave` hiển thị icon Download (mũi tên `↓`) màu xanh dương/trắng rõ nét.
+  + Watermark "Logos4U" hiển thị ở góc phải dưới của mỗi mockup.
+
+
+[TC_MOCKUP_SCROLL_01] Kiểm tra thao tác cuộn duyệt toàn bộ 5 Mockup Cards
+----------------------------------------------------------------------------------------------------
+- Mục tiêu: Kiểm tra độ mượt mà khi cuộn danh sách RecyclerView và đảm bảo toàn bộ 5 mẫu mockup được tải đầy đủ.
+- Điều kiện tiên quyết: Đang ở màn hình Mockup Preview.
+- Các bước thực hiện:
+  1. Vuốt màn hình từ dưới lên trên (Scroll Down) lần 1:
+     - Quan sát xuất hiện Mockup 2 (Biển hiệu vuông) và Mockup 3 (Mũ lưỡi trai trắng).
+  2. Vuốt màn hình lần 2:
+     - Quan sát xuất hiện Mockup 4 (Áo thun trắng) và Mockup 5 (Cốc sứ cafe trắng).
+  3. Vuốt tiếp xuống đáy danh sách để xác nhận Mockup 5 là phần tử cuối cùng.
+  4. Vuốt màn hình từ trên xuống dưới (Scroll Up) để quay trở lại thẻ đầu tiên.
+- Kết quả mong đợi:
+  + Danh sách cuộn trơn tru, không giật lag (frame drop) và không xảy ra hiện tượng Out of Memory (OOM).
+  + Toàn bộ 5 sản phẩm đều hiển thị logo chuẩn xác:
+    * Mockup 1: Biển hiệu tròn treo tường ngoài trời
+    * Mockup 2: Biển hiệu vuông gắn tường
+    * Mockup 3: Mũ lưỡi trai
+    * Mockup 4: Áo thun
+    * Mockup 5: Cốc sứ cafe
+- Maestro Selector:
+  + scroll
+  + repeat: { times: 3, commands: [- scroll] }
+
+
+[TC_MOCKUP_SAVE_01] Kiểm tra mở Hộp thoại "Save Mockup" khi nhấn Download
+----------------------------------------------------------------------------------------------------
+- Mục tiêu: Xác nhận việc nhấn vào nút `btnSave` trên thẻ mockup sẽ mở ra dialog lựa chọn cách lưu.
+- Điều kiện tiên quyết: Đang ở màn hình Mockup Preview, thẻ Mockup hiển thị nút Download (`btnSave`).
+- Các bước thực hiện:
+  1. Nhấn vào nút `btnSave` trên thẻ Mockup đầu tiên (hoặc bất kỳ thẻ nào).
+  2. Quan sát hộp thoại xuất hiện.
+- Kết quả mong đợi:
+  + Xuất hiện Modal Dialog "Save Mockup" ở trung tâm màn hình.
+  + Tiêu đề: `id/tvSaveMockupTitle` hiển thị text "Save Mockup".
+  + Ảnh preview thu nhỏ: `id/ivMockup` hiển thị đúng mockup vừa chọn.
+  + Nút hành động 1: `id/btn_save_with_watermark` với text "Save with Watermark".
+  + Nút hành động 2: `id/btn_remove_watermark_and_save` với text "Remove Watermark & Save".
+- Maestro Selector:
+  + tapOn: { id: "btnSave", index: 0 }
+  + assertVisible: { id: "tvSaveMockupTitle" }
+  + assertVisible: { id: "btn_save_with_watermark" }
+  + assertVisible: { id: "btn_remove_watermark_and_save" }
+
+
+[TC_MOCKUP_SAVE_02] Kiểm tra tính năng "Save with Watermark" và Kiểm chứng File lưu
+----------------------------------------------------------------------------------------------------
+- Mục tiêu: Xác nhận việc lưu mockup có watermark thành công vào bộ nhớ thiết bị.
+- Điều kiện tiên quyết: Hộp thoại "Save Mockup" đang mở.
+- Các bước thực hiện:
+  1. Nhấn nút "Save with Watermark" (`id/btn_save_with_watermark`).
+  2. Quan sát hộp thoại đóng lại và ứng dụng trở về Mockup Preview.
+  3. Kiểm tra thông báo Toast hoặc trạng thái lưu.
+  4. Dùng ADB kiểm tra thư mục lưu trữ ảnh: `/sdcard/Pictures/LogoMaker/LogoMockup/`.
+- Kết quả mong đợi:
+  + Hộp thoại đóng lại ngay lập tức.
+  + Một file ảnh định dạng `.png` mới được tạo thành công trong `/sdcard/Pictures/LogoMaker/LogoMockup/`.
+  + Ảnh lưu có dung lượng hợp lệ (>50KB), chứa đầy đủ mockup, logo và watermark "Logos4U".
+- Maestro Selector:
+  + tapOn: { id: "btn_save_with_watermark" }
+  + extendedWaitUntil: { visible: "Mockup Preview", timeout: 5000 }
+
+
+[TC_MOCKUP_SAVE_03] Kiểm tra tính năng "Remove Watermark & Save"
+----------------------------------------------------------------------------------------------------
+- Mục tiêu: Kiểm tra luồng xử lý xóa watermark bằng cách xem quảng cáo có thưởng hoặc qua tài khoản VIP.
+- Điều kiện tiên quyết: Hộp thoại "Save Mockup" đang mở.
+- Các bước thực hiện:
+  1. Nhấn nút "Remove Watermark & Save" (`id/btn_remove_watermark_and_save`).
+  2. Quan sát luồng tiếp theo:
+     - Nếu bản Free: Kích hoạt tải và hiển thị quảng cáo Rewarded Ad.
+     - Nếu đã là VIP / Bản Premium: Tự động xóa watermark và xuất file ảnh sạch.
+  3. Hoàn tất xem quảng cáo hoặc đóng quảng cáo.
+- Kết quả mong đợi:
+  + Ứng dụng xử lý đúng theo quyền hạn tài khoản.
+  + File ảnh mockup được lưu vào thư mục `/sdcard/Pictures/LogoMaker/LogoMockup/` không còn biểu tượng watermark "Logos4U".
+
+
+[TC_MOCKUP_STATE_01] Kiểm tra chuyển đổi trạng thái nút Download sang Share sau khi lưu
+----------------------------------------------------------------------------------------------------
+- Mục tiêu: Xác nhận trạng thái của nút `btnSave` thay đổi trực quan sau khi mockup đã được lưu.
+- Điều kiện tiên quyết: Đã thực hiện lưu thành công một mockup qua bước [TC_MOCKUP_SAVE_02].
+- Các bước thực hiện:
+  1. Quan sát lại nút `id/btnSave` trên chính thẻ mockup vừa được lưu.
+- Kết quả mong đợi:
+  + Nút `btnSave` trên thẻ đó không còn hiển thị icon mũi tên tải xuống (Download `↓`).
+  + Nút `btnSave` đã chuyển sang hiển thị biểu tượng **Share (Chia sẻ)** màu tím/xanh.
+  + Các thẻ mockup khác chưa lưu vẫn giữ nguyên icon Download.
+
+
+[TC_MOCKUP_SHARE_01] Kiểm tra tính năng Chia sẻ Mockup qua Android Share Sheet
+----------------------------------------------------------------------------------------------------
+- Mục tiêu: Xác minh việc nhấn vào nút Share trên thẻ đã lưu sẽ kích hoạt Share Intent của Android.
+- Điều kiện tiên quyết: Thẻ Mockup đang ở trạng thái đã lưu (nút `btnSave` hiển thị icon Share).
+- Các bước thực hiện:
+  1. Nhấn vào nút `id/btnSave` (lúc này là nút Share) trên thẻ đã lưu.
+  2. Quan sát giao diện hệ thống xuất hiện.
+  3. Nhấn phím Back hệ thống để đóng bảng chia sẻ.
+- Kết quả mong đợi:
+  + Bảng điều khiển chia sẻ chuẩn của Android (Android System Share Sheet) mở lên từ đáy màn hình.
+  + Tiêu đề bảng hiển thị "1 item", kèm thumbnail mockup thu nhỏ.
+  + Danh sách ứng dụng nhận chia sẻ (Quick Share, Drive, Gmail, Tin nhắn, v.v.) hiển thị đầy đủ.
+  + Bấm Back đóng Share Sheet an toàn và trở lại đúng vị trí trên màn hình Mockup Preview.
+- Maestro Selector:
+  + tapOn: { id: "btnSave", index: 0 }
+  + waitForAnimationToEnd: { timeout: 3000 }
+  + back: true
+
+
+[TC_MOCKUP_NAV_01] Kiểm tra nút Back (Navigate Up) trên Toolbar
+----------------------------------------------------------------------------------------------------
+- Mục tiêu: Xác nhận nút Back trên thanh Toolbar quay trở lại màn hình Preview Screen an toàn.
+- Điều kiện tiên quyết: Đang ở màn hình Mockup Preview.
+- Các bước thực hiện:
+  1. Nhấn vào nút ImageButton hình mũi tên quay lại ở góc trên bên trái (`[0,88][168,256]`).
+  2. Xử lý popup quảng cáo (nếu có).
+- Kết quả mong đợi:
+  + Ứng dụng đóng Activity `MockupPreviewActivity`.
+  + Quay trở lại màn hình `LogoPreviewActivity` (Preview Screen) với logo đã lưu trước đó.
+  + Nút "Brand Identify" và "Style Magic AI" vẫn hiển thị đầy đủ trên màn hình Preview Screen.
+- Maestro Selector:
+  + tapOn:
+      point: "84, 172"
+  + extendedWaitUntil: { visible: "Preview", timeout: 10000 }
+
+
+[TC_MOCKUP_NAV_02] Kiểm tra nút Home (btnHome) quay thẳng về Màn hình chính
+----------------------------------------------------------------------------------------------------
+- Mục tiêu: Xác nhận nút Home trên Toolbar đưa người dùng thoát khỏi luồng Preview và về thẳng Home Screen.
+- Điều kiện tiên quyết: Đang ở màn hình Mockup Preview.
+- Các bước thực hiện:
+  1. Nhấn vào nút Home ở góc trên bên phải (`id/btnHome`).
+  2. Xử lý popup quảng cáo hoặc popup đánh giá (nếu có).
+- Kết quả mong đợi:
+  + Ứng dụng đóng toàn bộ các Activity con (MockupPreview, LogoPreview, LogoDesign).
+  + Quay trở lại màn hình chính `MainMenuActivity` (Home Screen).
+  + Header ứng dụng "Logos4U" và nút "Template" (`id/btnTemplate`) hiển thị sẵn sàng.
+- Maestro Selector:
+  + tapOn: { id: "btnHome" }
+  + extendedWaitUntil: { visible: { id: "btnTemplate" }, timeout: 10000 }
+
+
+[TC_MOCKUP_VIS_01] Visual Regression Testing cho Mockup Preview Screen
+----------------------------------------------------------------------------------------------------
+- Mục tiêu: Kiểm tra độ toàn vẹn giao diện đồ họa (Visual Regression) của màn hình Mockup Preview bằng OpenCV.
+- Điều kiện tiên quyết: Đang ở màn hình Mockup Preview.
+- Các bước thực hiện:
+  1. Chụp ảnh màn hình Mockup Preview ban đầu: `takeScreenshot: "screenshots/Verify_Navigated_To_Mockup_Preview_Screen"`.
+  2. So sánh với ảnh baseline mẫu trong `assets/Premium/Verify_Navigated_To_Mockup_Preview_Screen.png` bằng `compare.py`.
+  3. Cuộn danh sách xuống cuối cùng: `repeat: { times: 6, commands: [- scroll] }`.
+  4. Chụp ảnh màn hình mockup cuối: `takeScreenshot: "screenshots/Verify_Displayed_Last_Image_On_Mockup_Preview_Screen"`.
+  5. So sánh với ảnh baseline mẫu tương ứng.
+- Ngưỡng đánh giá (Threshold):
+  + Match Percentage >= 85.00%
+  + Đảm bảo logo hiển thị rõ ràng trên mockup, không bị co méo hoặc lỗi rendering.
+====================================================================================================
+
+IV. KHUNG KỊCH BẢN TỰ ĐỘNG HÓA MẪU VỚI MAESTRO (TC_11_Test_Mockup_Preview_Screen.yaml)
+----------------------------------------------------------------------------------------------------
+Dưới đây là khung script Maestro chuẩn hóa sẵn sàng chuyển đổi trực tiếp thành file test chính thức:
+
+```yaml
+appId: com.thmobile.logomaker
+---
+# ==============================================================================
+# TC_11: Kiểm thử Toàn diện Màn hình Mockup Preview (Brand Identify)
+# Luồng: Launch -> IAP -> Home -> Edit -> Save -> Preview -> Brand Identify -> Mockup
+# ==============================================================================
+
+# Bước 1: Khởi động app an toàn
+- runFlow: "../config/Launch_App.yaml"
+
+# Bước 2: Bắt và đóng IAP nếu xuất hiện
+- runFlow:
+    when:
+      visible:
+        text: "Get Full Access"
+    file: "../config/Close_IAP_Screen.yaml"
+
+- runFlow:
+    when:
+      visible:
+        text: "START FREE TRIAL"
+    file: "../config/Close_IAP_Screen.yaml"
+
+# Bước 3: Điều hướng từ Home Screen vào Template Restaurant
+- runFlow: "../config/Navigate_To_Restaurant_Edit.yaml"
+
+# Bước 4: Lưu logo từ Edit Screen sang Preview Screen
+- tapOn:
+    id: "mnItemSave"
+
+- extendedWaitUntil:
+    visible:
+      id: "llExportLogo"
+    timeout: 5000
+
+- tapOn:
+    id: "llExportLogo"
+
+- extendedWaitUntil:
+    visible:
+      id: "tvSave"
+    timeout: 5000
+
+- tapOn:
+    id: "tvSave"
+
+# Bước 5: Đóng quảng cáo nếu có
+- runFlow: "../config/Close_Ads_Screen.yaml"
+
+# Bước 6: Tại Preview Screen, bấm nút Brand Identify
+- extendedWaitUntil:
+    visible:
+      id: "btnBrandIdentify"
+    timeout: 10000
+
+- tapOn:
+    id: "btnBrandIdentify"
+
+# Bước 7: Xử lý quảng cáo trung gian
+- runFlow: "../config/Close_Ads_Screen.yaml"
+
+# Bước 8: Xác minh màn hình Mockup Preview
+- extendedWaitUntil:
+    visible: "Mockup Preview"
+    timeout: 15000
+
+- assertVisible:
+    id: "btnHome"
+
+- takeScreenshot: "screenshots/Verify_Navigated_To_Mockup_Preview_Screen"
+
+# Bước 9: Mở hộp thoại Save Mockup trên thẻ đầu tiên
+- tapOn:
+    id: "btnSave"
+    index: 0
+
+- extendedWaitUntil:
+    visible:
+      id: "tvSaveMockupTitle"
+    timeout: 5000
+
+- assertVisible:
+    id: "btn_save_with_watermark"
+
+# Bước 10: Lưu mockup có watermark
+- tapOn:
+    id: "btn_save_with_watermark"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Bước 11: Cuộn xem các mockup còn lại
+- repeat:
+    times: 4
+    commands:
+      - scroll
+
+- takeScreenshot: "screenshots/Verify_Displayed_Last_Image_On_Mockup_Preview_Screen"
+
+# Bước 12: Quay về Home Screen an toàn bằng nút btnHome
+- tapOn:
+    id: "btnHome"
+
+- runFlow: "../config/Close_Ads_Screen.yaml"
+
+- extendedWaitUntil:
+    visible:
+      id: "btnTemplate"
+    timeout: 10000
+```
+====================================================================================================
+KẾT THÚC BỘ TEST CASES - MOCKUP PREVIEW SCREEN
+====================================================================================================
+
