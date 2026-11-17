@@ -104,7 +104,7 @@ def select_restaurant_template(serial=None, max_scrolls=25):
                 screen = get_screen(serial=serial)
                 if screen is not None:
                     score, loc, w, h = find_target(screen, target)
-                    print(f"{tag}[RETRY {retry+1}] Chờ ảnh tải qua mạng (res: {screen_w}x{screen_h}): score={score:.4f}, loc={loc}", flush=True)
+                    print(f"{tag}[RETRY {retry+1}] Waiting for network image download (res: {screen_w}x{screen_h}): score={score:.4f}, loc={loc}", flush=True)
                     if score >= 0.70:
                         break
 

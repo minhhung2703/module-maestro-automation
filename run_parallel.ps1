@@ -95,7 +95,7 @@ try {
 } catch { $PythonCmd = "python" }
 
 New-Item -ItemType Directory -Path "$PSScriptRoot/reports" -Force | Out-Null
-$templateProc = Start-Process -FilePath $PythonCmd -ArgumentList "scripts/template_service.py" -WorkingDirectory $PSScriptRoot -RedirectStandardOutput "$PSScriptRoot/reports/template_service.log" -RedirectStandardError "$PSScriptRoot/reports/template_service_err.log" -WindowStyle Hidden -PassThru
+$templateProc = Start-Process -FilePath $PythonCmd -ArgumentList "-X utf8 scripts/template_service.py" -WorkingDirectory $PSScriptRoot -RedirectStandardOutput "$PSScriptRoot/reports/template_service.log" -RedirectStandardError "$PSScriptRoot/reports/template_service_err.log" -WindowStyle Hidden -PassThru
 $env:TEMPLATE_SERVICE_MANAGED = "1"
 for ($waitIdx = 0; $waitIdx -lt 20; $waitIdx++) {
     Start-Sleep -Milliseconds 250

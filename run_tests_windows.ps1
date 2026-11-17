@@ -204,9 +204,9 @@ if (-not $templateServiceRunning) {
         New-Item -ItemType Directory -Path $reportsLogDir -Force | Out-Null
     }
     if ($IsWindows -or ($env:OS -like "*Windows*")) {
-        $global:TemplateServiceProc = Start-Process -FilePath $PythonCmd -ArgumentList "scripts/template_service.py" -WorkingDirectory $PSScriptRoot -RedirectStandardOutput "$reportsLogDir/template_service.log" -RedirectStandardError "$reportsLogDir/template_service_err.log" -WindowStyle Hidden -PassThru
+        $global:TemplateServiceProc = Start-Process -FilePath $PythonCmd -ArgumentList "-X utf8 scripts/template_service.py" -WorkingDirectory $PSScriptRoot -RedirectStandardOutput "$reportsLogDir/template_service.log" -RedirectStandardError "$reportsLogDir/template_service_err.log" -WindowStyle Hidden -PassThru
     } else {
-        $global:TemplateServiceProc = Start-Process -FilePath $PythonCmd -ArgumentList "scripts/template_service.py" -WorkingDirectory $PSScriptRoot -PassThru
+        $global:TemplateServiceProc = Start-Process -FilePath $PythonCmd -ArgumentList "-X utf8 scripts/template_service.py" -WorkingDirectory $PSScriptRoot -PassThru
     }
     for ($waitIdx = 0; $waitIdx -lt 20; $waitIdx++) {
         Start-Sleep -Milliseconds 250

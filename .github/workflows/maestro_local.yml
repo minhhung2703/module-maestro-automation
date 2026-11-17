@@ -1,10 +1,16 @@
 name: Maestro Flow Test on PR (10 Devices Parallel)
-
+# Comment line từ line3 đến line 8
 on: 
   push:
-    branches: ["main", "develop", "test/new_version/premium"]
+    branches: 
+      - main
+      - develop 
+      - test/new_version/premium
   pull_request:
-    branches: ["main", "develop", "test/new_version/premium"]
+    branches:
+      - main
+      - develop
+      # - test/new_version/premium
   workflow_dispatch: # Cho phép bấm nút "Run workflow" thủ công trên web GitHub
 
 jobs:

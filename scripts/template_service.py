@@ -6,6 +6,12 @@ import os
 import sys
 import time
 
+# Enforce UTF-8 encoding for standard outputs on Windows to prevent UnicodeEncodeError
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+
 # Ensure we can import from scripts/
 script_dir = os.path.dirname(os.path.abspath(__file__))
 if script_dir not in sys.path:
