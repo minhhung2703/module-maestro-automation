@@ -13,7 +13,9 @@ param(
     [int]$MaxDevices = 10,         # Số lượng thiết bị tối đa chạy song song (mặc định 10 để tự nhận toàn bộ máy)
     [switch]$InitFirstRun = $true, # Khởi tạo trạng thái lần đầu SONG SONG (Mặc định: BẬT để đảm bảo sạch state)
     [switch]$SkipInit,             # Bỏ qua bước khởi tạo nếu các máy đã ở sẵn Home Screen sạch
-    [switch]$Resume                # Tiếp tục chạy các test case chưa hoàn thành / failed, giữ lại test đã PASS
+    [switch]$Resume,               # Tiếp tục chạy các test case chưa hoàn thành / failed, giữ lại test đã PASS
+    [switch]$RecordVideo,          # Tự động quay màn hình video thiết bị (.mp4) trong lúc chạy test
+    [switch]$RecordOnlyOnFailure   # Chỉ lưu lại video khi test FAILED (tiết kiệm dung lượng bộ nhớ)
 )
 
 # Chuẩn hóa danh sách Exclude và Devices
@@ -26,6 +28,10 @@ if ($Exclude.Count -gt 0) {
         }
     }
     $Exclude = $cleanExclude
+}
+$filterFiles = @()
+if ($File) {
+    $filterFiles = $File -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" }
 }
 if ($Devices.Count -gt 0) {
     $cleanDevices = @()
@@ -141,6 +147,13 @@ Write-Host "  Thiết bị tham gia kiểm thử ($($targetDevices.Count) máy):
 for ($i = 0; $i -lt $targetDevices.Count; $i++) {
     Write-Host "    - Worker $($i + 1): $($targetDevices[$i])" -ForegroundColor White
 }
+if ($RecordVideo) {
+    if ($RecordOnlyOnFailure) {
+        Write-Host "  Video Recording: BẬT (Chỉ lưu khi test FAILED -> reports/videos/)" -ForegroundColor Yellow
+    } else {
+        Write-Host "  Video Recording: BẬT (Toàn bộ test cases -> reports/videos/)" -ForegroundColor Yellow
+    }
+}
 Write-Host "================================================================================" -ForegroundColor Cyan
 
 # 2. Chuẩn bị môi trường trên từng thiết bị (Wake screen, Push media)
@@ -237,7 +250,13 @@ $resumedCompleted = [System.Collections.ArrayList]::new()
 foreach ($tf in $testFiles) {
     if ($tf.Length -eq 0) { continue }
     $name = $tf.BaseName
-    if ($File -ne "" -and $name -notlike "*$File*") { continue }
+    if ($filterFiles.Count -gt 0) {
+        $matchedFile = $false
+        foreach ($pf in $filterFiles) {
+            if ($name -like "*$pf*") { $matchedFile = $true; break }
+        }
+        if (-not $matchedFile) { continue }
+    }
     if ($Exclude.Count -gt 0 -and ($Exclude | Where-Object { $name -like "*$_*" })) {
         Write-Host "  [SKIP] Loại trừ test case: $name" -ForegroundColor DarkYellow
         continue
@@ -331,11 +350,16 @@ while ($queue.Count -gt 0 -or ($workers.Values | Where-Object { $_.Job -ne $null
             # Khởi chạy job chạy test case trên device cụ thể
             $scriptPath = "$PSScriptRoot/run_tests_windows.ps1"
             $workDir = $PSScriptRoot
+            $recVid = [bool]$RecordVideo
+            $recFail = [bool]$RecordOnlyOnFailure
             $w.Job = Start-Job -ScriptBlock {
-                param($workDir, $scriptPath, $testName, $device, $version, $reportFile)
+                param($workDir, $scriptPath, $testName, $device, $version, $reportFile, $recVid, $recFail)
                 Set-Location $workDir
-                & $scriptPath -File $testName -Device $device -Version $version -ReportJson $reportFile
-            } -ArgumentList $workDir, $scriptPath, $nextTest, $dev, $Version, $reportFile
+                $extraArgs = @()
+                if ($recVid) { $extraArgs += "-RecordVideo" }
+                if ($recFail) { $extraArgs += "-RecordOnlyOnFailure" }
+                & $scriptPath -File $testName -Device $device -Version $version -ReportJson $reportFile @extraArgs
+            } -ArgumentList $workDir, $scriptPath, $nextTest, $dev, $Version, $reportFile, $recVid, $recFail
             Start-Sleep -Seconds 3
         }
     }
@@ -354,6 +378,7 @@ while ($queue.Count -gt 0 -or ($workers.Values | Where-Object { $_.Job -ne $null
             $failedStep = $null
             $errorMessage = $null
             $imgCompares = @()
+            $videoPath = $null
             if (Test-Path $reportFile) {
                 try {
                     $jsonContent = Get-Content $reportFile -Raw | ConvertFrom-Json
@@ -365,12 +390,16 @@ while ($queue.Count -gt 0 -or ($workers.Values | Where-Object { $_.Job -ne $null
                         $failedStep = $res0.FailedStep
                         $errorMessage = $res0.ErrorMessage
                         $imgCompares = $res0.ImageComparisons
+                        $videoPath = $res0.Video
                     }
                 } catch {}
             }
 
             $color = if ($status -eq "PASSED") { "Green" } else { "Red" }
             Write-Host "  [$status] '$testName' trên $dev (${durationSec}s)" -ForegroundColor $color
+            if ($videoPath) {
+                Write-Host "      [VIDEO] $videoPath" -ForegroundColor DarkCyan
+            }
             if ($status -eq "FAILED" -and $failedStep) {
                 Write-Host "      [FAILED STEP]    $failedStep" -ForegroundColor Red
                 if ($errorMessage) {
@@ -385,6 +414,7 @@ while ($queue.Count -gt 0 -or ($workers.Values | Where-Object { $_.Job -ne $null
                 Device           = $dev
                 Status           = $status
                 Duration         = "${durationSec}s"
+                Video            = $videoPath
                 FailedStep       = $failedStep
                 ErrorMessage     = $errorMessage
                 ImageComparisons = if ($imgCompares -and $imgCompares.Count -gt 0) { $imgCompares } else { [object[]]@() }
@@ -422,6 +452,19 @@ if ($failedItems.Count -gt 0) {
         Write-Host "  * Test: $($fi.Test) (Device: $($fi.Device))" -ForegroundColor Yellow
         Write-Host "    - Failed Step   : $($fi.FailedStep)" -ForegroundColor Red
         Write-Host "    - Error Message : $($fi.ErrorMessage)" -ForegroundColor Red
+    }
+    Write-Host ""
+}
+
+# Danh sách video đã xuất nếu có
+$recordedVideos = $state.Completed | Where-Object { $_.Video }
+if ($recordedVideos.Count -gt 0) {
+    Write-Host "--------------------------------------------------------------------------------" -ForegroundColor Cyan
+    Write-Host "  DANH SÁCH FILE VIDEO ĐÃ XUẤT:" -ForegroundColor Cyan
+    Write-Host "--------------------------------------------------------------------------------" -ForegroundColor Cyan
+    foreach ($rv in $recordedVideos) {
+        $videoColor = if ($rv.Status -eq "PASSED") { "Green" } else { "Red" }
+        Write-Host "  [VIDEO] $($rv.Test) ($($rv.Status)) -> $($rv.Video)" -ForegroundColor $videoColor
     }
     Write-Host ""
 }

@@ -14,7 +14,9 @@ param(
     [int]$ShardIndex = 0,          # Shard hiện tại (1-based index, 0 = không phân chia)
     [int]$ShardTotal = 0,          # Tổng số shards (0 = không phân chia)
     [string]$ReportJson = "",      # Đường dẫn file JSON xuất kết quả
-    [switch]$InitFirstRun          # Khởi tạo trạng thái lần đầu (Language, Onboarding, Edit Intro)
+    [switch]$InitFirstRun,         # Khởi tạo trạng thái lần đầu (Language, Onboarding, Edit Intro)
+    [switch]$RecordVideo,          # Tự động quay video màn hình thiết bị (.mp4) trong khi chạy test
+    [switch]$RecordOnlyOnFailure   # Chỉ giữ lại file video khi test case FAILED (tiết kiệm dung lượng đĩa)
 )
 
 $MaestroDir = "$PSScriptRoot/.maestro"
@@ -33,6 +35,12 @@ foreach ($item in $Exclude) {
     }
 }
 $Exclude = $normalizedExclude
+
+# Chuẩn hóa danh sách File lọc: Hỗ trợ 1 tên hoặc danh sách phân tách bởi dấu phẩy
+$filterFiles = @()
+if ($File) {
+    $filterFiles = $File -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" }
+}
 
 # Folders to exclude from auto-discovery
 $ExcludeFolders = @("config", "screenshots")
@@ -102,6 +110,10 @@ if ($ShardTotal -gt 0 -and $ShardIndex -gt 0) {
 }
 if ($UpdateBaseline) {
     Write-Host "  Mode           : UPDATE BASELINE (Screenshots -> Assets)" -ForegroundColor Green
+}
+if ($RecordVideo) {
+    $videoModeStr = if ($RecordOnlyOnFailure) { "ENABLED (Only save on FAILURE)" } else { "ENABLED (All tests -> reports/videos/)" }
+    Write-Host "  Video Record   : $videoModeStr" -ForegroundColor Magenta
 }
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host ""
@@ -392,6 +404,19 @@ function Run-TestFile {
     $sessionFile = "$HOME/.maestro/sessions"
     if (Test-Path $sessionFile) {
         Remove-Item $sessionFile -Force -ErrorAction SilentlyContinue
+    }
+
+    # Khởi tạo quay màn hình video nếu bật cờ -RecordVideo
+    $videoProc = $null
+    $deviceVideoName = "rec_${testName}_$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds()).mp4"
+    $deviceVideoPath = "/sdcard/$deviceVideoName"
+    if ($RecordVideo) {
+        Write-Host "        [VIDEO] Starting screen recording on device..." -ForegroundColor Cyan
+        adb -s $env:ANDROID_SERIAL shell "rm -f /sdcard/rec_*.mp4" 2>&1 | Out-Null
+        $videoProc = Start-Process -FilePath "adb" `
+            -ArgumentList "-s $env:ANDROID_SERIAL shell screenrecord --bit-rate 4000000 --time-limit 180 $deviceVideoPath" `
+            -WindowStyle Hidden -PassThru
+        Start-Sleep -Milliseconds 600
     }
 
     $startTime = Get-Date
@@ -1023,6 +1048,38 @@ function Run-TestFile {
         Write-Host "        [ERROR MESSAGE]  $errorMessage" -ForegroundColor Red
     }
 
+    # Xử lý dừng và thu hồi file video nếu có cờ -RecordVideo
+    $videoRelPath = $null
+    if ($RecordVideo) {
+        Write-Host "        [VIDEO] Finalizing screen recording..." -ForegroundColor Cyan
+        adb -s $env:ANDROID_SERIAL shell "kill -2 `$(pidof screenrecord 2>/dev/null)" 2>&1 | Out-Null
+        Start-Sleep -Seconds 2
+        if ($videoProc -and (-not $videoProc.HasExited)) {
+            Stop-Process -Id $videoProc.Id -Force -ErrorAction SilentlyContinue
+        }
+        Start-Sleep -Seconds 1
+
+        $videosDir = "$PSScriptRoot/reports/videos"
+        if (-not (Test-Path $videosDir)) {
+            New-Item -ItemType Directory -Path $videosDir -Force | Out-Null
+        }
+        $localVideoFile = "$videosDir/${testName}.mp4"
+
+        if ($RecordOnlyOnFailure -and ($status -ne "FAILED")) {
+            adb -s $env:ANDROID_SERIAL shell "rm -f $deviceVideoPath" 2>&1 | Out-Null
+            Write-Host "        [VIDEO] Test PASSED - Skipped saving video (-RecordOnlyOnFailure active)." -ForegroundColor DarkGray
+        } else {
+            adb -s $env:ANDROID_SERIAL pull $deviceVideoPath $localVideoFile 2>&1 | Out-Null
+            adb -s $env:ANDROID_SERIAL shell "rm -f $deviceVideoPath" 2>&1 | Out-Null
+            if (Test-Path $localVideoFile) {
+                $videoRelPath = "reports/videos/${testName}.mp4"
+                Write-Host "        [VIDEO] Exported: $videoRelPath" -ForegroundColor Green
+            } else {
+                Write-Host "        [VIDEO] Note: No video retrieved from device." -ForegroundColor DarkYellow
+            }
+        }
+    }
+
     Write-Host "        Result: $status ($([math]::Round($duration, 1))s)" -ForegroundColor $color
 
     $script:Results += [PSCustomObject]@{
@@ -1031,6 +1088,7 @@ function Run-TestFile {
         Screen           = $ScreenName
         Status           = $status
         Duration         = "$([math]::Round($duration, 1))s"
+        Video            = $videoRelPath
         FailedStep       = $failedStep
         ErrorMessage     = $errorMessage
         ImageComparisons = if ($imageComparisons -and $imageComparisons.Count -gt 0) { $imageComparisons } else { [object[]]@() }
@@ -1051,8 +1109,12 @@ foreach ($folderItem in $foldersToRun) {
             Write-Host "    [SKIP] Empty test file: $($testFile.Name)" -ForegroundColor DarkGray
             continue
         }
-        if ($File -ne "" -and $testFile.Name -notlike "*$File*") {
-            continue
+        if ($filterFiles.Count -gt 0) {
+            $matchedFile = $false
+            foreach ($pf in $filterFiles) {
+                if ($testFile.Name -like "*$pf*") { $matchedFile = $true; break }
+            }
+            if (-not $matchedFile) { continue }
         }
         if ($Exclude.Count -gt 0 -and ($Exclude | Where-Object { $testFile.Name -like "*$_*" })) {
             Write-Host "    [SKIP] Excluded test file: $($testFile.Name)" -ForegroundColor DarkYellow
@@ -1091,8 +1153,12 @@ foreach ($folderItem in $foldersToRun) {
                 Write-Host "    [SKIP] Empty test file: $($testFile.Name)" -ForegroundColor DarkGray
                 continue
             }
-            if ($File -ne "" -and $testFile.Name -notlike "*$File*") {
-                continue
+            if ($filterFiles.Count -gt 0) {
+                $matchedFile = $false
+                foreach ($pf in $filterFiles) {
+                    if ($testFile.Name -like "*$pf*") { $matchedFile = $true; break }
+                }
+                if (-not $matchedFile) { continue }
             }
             if ($Exclude.Count -gt 0 -and ($Exclude | Where-Object { $testFile.Name -like "*$_*" })) {
                 Write-Host "    [SKIP] Excluded test file: $($testFile.Name)" -ForegroundColor DarkYellow
@@ -1158,6 +1224,20 @@ foreach ($r in $Results) {
                 Summary    = $c.Summary
             }
         }
+    }
+}
+
+if ($RecordVideo) {
+    $videoList = $Results | Where-Object { $_.Video }
+    if ($videoList.Count -gt 0) {
+        Write-Host "--------------------------------------------" -ForegroundColor Magenta
+        Write-Host "  DANH SÁCH FILE VIDEO ĐÃ XUẤT:" -ForegroundColor Magenta
+        Write-Host "--------------------------------------------" -ForegroundColor Magenta
+        foreach ($vItem in $videoList) {
+            Write-Host "  * Test: $($vItem.Test)" -ForegroundColor Yellow
+            Write-Host "    - Video File : $($vItem.Video)" -ForegroundColor White
+        }
+        Write-Host ""
     }
 }
 

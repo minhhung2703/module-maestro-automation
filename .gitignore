@@ -17,6 +17,7 @@ app/*.aab
 
 # Test artifacts
 /*.png
+*.mp4
 .maestro/screenshots/
 !/assets/
 !/screenshots/

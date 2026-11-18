@@ -4,12 +4,14 @@ on:
   push:
     branches: 
       - main
-      - develop 
-      - test/new_version/premium
+      - develop
+      - config/github-action
+      # - test/new_version/premium
   pull_request:
     branches:
       - main
       - develop
+      - config/github-action
       # - test/new_version/premium
   workflow_dispatch: # Cho phép bấm nút "Run workflow" thủ công trên web GitHub
 
@@ -87,7 +89,7 @@ jobs:
             mkdir -p reports
             sed -i 's/\r$//' run_tests.sh
             chmod +x run_tests.sh
-            bash run_tests.sh -Folder "test-suite" -Version "Premium" -Exclude "TC_00","TC_08_Test_Home_Screen" -ShardIndex ${{ matrix.shardIndex }} -ShardTotal ${{ matrix.shardTotal }} -ReportJson "reports/report_shard_${{ matrix.shardIndex }}.json"
+            bash run_tests.sh -Folder "test-suite" -Version "Premium" -Exclude "TC_00","TC_08_Test_Home_Screen" -ShardIndex ${{ matrix.shardIndex }} -ShardTotal ${{ matrix.shardTotal }} -ReportJson "reports/report_shard_${{ matrix.shardIndex }}.json" -RecordVideo -RecordOnlyOnFailure
 
       # Lưu lại báo cáo JSON, ảnh chụp màn hình và log cho từng Shard
       - name: Upload Shard Test Results

@@ -95,12 +95,13 @@ def merge_reports(reports_dir="reports"):
         md_lines.append("")
         md_lines.append("## ❌ Failed Steps & Error Details")
         md_lines.append("")
-        md_lines.append("| Test Case | Failed Step | Error Message |")
-        md_lines.append("|:---|:---|:---|")
+        md_lines.append("| Test Case | Failed Step | Error Message | Video Recording |")
+        md_lines.append("|:---|:---|:---|:---|")
         for fd in failed_details:
             err_msg = (fd.get("ErrorMessage") or "-").replace("\n", " ").replace("|", "/")
             step_str = (fd.get("FailedStep") or "-").replace("|", "/")
-            md_lines.append(f"| `{fd.get('Test', '')}` | **{step_str}** | `{err_msg}` |")
+            vid_str = f"`{fd.get('Video')}`" if fd.get("Video") else "-"
+            md_lines.append(f"| `{fd.get('Test', '')}` | **{step_str}** | `{err_msg}` | {vid_str} |")
 
     if all_image_comparisons:
         md_lines.append("")
