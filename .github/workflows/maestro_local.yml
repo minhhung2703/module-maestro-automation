@@ -1,4 +1,4 @@
-name: Maestro Flow Test on PR (10 Devices Parallel)
+name: Maestro Flow Test on PR (5 Devices Parallel)
 # Comment line từ line3 đến line 8
 on: 
   push:
@@ -15,7 +15,7 @@ on:
 
 jobs:
   # ==============================================================================
-  # 1. Chạy song song 10 máy ảo Android độc lập (10 Shards Parallel)
+  # 1. Chạy song song 5 máy ảo Android độc lập (5 Shards Parallel)
   # ==============================================================================
   maestro-shard-test:
     runs-on: ubuntu-latest
@@ -23,8 +23,8 @@ jobs:
     strategy:
       fail-fast: false # Khi 1 shard fail, các shard khác vẫn tiếp tục chạy để thu thập đủ kết quả
       matrix:
-        shardIndex: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        shardTotal: [10]
+        shardIndex: [1, 2, 3, 4, 5]
+        shardTotal: [5]
     name: Shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
     steps:
       - name: Checkout Code
@@ -67,7 +67,7 @@ jobs:
           echo "$HOME/.maestro/bin" >> $GITHUB_PATH
 
       # Khởi tạo máy ảo Android mô phỏng thiết bị thật (Samsung S20 FE: Android 13, 1080x2400, 480dpi)
-      - name: Run Maestro Tests on Emulator (Shard ${{ matrix.shardIndex }}/10)
+      - name: Run Maestro Tests on Emulator (Shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
         uses: ReactiveCircus/android-emulator-runner@v2
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -87,7 +87,7 @@ jobs:
             mkdir -p reports
             sed -i 's/\r$//' run_tests.sh
             chmod +x run_tests.sh
-            bash run_tests.sh -Folder "test-suite" -Exclude "TC_00","TC_08_Test_Home_Screen" -ShardIndex ${{ matrix.shardIndex }} -ShardTotal ${{ matrix.shardTotal }} -ReportJson "reports/report_shard_${{ matrix.shardIndex }}.json"
+            bash run_tests.sh -Folder "test-suite" -Version "Premium" -Exclude "TC_00","TC_08_Test_Home_Screen" -ShardIndex ${{ matrix.shardIndex }} -ShardTotal ${{ matrix.shardTotal }} -ReportJson "reports/report_shard_${{ matrix.shardIndex }}.json"
 
       # Lưu lại báo cáo JSON, ảnh chụp màn hình và log cho từng Shard
       - name: Upload Shard Test Results
@@ -102,7 +102,7 @@ jobs:
           retention-days: 1
 
   # ==============================================================================
-  # 2. Tổng hợp kết quả từ 10 Shards thành 1 Báo cáo thống nhất (Centralized Report)
+  # 2. Tổng hợp kết quả từ 5 Shards thành 1 Báo cáo thống nhất (Centralized Report)
   # ==============================================================================
   merge-and-report:
     needs: [maestro-shard-test]

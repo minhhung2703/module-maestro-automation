@@ -35,8 +35,8 @@ appId: com.thmobile.logomaker
       - tapOn:
           id: "imageView"
           index: 0
-          below:
-            text: "Restaurant"
+          # below:
+          #   text: "Restaurant"
 
       - runFlow:
           when:

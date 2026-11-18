@@ -57,7 +57,7 @@ def merge_reports(reports_dir="reports"):
 
     # Build Markdown table
     md_lines = []
-    md_lines.append("# 📊 Consolidated Test Results (10 Shards Parallel)")
+    md_lines.append("# 📊 Consolidated Test Results (Parallel Shards)")
     md_lines.append("")
     status_icon = "✅ PASSED" if total_failed == 0 else "❌ FAILED"
     md_lines.append(f"**Overall Status**: {status_icon} | **Total**: {total_tests} | **Passed**: {total_passed} | **Failed**: {total_failed} | **Warned**: {total_warned}")
