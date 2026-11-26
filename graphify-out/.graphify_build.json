@@ -1,0 +1,8 @@
+{
+  "excludes": [
+    "screenshots/**",
+    "assets/**",
+    "reports/**",
+    "scratch/**"
+  ]
+}

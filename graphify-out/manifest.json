@@ -1,0 +1,716 @@
+{
+  ".github/workflows/maestro_local.yml": {
+    "mtime": 1794994865.1542387,
+    "seen": 1795054854.0952468,
+    "ast_hash": "f7ba0e44844b5e4ed04dd5b2d0d41c9e",
+    "semantic_hash": "f7ba0e44844b5e4ed04dd5b2d0d41c9e"
+  },
+  ".maestro/config/Back_Action.yaml": {
+    "mtime": 1793274916.9187844,
+    "seen": 1795054854.095253,
+    "ast_hash": "750a7840b17e888445a10637556dae41",
+    "semantic_hash": "750a7840b17e888445a10637556dae41"
+  },
+  ".maestro/config/Close_Ads_Rewards.yaml": {
+    "mtime": 1791106532.8253253,
+    "seen": 1795054854.095256,
+    "ast_hash": "4914a90645b45a1c7e958af5a214a2cf",
+    "semantic_hash": "4914a90645b45a1c7e958af5a214a2cf"
+  },
+  ".maestro/config/Close_Ads_Screen.yaml": {
+    "mtime": 1793274916.9187844,
+    "seen": 1795054854.095258,
+    "ast_hash": "57dfb8ec0325c5318fd10d0ef5753610",
+    "semantic_hash": "57dfb8ec0325c5318fd10d0ef5753610"
+  },
+  ".maestro/config/Close_Collapsible_Ads.yaml": {
+    "mtime": 1787739027.3904536,
+    "seen": 1795054854.0952597,
+    "ast_hash": "a22ae8a08f8bf8ba109040def09eacee",
+    "semantic_hash": "a22ae8a08f8bf8ba109040def09eacee"
+  },
+  ".maestro/config/Close_Discount_Popup.yaml": {
+    "mtime": 1787727620.075284,
+    "seen": 1795054854.095261,
+    "ast_hash": "6a3f5093d02f8b04dd110da800b5ae29",
+    "semantic_hash": "6a3f5093d02f8b04dd110da800b5ae29"
+  },
+  ".maestro/config/Close_IAP_Screen.yaml": {
+    "mtime": 1794813369.4874308,
+    "seen": 1795054854.0952628,
+    "ast_hash": "c9e65b117ff0b2b3bdf9fc0cf1cd45f8",
+    "semantic_hash": "c9e65b117ff0b2b3bdf9fc0cf1cd45f8"
+  },
+  ".maestro/config/Close_Skip_The_Free_Trial_Popup.yaml": {
+    "mtime": 1792464360.442671,
+    "seen": 1795054854.095264,
+    "ast_hash": "2333df7d5ee36dce1e1f012e1248aef0",
+    "semantic_hash": "2333df7d5ee36dce1e1f012e1248aef0"
+  },
+  ".maestro/config/Init_First_Run_State.yaml": {
+    "mtime": 1794446580.810982,
+    "seen": 1795054854.0952654,
+    "ast_hash": "81ba03f02966146c101ab278c52e354a",
+    "semantic_hash": "81ba03f02966146c101ab278c52e354a"
+  },
+  ".maestro/config/Language_Screen/Tap_On_Dismiss_Button.yaml": {
+    "mtime": 1789718438.2345662,
+    "seen": 1795054854.0952668,
+    "ast_hash": "ae54fdf4537fd0510a1bdee8114e6f59",
+    "semantic_hash": "ae54fdf4537fd0510a1bdee8114e6f59"
+  },
+  ".maestro/config/Language_Screen/Tap_On_Language_Success.yaml": {
+    "mtime": 1787727989.8876345,
+    "seen": 1795054854.095268,
+    "ast_hash": "0603dd4c6ee96eb2f16b7c59143482ae",
+    "semantic_hash": "0603dd4c6ee96eb2f16b7c59143482ae"
+  },
+  ".maestro/config/Launch_App.yaml": {
+    "mtime": 1794811195.6312065,
+    "seen": 1795054854.0952697,
+    "ast_hash": "ce297ae563d7a401b071fb84bf7b08a9",
+    "semantic_hash": "ce297ae563d7a401b071fb84bf7b08a9"
+  },
+  ".maestro/config/Launch_App_Clear_State.yaml": {
+    "mtime": 1789718438.235567,
+    "seen": 1795054854.0952709,
+    "ast_hash": "ca55c43ee666b07b597752b896555ee5",
+    "semantic_hash": "ca55c43ee666b07b597752b896555ee5"
+  },
+  ".maestro/config/Navigate_To_Restaurant_Edit.yaml": {
+    "mtime": 1794970173.5237823,
+    "seen": 1795054854.0952725,
+    "ast_hash": "a5646bc00367fe832a29b86b406ab3a2",
+    "semantic_hash": "a5646bc00367fe832a29b86b406ab3a2"
+  },
+  ".maestro/free-version/IAP_Screen/TC_01-Verify_Close_IAP_Screen_By_Pressing_System_Back_Button.yaml": {
+    "mtime": 1787727989.8896372,
+    "seen": 1795054854.0952737,
+    "ast_hash": "064bc7aff9ce0f51eabd75bc6e850705",
+    "semantic_hash": "064bc7aff9ce0f51eabd75bc6e850705"
+  },
+  ".maestro/free-version/IAP_Screen/TC_01.2-Verify_Close_IAP_Screen_Pressing_Back_System.yaml": {
+    "mtime": 1787727989.8896372,
+    "seen": 1795054854.095275,
+    "ast_hash": "2c71b3d4bfb26e8bddad4a610da7a052",
+    "semantic_hash": "2c71b3d4bfb26e8bddad4a610da7a052"
+  },
+  ".maestro/free-version/IAP_Screen/TC_02-Verify_Logo_Background_Template_Displayed.yaml": {
+    "mtime": 1787727989.8906362,
+    "seen": 1795054854.0952764,
+    "ast_hash": "e230e6db15b16f7b8feb7112eeeb6115",
+    "semantic_hash": "e230e6db15b16f7b8feb7112eeeb6115"
+  },
+  ".maestro/free-version/IAP_Screen/TC_02.2-Verify_Logo_Background_Template_Displayed.yaml": {
+    "mtime": 1787727989.8906362,
+    "seen": 1795054854.0952775,
+    "ast_hash": "91d52effb9dd774a528625dd9274e89d",
+    "semantic_hash": "91d52effb9dd774a528625dd9274e89d"
+  },
+  ".maestro/free-version/IAP_Screen/TC_03-Verify_Displayed_Title_Description.yaml": {
+    "mtime": 1787727989.891636,
+    "seen": 1795054854.0952787,
+    "ast_hash": "00d0b2341bcb57aa577f05c2932bbf2d",
+    "semantic_hash": "00d0b2341bcb57aa577f05c2932bbf2d"
+  },
+  ".maestro/free-version/IAP_Screen/TC_04-Verify_Displayed_Comparing_Table.yaml": {
+    "mtime": 1787727989.891636,
+    "seen": 1795054854.0952804,
+    "ast_hash": "3a9f12a38e9a25a698649e6ae516f0a1",
+    "semantic_hash": "3a9f12a38e9a25a698649e6ae516f0a1"
+  },
+  ".maestro/free-version/IAP_Screen/TC_05-Verify_Displayed_Tick_Mark.yaml": {
+    "mtime": 1787727989.891636,
+    "seen": 1795054854.0952816,
+    "ast_hash": "09779773d54af6f88085bf6d085db609",
+    "semantic_hash": "09779773d54af6f88085bf6d085db609"
+  },
+  ".maestro/free-version/IAP_Screen/TC_06-Verify_Displayed_Badge.yaml": {
+    "mtime": 1787727989.8926353,
+    "seen": 1795054854.095283,
+    "ast_hash": "2fc399c9aa0dacbcec66dfa31938a1ab",
+    "semantic_hash": "2fc399c9aa0dacbcec66dfa31938a1ab"
+  },
+  ".maestro/free-version/IAP_Screen/TC_07-Verify_Displayed_Yearly_Price.yaml": {
+    "mtime": 1787727989.8926353,
+    "seen": 1795054854.0952845,
+    "ast_hash": "9fb2ffcb6f464cb7e36a44f23778402f",
+    "semantic_hash": "9fb2ffcb6f464cb7e36a44f23778402f"
+  },
+  ".maestro/free-version/IAP_Screen/TC_08-Verify_Displayed_Weekly_Price.yaml": {
+    "mtime": 1787727989.8926353,
+    "seen": 1795054854.0952861,
+    "ast_hash": "26e903bad81a8692a28f8e0cafd757b1",
+    "semantic_hash": "26e903bad81a8692a28f8e0cafd757b1"
+  },
+  ".maestro/free-version/IAP_Screen/TC_09-Verify_Click_On_Yearly_Subcription.yaml": {
+    "mtime": 1787727989.8936367,
+    "seen": 1795054854.0952873,
+    "ast_hash": "086d70d5f788e6656d1d447db5de4a04",
+    "semantic_hash": "086d70d5f788e6656d1d447db5de4a04"
+  },
+  ".maestro/free-version/IAP_Screen/TC_10-Verify_Click_On_Weekly_Subcription.yaml": {
+    "mtime": 1787727989.8936367,
+    "seen": 1795054854.0952885,
+    "ast_hash": "38b9a50431faa268eced0929d39113e6",
+    "semantic_hash": "38b9a50431faa268eced0929d39113e6"
+  },
+  ".maestro/free-version/Language_Screen/TC_01-Verify-Is-List-Language-on-Language-Screen-Displayed.yaml": {
+    "mtime": 1787727989.894637,
+    "seen": 1795054854.09529,
+    "ast_hash": "83a1de70d81d6bdaa64e72ae9d7ed03d",
+    "semantic_hash": "83a1de70d81d6bdaa64e72ae9d7ed03d"
+  },
+  ".maestro/free-version/Language_Screen/TC_03-Verify_Is_Not_Radio_Select_Without_Language.yaml": {
+    "mtime": 1787727989.894637,
+    "seen": 1795054854.0952911,
+    "ast_hash": "87b2659744b87ac123e2d2456afcd19f",
+    "semantic_hash": "87b2659744b87ac123e2d2456afcd19f"
+  },
+  ".maestro/free-version/Language_Screen/TC_04-Verify_Changes_State_Radio_Button_When_Selected_Language_.yaml": {
+    "mtime": 1787727989.894637,
+    "seen": 1795054854.0952923,
+    "ast_hash": "5dbff23377bfc185324d565c36876754",
+    "semantic_hash": "5dbff23377bfc185324d565c36876754"
+  },
+  ".maestro/free-version/Language_Screen/TC_05-Verify_Change_Language_When_Clicking_Any_Language.yaml": {
+    "mtime": 1787727989.8956342,
+    "seen": 1795054854.095294,
+    "ast_hash": "acdbdf2a3799ae1f24b8e07d98b62ab5",
+    "semantic_hash": "acdbdf2a3799ae1f24b8e07d98b62ab5"
+  },
+  ".maestro/free-version/Language_Screen/TC_06-Verify_Tick_Icon_Status_When_Selected_Language.yaml": {
+    "mtime": 1787727989.8956342,
+    "seen": 1795054854.0952952,
+    "ast_hash": "20bbe02a89a929d96dea760755522a75",
+    "semantic_hash": "20bbe02a89a929d96dea760755522a75"
+  },
+  ".maestro/free-version/Language_Screen/TC_07-Verify_Tick_Status_Without_Language.yaml": {
+    "mtime": 1787727989.8966339,
+    "seen": 1795054854.0952966,
+    "ast_hash": "8ac969509b47d6ab4b9e2766e8383d02",
+    "semantic_hash": "8ac969509b47d6ab4b9e2766e8383d02"
+  },
+  ".maestro/free-version/Language_Screen/TC_08-Verify_Selected_Language_Success.yaml": {
+    "mtime": 1787735363.9913013,
+    "seen": 1795054854.0952978,
+    "ast_hash": "8c03f1e5a6216f3525207b997f8df703",
+    "semantic_hash": "8c03f1e5a6216f3525207b997f8df703"
+  },
+  ".maestro/free-version/Language_Screen/TC_09-Verify_Not_Select_Language.yaml": {
+    "mtime": 1787727989.897635,
+    "seen": 1795054854.095299,
+    "ast_hash": "53179a216eb5e65519779d7fc44bee51",
+    "semantic_hash": "53179a216eb5e65519779d7fc44bee51"
+  },
+  ".maestro/free-version/Language_Screen/TC_10-Verify_Is_Radio_Active_Status_When_Clicking_On_Language.yaml": {
+    "mtime": 1787727989.897635,
+    "seen": 1795054854.0953004,
+    "ast_hash": "51a5f1e04bade2d5678a5788220ccd15",
+    "semantic_hash": "51a5f1e04bade2d5678a5788220ccd15"
+  },
+  ".maestro/free-version/Language_Screen/TC_12-Verify_Scroll_Language_List_On_Language_Screen.yaml": {
+    "mtime": 1791608121.5998404,
+    "seen": 1795054854.0953016,
+    "ast_hash": "20f275db29dd5efe37b57d87988d51de",
+    "semantic_hash": "20f275db29dd5efe37b57d87988d51de"
+  },
+  ".maestro/free-version/Language_Screen/TC_13-Verify_IAP_Screen_Displayed_After_Relaunching_App_When_Language_Has_Been_Selected.yaml": {
+    "mtime": 1787727989.898635,
+    "seen": 1795054854.0953028,
+    "ast_hash": "3cdc8421b8a8e4a9e155ab81047d6e53",
+    "semantic_hash": "3cdc8421b8a8e4a9e155ab81047d6e53"
+  },
+  ".maestro/free-version/Language_Screen/TC_15-Verify_Displayed_Banner_Ads.yaml": {
+    "mtime": 1787727989.898635,
+    "seen": 1795054854.0953043,
+    "ast_hash": "d00aa7589d85d1fb742401f04d52b1a0",
+    "semantic_hash": "d00aa7589d85d1fb742401f04d52b1a0"
+  },
+  ".maestro/free-version/Language_Screen/TC_16-Verify_Click_on_Banner_Ads.yaml": {
+    "mtime": 1787727989.8996353,
+    "seen": 1795054854.0953054,
+    "ast_hash": "f9b9eee8cd6af504ea3d03f700679069",
+    "semantic_hash": "f9b9eee8cd6af504ea3d03f700679069"
+  },
+  ".maestro/free-version/Language_Screen/TC_17-Verify-Navigated-to-Language-Screen.yaml": {
+    "mtime": 1787727989.8996353,
+    "seen": 1795054854.0953066,
+    "ast_hash": "4492654e540ac8a5fa25dc384edb6053",
+    "semantic_hash": "4492654e540ac8a5fa25dc384edb6053"
+  },
+  ".maestro/free-version/Language_Screen/TC_18-Verify_Navigated_To_Ads_Screen.yaml": {
+    "mtime": 1787727989.8996353,
+    "seen": 1795054854.095308,
+    "ast_hash": "03ad8625a7eecdad0ef229d1828933b3",
+    "semantic_hash": "03ad8625a7eecdad0ef229d1828933b3"
+  },
+  ".maestro/free-version/Language_Screen/TC_19-Verify_Radio_Status_And_Icon_Check_Status_When_Selected_Language.yaml": {
+    "mtime": 1787727989.9006388,
+    "seen": 1795054854.0953093,
+    "ast_hash": "12bd55426cc40d927841f55cdafe3ddd",
+    "semantic_hash": "12bd55426cc40d927841f55cdafe3ddd"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_01-Verify_Navigated_To_Onboarding1_Screen.yaml": {
+    "mtime": 1787727989.9006388,
+    "seen": 1795054854.0953107,
+    "ast_hash": "afff78565f4eb50924d8b99e3b900b6a",
+    "semantic_hash": "afff78565f4eb50924d8b99e3b900b6a"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_02-Verify_Not_Display_Language_Screen_On_Onboarding_Screen.yaml": {
+    "mtime": 1787727989.9016364,
+    "seen": 1795054854.0953124,
+    "ast_hash": "21b9aea4a3a755becf31a11e7b9bbd7d",
+    "semantic_hash": "21b9aea4a3a755becf31a11e7b9bbd7d"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_03-Verify_Onboarding_Displays_Selected_Language_Correctly.yaml": {
+    "mtime": 1787727989.9016364,
+    "seen": 1795054854.0953135,
+    "ast_hash": "62132cb54b4cdcdd54c92ee7b2ee6ada",
+    "semantic_hash": "62132cb54b4cdcdd54c92ee7b2ee6ada"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_04-Verify_Displayed_Banner_Ads.yaml": {
+    "mtime": 1787727989.9026356,
+    "seen": 1795054854.095315,
+    "ast_hash": "938d1a418285bed8a44a06f1ae5b35de",
+    "semantic_hash": "938d1a418285bed8a44a06f1ae5b35de"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_05-Verify_Display_Image_Preview.yaml": {
+    "mtime": 1787727989.9026356,
+    "seen": 1795054854.0953162,
+    "ast_hash": "f6071e1a3741c2619e637b62956a2d92",
+    "semantic_hash": "f6071e1a3741c2619e637b62956a2d92"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_05.2-Verify_Display_Image_Preview.yaml": {
+    "mtime": 1787727989.9026356,
+    "seen": 1795054854.0953176,
+    "ast_hash": "8d9d8e89ed0b9b01e8943e26ad6c5c71",
+    "semantic_hash": "8d9d8e89ed0b9b01e8943e26ad6c5c71"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_06-Verify_Displayed_Title_Onboarding1.yaml": {
+    "mtime": 1787727989.9036336,
+    "seen": 1795054854.095319,
+    "ast_hash": "9f63a1135edc006bc77ed05dd6e2b4ce",
+    "semantic_hash": "9f63a1135edc006bc77ed05dd6e2b4ce"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_07-Verify_Displayed_Dot_Indicator.yaml": {
+    "mtime": 1787727989.9036336,
+    "seen": 1795054854.0953202,
+    "ast_hash": "130bf8ab4b58b76c48d33bdde464d9f3",
+    "semantic_hash": "130bf8ab4b58b76c48d33bdde464d9f3"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_08-Verify_Dot_Indicator_Visible_On_Scroll.yaml": {
+    "mtime": 1787727989.9046347,
+    "seen": 1795054854.0953214,
+    "ast_hash": "ed02ff901200f6522944a7dc91857e54",
+    "semantic_hash": "ed02ff901200f6522944a7dc91857e54"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_09-Verify_Banner_Ads_Visible_On_Scroll.yaml": {
+    "mtime": 1787727989.9046347,
+    "seen": 1795054854.0953226,
+    "ast_hash": "d43647f34d471ae53dca871562746003",
+    "semantic_hash": "d43647f34d471ae53dca871562746003"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_10-Verify_Click_On_Next_Button.yaml": {
+    "mtime": 1787727989.9056365,
+    "seen": 1795054854.0953238,
+    "ast_hash": "e3a0018a64e7c59c9791c192dc9a0f65",
+    "semantic_hash": "e3a0018a64e7c59c9791c192dc9a0f65"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_11-Verify_Swipe_On_Onboarding1.yaml": {
+    "mtime": 1787727989.9056365,
+    "seen": 1795054854.0953252,
+    "ast_hash": "83cdc615c8a4ad8cba2c7764effd74b7",
+    "semantic_hash": "83cdc615c8a4ad8cba2c7764effd74b7"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_12-Verify_Back_From_First_Onboarding_Navigates_To_IAP.yaml": {
+    "mtime": 1787727989.9056365,
+    "seen": 1795054854.0953267,
+    "ast_hash": "210c23477b794f9d542406fdf80811f8",
+    "semantic_hash": "210c23477b794f9d542406fdf80811f8"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_13-Verify_Displayed_Image_Preview_Onboarding2.yaml": {
+    "mtime": 1787727989.9066348,
+    "seen": 1795054854.095328,
+    "ast_hash": "61d7dd05fa02b7054d6fa87c5ffba9c3",
+    "semantic_hash": "61d7dd05fa02b7054d6fa87c5ffba9c3"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_14-Verify_Displayed_Title_Onboarding2.yaml": {
+    "mtime": 1787727989.9066348,
+    "seen": 1795054854.095329,
+    "ast_hash": "cefbeb2fe9cda78670cad18232866f98",
+    "semantic_hash": "cefbeb2fe9cda78670cad18232866f98"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_15-Verify_Displayed_Dot_Indicator_When_Swipe_Screen.yaml": {
+    "mtime": 1787727989.9076333,
+    "seen": 1795054854.0953305,
+    "ast_hash": "785760aa892857dd52b50d52b02d60fd",
+    "semantic_hash": "785760aa892857dd52b50d52b02d60fd"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_16-Verify_Displayed_Onboarding3.yaml": {
+    "mtime": 1787727989.9076333,
+    "seen": 1795054854.095332,
+    "ast_hash": "142dd7b7a17e27c4c3a57219c1b8f283",
+    "semantic_hash": "142dd7b7a17e27c4c3a57219c1b8f283"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_17-Verify_Onboarding_Displays_Correctly_When_Swiping.yaml": {
+    "mtime": 1787727989.9086342,
+    "seen": 1795054854.0953333,
+    "ast_hash": "5ff5617d5a50638076788209a056814e",
+    "semantic_hash": "5ff5617d5a50638076788209a056814e"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_18-Verify_Displayed_ImagePreview_Onboarding3.yaml": {
+    "mtime": 1787727989.9086342,
+    "seen": 1795054854.0953343,
+    "ast_hash": "d0b20774ade7e92f7db8a681c2154baf",
+    "semantic_hash": "d0b20774ade7e92f7db8a681c2154baf"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_19-Verify_Displayed_Title_Onboarding3.yaml": {
+    "mtime": 1787727989.9086342,
+    "seen": 1795054854.0953357,
+    "ast_hash": "cfec51d8052e093eacbc238ea970039b",
+    "semantic_hash": "cfec51d8052e093eacbc238ea970039b"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_20-Verify_Get_Started_Button_Text_Changes.yaml": {
+    "mtime": 1787727989.9096346,
+    "seen": 1795054854.0953372,
+    "ast_hash": "2150ca357e45e2a49f8f0e72aabfbf1c",
+    "semantic_hash": "2150ca357e45e2a49f8f0e72aabfbf1c"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_21-Verify_Click_On_Get_Started_Button.yaml": {
+    "mtime": 1787727989.9096346,
+    "seen": 1795054854.0953386,
+    "ast_hash": "220b1baa5ab9049e08ba5d67a07d4611",
+    "semantic_hash": "220b1baa5ab9049e08ba5d67a07d4611"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_22-Verify_Cannot_Swipe_Left_From_Last_Onboarding.yaml": {
+    "mtime": 1787727989.9106348,
+    "seen": 1795054854.0953398,
+    "ast_hash": "97b0ebbee04491cbbff3930de3ab81b7",
+    "semantic_hash": "97b0ebbee04491cbbff3930de3ab81b7"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_23-Verify_Displayed_Ads_Banner_Onboarding3.yaml": {
+    "mtime": 1787727989.9106348,
+    "seen": 1795054854.095341,
+    "ast_hash": "6795388580c663ded71af531d031a04d",
+    "semantic_hash": "6795388580c663ded71af531d031a04d"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_24-Verify_IAP_Screen_Is_Displayed_After_Killing_App_On_Onboarding.yaml": {
+    "mtime": 1787727989.911635,
+    "seen": 1795054854.0953426,
+    "ast_hash": "e1c483b4f63138d3a065021f9eed8f54",
+    "semantic_hash": "e1c483b4f63138d3a065021f9eed8f54"
+  },
+  ".maestro/free-version/Onboarding_Screen/TC_25-Verify_Click_On_Get_Started_Onboarding3.yaml": {
+    "mtime": 1787727989.911635,
+    "seen": 1795054854.0953438,
+    "ast_hash": "d7d192f2907392e89065e112fc80c681",
+    "semantic_hash": "d7d192f2907392e89065e112fc80c681"
+  },
+  ".maestro/free-version/Splash_Screen/TC_1-Verify_is_description_displayed.yaml": {
+    "mtime": 1787727989.911635,
+    "seen": 1795054854.0953453,
+    "ast_hash": "5c31a928b5e73c23b9714fa9e0c27090",
+    "semantic_hash": "5c31a928b5e73c23b9714fa9e0c27090"
+  },
+  ".maestro/free-version/Splash_Screen/TC_2-Verify_Description_Displayed_After_Killing_App_And_Relaunching.yaml": {
+    "mtime": 1787727989.9126353,
+    "seen": 1795054854.0953465,
+    "ast_hash": "e25d404234b32216172d5c6f7e641ec7",
+    "semantic_hash": "e25d404234b32216172d5c6f7e641ec7"
+  },
+  ".maestro/test-suite/TC_00_Get_Payment_Flow.yaml": {
+    "mtime": 1793952908.9394903,
+    "seen": 1795054854.095348,
+    "ast_hash": "2d4843ccc1dda74b6b28152884281518",
+    "semantic_hash": "2d4843ccc1dda74b6b28152884281518"
+  },
+  ".maestro/test-suite/TC_01_Verify_Navigated_to_Edit_Screen_By_Select_Category_On_Home_Screen.yaml": {
+    "mtime": 1793952908.9404898,
+    "seen": 1795054854.0953493,
+    "ast_hash": "c4ec82f0255dd284c75f1270928df05d",
+    "semantic_hash": "c4ec82f0255dd284c75f1270928df05d"
+  },
+  ".maestro/test-suite/TC_02_Test_Background_Tool_On_Edit_Screen.yaml": {
+    "mtime": 1794544466.5925035,
+    "seen": 1795054854.0953505,
+    "ast_hash": "3807018194a6e90ee59f0ee7c71f74a5",
+    "semantic_hash": "3807018194a6e90ee59f0ee7c71f74a5"
+  },
+  ".maestro/test-suite/TC_03_Test_Art_Tool_On_Edit_Screen.yaml": {
+    "mtime": 1794544466.5935044,
+    "seen": 1795054854.0953517,
+    "ast_hash": "118573d3c5503c8438a964dec574349a",
+    "semantic_hash": "118573d3c5503c8438a964dec574349a"
+  },
+  ".maestro/test-suite/TC_04_Test_Sub_Tab_Color_Art_Tool_On_Edit_Screen.yaml": {
+    "mtime": 1793595030.0002835,
+    "seen": 1795054854.0953531,
+    "ast_hash": "143f723fdc3039ed4a5dff8e109f6fa3",
+    "semantic_hash": "143f723fdc3039ed4a5dff8e109f6fa3"
+  },
+  ".maestro/test-suite/TC_05_Test_Sub_Outline_Art_Tool_On_Edit_Screen.yaml": {
+    "mtime": 1793593429.8190076,
+    "seen": 1795054854.0953543,
+    "ast_hash": "a9dfde08247ca1cea979fe3b19241269",
+    "semantic_hash": "a9dfde08247ca1cea979fe3b19241269"
+  },
+  ".maestro/test-suite/TC_06_Test_Sub_3D_Art_Tool_On_Edit_Screen.yaml": {
+    "mtime": 1793589120.3825426,
+    "seen": 1795054854.095356,
+    "ast_hash": "515a026cf2172928cdb80bb5882a7c32",
+    "semantic_hash": "515a026cf2172928cdb80bb5882a7c32"
+  },
+  ".maestro/test-suite/TC_07_Test_Text_Tool_On_Edit_Screen.yaml": {
+    "mtime": 1793614858.2271216,
+    "seen": 1795054854.0953572,
+    "ast_hash": "938d5dfb9bb9d43e85078710c244c9b5",
+    "semantic_hash": "938d5dfb9bb9d43e85078710c244c9b5"
+  },
+  ".maestro/test-suite/TC_08_Test_Home_Screen.yaml": {
+    "mtime": 1794119536.5403092,
+    "seen": 1795054854.0953584,
+    "ast_hash": "3a50323bbe5ef9dd873ccd2e19cd7bc0",
+    "semantic_hash": "3a50323bbe5ef9dd873ccd2e19cd7bc0"
+  },
+  ".maestro/test-suite/TC_08_Test_Sub_Control_Text_Tool_On_Edit_Screen.yaml": {
+    "mtime": 1793517837.2369766,
+    "seen": 1795054854.09536,
+    "ast_hash": "94ca51c0f8ae12f433b8f3ee0338cec4",
+    "semantic_hash": "94ca51c0f8ae12f433b8f3ee0338cec4"
+  },
+  ".maestro/test-suite/TC_09_Test_Sub_Tabs_Text_Tool_On_Edit_Screen.yaml": {
+    "mtime": 1793517628.256595,
+    "seen": 1795054854.0953612,
+    "ast_hash": "45e2e49ee9b112effa5e05704a7a5c95",
+    "semantic_hash": "45e2e49ee9b112effa5e05704a7a5c95"
+  },
+  ".maestro/test-suite/TC_10_Test_Preview_Screen.yaml": {
+    "mtime": 1794813688.9706168,
+    "seen": 1795054854.095363,
+    "ast_hash": "b20b7145fdcc423f98c08b373189ebb9",
+    "semantic_hash": "b20b7145fdcc423f98c08b373189ebb9"
+  },
+  ".maestro/test-suite/TC_11_Test_Mockup_Preview_Screen.yaml": {
+    "mtime": 1793952908.9444916,
+    "seen": 1795054854.095364,
+    "ast_hash": "e9e0822207cc783c471467deadc32c27",
+    "semantic_hash": "e9e0822207cc783c471467deadc32c27"
+  },
+  ".maestro/test-suite/TC_12_Test_Generate_AI_On_Style_Magic_AI_Screen.yaml": {
+    "mtime": 1792478859.626276,
+    "seen": 1795054854.0953653,
+    "ast_hash": "87cb565478bca6ee5a9c831572a9ee6f",
+    "semantic_hash": "87cb565478bca6ee5a9c831572a9ee6f"
+  },
+  ".maestro/test-suite/TC_13_Test_Feature_Usage_And_Save_On_Edit_Screen.yaml": {
+    "mtime": 1793952908.94549,
+    "seen": 1795054854.0953667,
+    "ast_hash": "a603b97bda07c30c38d7c82fd4e51bac",
+    "semantic_hash": "a603b97bda07c30c38d7c82fd4e51bac"
+  },
+  ".maestro/test-suite/TC_14_Test_Background_Sub_Features_And_Save_On_Edit_Screen.yaml": {
+    "mtime": 1794544466.594504,
+    "seen": 1795054854.095368,
+    "ast_hash": "5ea008e84050d8a8fc7d0e0f3f971c78",
+    "semantic_hash": "5ea008e84050d8a8fc7d0e0f3f971c78"
+  },
+  "config.yaml": {
+    "mtime": 1787727620.0772815,
+    "seen": 1795054854.09537,
+    "ast_hash": "1c1d8763caf047be1a0b0e6c3393c963",
+    "semantic_hash": "1c1d8763caf047be1a0b0e6c3393c963"
+  },
+  "run_parallel.ps1": {
+    "mtime": 1794976576.9764066,
+    "seen": 1795054854.0953715,
+    "ast_hash": "c91af0c736a4f3254dcb4efae55f8481",
+    "semantic_hash": "c91af0c736a4f3254dcb4efae55f8481"
+  },
+  "run_tests.ps1": {
+    "mtime": 1793952909.1138465,
+    "seen": 1795054854.095373,
+    "ast_hash": "eef742149f0f38e1530f35dba58ff72a",
+    "semantic_hash": "eef742149f0f38e1530f35dba58ff72a"
+  },
+  "run_tests.sh": {
+    "mtime": 1794892562.6586509,
+    "seen": 1795054854.095374,
+    "ast_hash": "9929413bbd6c462e62fa529e40f49eb1",
+    "semantic_hash": "9929413bbd6c462e62fa529e40f49eb1"
+  },
+  "run_tests_macos.sh": {
+    "mtime": 1792029799.6009307,
+    "seen": 1795054854.0953753,
+    "ast_hash": "228a0242a6e41f522dea28ee3e01e194",
+    "semantic_hash": "228a0242a6e41f522dea28ee3e01e194"
+  },
+  "run_tests_windows.ps1": {
+    "mtime": 1794977063.5777662,
+    "seen": 1795054854.0953767,
+    "ast_hash": "1c9c28dabb4076fa41924ffc99ba2794",
+    "semantic_hash": "1c9c28dabb4076fa41924ffc99ba2794"
+  },
+  "scripts/compare.py": {
+    "mtime": 1794544467.0242844,
+    "seen": 1795054854.095378,
+    "ast_hash": "bfa5fa36ca4598c7e566c7cf3cce07df",
+    "semantic_hash": "bfa5fa36ca4598c7e566c7cf3cce07df"
+  },
+  "scripts/compare_screens.py": {
+    "mtime": 1793952909.4995165,
+    "seen": 1795054854.095379,
+    "ast_hash": "33580445e06590284ed219ab4638a0d1",
+    "semantic_hash": "33580445e06590284ed219ab4638a0d1"
+  },
+  "scripts/create_template.py": {
+    "mtime": 1787727989.914635,
+    "seen": 1795054854.0953805,
+    "ast_hash": "82f4b1520dd8515a1b27211e7344aa8d",
+    "semantic_hash": "82f4b1520dd8515a1b27211e7344aa8d"
+  },
+  "scripts/generate_execution_time_excel.py": {
+    "mtime": 1794446580.8219838,
+    "seen": 1795054854.0953817,
+    "ast_hash": "843c8b7ae7c82edbe7c10a38b0409379",
+    "semantic_hash": "843c8b7ae7c82edbe7c10a38b0409379"
+  },
+  "scripts/generate_powerpoint_presentation.py": {
+    "mtime": 1794446580.8219838,
+    "seen": 1795054854.095383,
+    "ast_hash": "9b3dd93db38bada40a52df1e8f82b422",
+    "semantic_hash": "9b3dd93db38bada40a52df1e8f82b422"
+  },
+  "scripts/generate_test_suite_excel.py": {
+    "mtime": 1794446580.8229842,
+    "seen": 1795054854.0953844,
+    "ast_hash": "6a903b0c3aadbbd05a9d33021adc589f",
+    "semantic_hash": "6a903b0c3aadbbd05a9d33021adc589f"
+  },
+  "scripts/inspect_ui.py": {
+    "mtime": 1792134033.0556118,
+    "seen": 1795054854.0953858,
+    "ast_hash": "4410833e41f67ada3ad89dab38ed5071",
+    "semantic_hash": "4410833e41f67ada3ad89dab38ed5071"
+  },
+  "scripts/merge_reports.py": {
+    "mtime": 1794972497.5025108,
+    "seen": 1795054854.0953872,
+    "ast_hash": "3b218bf5b30c044af8947535069cc4ad",
+    "semantic_hash": "3b218bf5b30c044af8947535069cc4ad"
+  },
+  "scripts/select_premium_template.js": {
+    "mtime": 1794544467.0252843,
+    "seen": 1795054854.0953887,
+    "ast_hash": "c887c9950169c22379eb6705c3cab5ab",
+    "semantic_hash": "c887c9950169c22379eb6705c3cab5ab"
+  },
+  "scripts/select_premium_template.py": {
+    "mtime": 1794902161.999199,
+    "seen": 1795054854.0953898,
+    "ast_hash": "ea8dc87cc990ce2ba3ea1146fc6337d2",
+    "semantic_hash": "ea8dc87cc990ce2ba3ea1146fc6337d2"
+  },
+  "scripts/template_service.py": {
+    "mtime": 1794901558.948068,
+    "seen": 1795054854.0953913,
+    "ast_hash": "6665a16191754f310d9942f197df5bd4",
+    "semantic_hash": "6665a16191754f310d9942f197df5bd4"
+  },
+  "scripts/verify_rotation.py": {
+    "mtime": 1793952909.5025172,
+    "seen": 1795054854.0953927,
+    "ast_hash": "7fc85ebc50ed75b3df9e906c4ea3cdd6",
+    "semantic_hash": "7fc85ebc50ed75b3df9e906c4ea3cdd6"
+  },
+  "README.md": {
+    "mtime": 1794553214.1489,
+    "seen": 1795054854.0953941,
+    "ast_hash": "68639b59eeca428a4cba550996c58305",
+    "semantic_hash": "68639b59eeca428a4cba550996c58305"
+  },
+  "docs/LogoMaker_Automation_Presentation.html": {
+    "mtime": 1794446580.8150232,
+    "seen": 1795054854.0953953,
+    "ast_hash": "5e9f10056c157613114ce731b913493f",
+    "semantic_hash": "5e9f10056c157613114ce731b913493f"
+  },
+  "docs/PRESENTATION_SCRIPT_LOGO_MAKER_AUTOMATION.md": {
+    "mtime": 1794446580.819021,
+    "seen": 1795054854.0953968,
+    "ast_hash": "b66b59de2d678855cc87556b1335dd06",
+    "semantic_hash": "b66b59de2d678855cc87556b1335dd06"
+  },
+  "docs/REPORT_ASSETS_PREMIUM_COMPARISON.md": {
+    "mtime": 1793502388.3320699,
+    "seen": 1795054854.0953982,
+    "ast_hash": "b29b34f58012ffa509abe63abe0afdb7",
+    "semantic_hash": "b29b34f58012ffa509abe63abe0afdb7"
+  },
+  "docs/test-cases/Edit_Screen_Background_Tool_Sub_Features_And_Save_TestCases.txt": {
+    "mtime": 1793093523.6252365,
+    "seen": 1795054854.0953994,
+    "ast_hash": "13f58b14eb3af89100df8249d9da17ad",
+    "semantic_hash": "13f58b14eb3af89100df8249d9da17ad"
+  },
+  "docs/test-cases/Edit_Screen_Edit_Text_Tool_TestCases.txt": {
+    "mtime": 1792036518.7821305,
+    "seen": 1795054854.0954008,
+    "ast_hash": "c84da35c79ceeaa51276b05157e62170",
+    "semantic_hash": "c84da35c79ceeaa51276b05157e62170"
+  },
+  "docs/test-cases/Edit_Screen_Feature_Usage_And_Save_TestCases.txt": {
+    "mtime": 1792567242.617843,
+    "seen": 1795054854.095402,
+    "ast_hash": "20d0141e6d82a2fff8051ad77646a6ef",
+    "semantic_hash": "20d0141e6d82a2fff8051ad77646a6ef"
+  },
+  "docs/test-cases/Edit_Screen_Save_Feature_And_Preview_TestCases.txt": {
+    "mtime": 1792481202.0172503,
+    "seen": 1795054854.0954034,
+    "ast_hash": "1f4489670f8190100b3148b761bb011b",
+    "semantic_hash": "1f4489670f8190100b3148b761bb011b"
+  },
+  "docs/test-cases/Edit_Screen_Sub_Tab_3D_Art_Tool_TestCases.txt": {
+    "mtime": 1792033982.2451913,
+    "seen": 1795054854.0954049,
+    "ast_hash": "98854dd13fe3b9ac5864d039843a326e",
+    "semantic_hash": "98854dd13fe3b9ac5864d039843a326e"
+  },
+  "docs/test-cases/Edit_Screen_Sub_Tab_Color_Art_Tool_TestCases.txt": {
+    "mtime": 1791859794.422974,
+    "seen": 1795054854.095406,
+    "ast_hash": "c1dc9941ba6fb08fec148527e3104bc2",
+    "semantic_hash": "c1dc9941ba6fb08fec148527e3104bc2"
+  },
+  "docs/test-cases/Edit_Screen_Sub_Tab_Controls_Text_Tool_TestCases.txt": {
+    "mtime": 1792055477.2898495,
+    "seen": 1795054854.0954072,
+    "ast_hash": "68708cd9bb9a676d3d17c5ebd024d2d6",
+    "semantic_hash": "68708cd9bb9a676d3d17c5ebd024d2d6"
+  },
+  "docs/test-cases/Edit_Screen_Sub_Tab_Outline_Art_Tool_TestCases.txt": {
+    "mtime": 1792030849.096841,
+    "seen": 1795054854.0954087,
+    "ast_hash": "26a40991648ccd18185055a479afdd32",
+    "semantic_hash": "26a40991648ccd18185055a479afdd32"
+  },
+  "docs/test-cases/Edit_Screen_Sub_Tabs_Text_Tool_TestCases.txt": {
+    "mtime": 1792140782.5013027,
+    "seen": 1795054854.0954099,
+    "ast_hash": "5b90b0685a6a457ebdbe357d3ee71a59",
+    "semantic_hash": "5b90b0685a6a457ebdbe357d3ee71a59"
+  },
+  "docs/test-cases/Home_Screen_TestCases.txt": {
+    "mtime": 1791706885.677113,
+    "seen": 1795054854.0954113,
+    "ast_hash": "3871d32db48d6b7b10df884b71cbc561",
+    "semantic_hash": "3871d32db48d6b7b10df884b71cbc561"
+  },
+  "docs/test-cases/Mockup_Preview_Screen_TestCases.txt": {
+    "mtime": 1793952909.1128528,
+    "seen": 1795054854.0954125,
+    "ast_hash": "ab6d5efc0378712b55d5a2e53694ccf2",
+    "semantic_hash": "ab6d5efc0378712b55d5a2e53694ccf2"
+  }
+}
